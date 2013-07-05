@@ -1,0 +1,3 @@
+[submodule "protexted"]
+	path = protexted
+	url = git@github.com:Chiel92/protexted.git
