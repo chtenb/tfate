@@ -4,6 +4,7 @@ sys.path.insert(0, '/home/chiel/Projects/protexted')
 
 import text
 from selection import Selection
+from selectors import bound, partition
 import selectors
 import operators
 import curses
@@ -25,8 +26,8 @@ def main(stdscr):
         y,x = stdscr.getmaxyx()
         upper_bound = y * x
         doesnt_fit = False
-        bounded_selection = selection.bound(lower_bound, upper_bound)
-        bounded_partition = selection.partition(t).bound(lower_bound, upper_bound)
+        bounded_selection = bound(selection, lower_bound, upper_bound)
+        bounded_partition = bound(partition(selection, t), lower_bound, upper_bound)
         for interval in bounded_partition:
             try:
                 if interval in bounded_selection:
@@ -45,13 +46,13 @@ def main(stdscr):
 
         key = stdscr.getch()
         if key == ord('j'):
-            selection = selectors.move_to_next_line(t, selection)
+            selection = selectors.move_to_next_line(selection, t)
         elif key == ord('k'):
-            selection = selectors.move_to_previous_line(t, selection)
+            selection = selectors.move_to_previous_line(selection, t)
         elif key == ord('l'):
-            selection = selectors.move_to_next_char(t, selection)
+            selection = selectors.move_to_next_char(selection, t)
         elif key == ord('h'):
-            selection = selectors.move_to_previous_char(t, selection)
+            selection = selectors.move_to_previous_char(selection, t)
         elif key == ord('i'):
             insert_text = ""
             while 1:
