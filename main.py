@@ -16,19 +16,24 @@ class UserInterface:
         self.text = text.Text(sys.argv[1])
         self.selection = Selection()
         self.selection.add((0, 1))
-        self.screen_start = 0
 
     def main(self, stdscr):
+        curses.use_default_colors()
+        for i in range(0, curses.COLORS):
+            curses.init_pair(i, i, curses.COLOR_BLACK)
+            #stdscr.addstr("Foo", curses.color_pair(i))
+
         self.stdscr = stdscr
         curses.curs_set(0)
         y, x = self.stdscr.getmaxyx()
         self.text_win = curses.newwin(y - 1, x, 0, 0)
         self.status_win = curses.newwin(1, x, y - 1, 0)
+        self.stdscr.refresh()
         while 1:
             self.draw_text_win()
-            self.user_input()
+            self.normal_mode()
 
-    def user_input(self):
+    def normal_mode(self):
         key = self.stdscr.getch()
         if key == ord('j'):
             self.selection = selectors.move_to_next_line(self.selection, self.text)
@@ -43,12 +48,12 @@ class UserInterface:
         elif key == ord('c'):
             self.insert_mode(operators.insert_in_place)
         elif key == ord(':'):
-            command = self.get_input(self.status_win)
+            scope = {'selectors': selectors, 'operators': operators, 'selection': self.selection}
+            command = self.command_mode()
             try:
-                exec(command)
+                exec(command, scope)
             except Exception as e:
-                self.draw_status(str(e))
-            self.status_win.getch()
+                self.set_status(command + "," + str(e))
 
     def insert_mode(self, operator):
         insert_text = ""
@@ -65,11 +70,13 @@ class UserInterface:
                 operation = operator(self.text, self.selection, insert_text)
             self.draw_text_win(operation)
 
-    def get_input(self, scr):
-        y, x = scr.getmaxyx()
-        scr.addstr(y - 1, 0, ">>")
-        scr.refresh()
-        text_box = Textbox(scr)
+    def command_mode(self):
+        self.status_win.clear()
+        y, x = self.stdscr.getmaxyx()
+        self.status_win.addstr(0, 0, ">")
+        self.status_win.refresh()
+        text_box_win = curses.newwin(1, x - 1, y - 1, 1)
+        text_box = Textbox(text_box_win)
         text_box.edit()
         return text_box.gather()[:-1]
 
@@ -86,9 +93,9 @@ class UserInterface:
             for interval in bounded_partition:
                 if interval in bounded_selection:
                     if operation == None:
-                        self.text_win.addstr(self.text.interval_content(interval), curses.A_REVERSE)
+                        self.text_win.addstr(self.text.interval_content(interval), curses.color_pair(0) | curses.A_REVERSE)
                     else:
-                        self.text_win.addstr(operation.new_content[selection_index], curses.A_REVERSE)
+                        self.text_win.addstr(operation.new_content[selection_index], curses.color_pair(1) | curses.A_REVERSE)
                     selection_index += 1
                 else:
                     self.text_win.addstr(self.text.interval_content(interval))
@@ -99,7 +106,7 @@ class UserInterface:
         self.text_win.clrtobot()
         self.text_win.refresh()
 
-    def draw_status(self, string):
+    def set_status(self, string):
         try:
             self.status_win.addstr(0, 0, string)
         except:
