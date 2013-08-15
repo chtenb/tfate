@@ -44,7 +44,8 @@ class UserInterface:
         elif key == ord('c'):
             self.insert_mode(operators.insert_in_place)
         elif key == ord(':'):
-            scope = {'selectors': selectors, 'operators': operators, 'session.current': session.current}
+            scope = {'selectors': selectors, 'operators': operators}
+            scope = vars(session.current)
             command = self.prompt(":")
             try:
                 exec(command, scope)
