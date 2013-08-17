@@ -2,22 +2,23 @@ import sys
 from protexted import session
 from protexted import selectors, operators
 from protexted.selection import Selection
+from protexted import current
 import curses
 from curses.textpad import Textbox
 
 
 class UserInterface:
     def __init__(self):
-        session.current = session.Session(sys.argv[1])
-        session.current.read()
-        session.current.selection = Selection()
-        session.current.selection.add((0, 1))
+        current.session = session.Session(sys.argv[1])
+        current.session.read()
+        current.session.selection = Selection()
+        current.session.selection.add((0, 1))
 
     def main(self, stdscr):
         curses.use_default_colors()
         for i in range(0, curses.COLORS):
             curses.init_pair(i, i, curses.COLOR_BLACK)
-            #stdscr.addstr("Foo", curses.color_pair(i))
+            # stdscr.addstr("Foo", curses.color_pair(i))
 
         self.stdscr = stdscr
         curses.curs_set(0)
@@ -32,20 +33,26 @@ class UserInterface:
     def normal_mode(self):
         key = self.stdscr.getch()
         if key == ord('j'):
-            session.current.selection = selectors.move_to_next_line(session.current.selection)
+            current.session.selection = selectors.move_to_next_line(current.session.selection)
         elif key == ord('k'):
-            session.current.selection = selectors.move_to_previous_line(session.current.selection)
+            current.session.selection = selectors.move_to_previous_line(current.session.selection)
         elif key == ord('l'):
-            session.current.selection = selectors.move_to_next_char(session.current.selection)
+            current.session.selection = selectors.move_to_next_char(current.session.selection)
         elif key == ord('h'):
-            session.current.selection = selectors.move_to_previous_char(session.current.selection)
+            current.session.selection = selectors.move_to_previous_char(current.session.selection)
+        elif key == ord('w'):
+            current.session.selection = selectors.select_next_word(current.session.selection)
+        elif key == ord('b'):
+            current.session.selection = selectors.select_previous_word(current.session.selection)
         elif key == ord('i'):
             self.insert_mode(operators.insert_before)
         elif key == ord('c'):
             self.insert_mode(operators.insert_in_place)
         elif key == ord(':'):
-            scope = {'selectors': selectors, 'operators': operators}
-            scope = vars(session.current)
+            scope = vars(current.session)
+            for name in vars(session.Session).keys():
+                scope.update({name: eval('current.session.' + name)})
+            scope.update({'current': current})
             command = self.prompt(":")
             try:
                 exec(command, scope)
@@ -59,12 +66,12 @@ class UserInterface:
             key2 = self.stdscr.getch()
             if key2 == 27:
                 if operation != None:
-                    session.current.apply(operation)
-                    session.current.selection = operation.new_selection
+                    current.session.apply(operation)
+                    current.session.selection = operation.new_selection
                 break;
             else:
                 insert_text += chr(key2)
-                operation = operator(session.current, session.current.selection, insert_text)
+                operation = operator(current.session, current.session.selection, insert_text)
             self.draw_text_win(operation)
 
     def prompt(self, prompt_string=">"):
@@ -79,27 +86,27 @@ class UserInterface:
         return text_box.gather()[:-1]
 
     def draw_text_win(self, pending_operation=None):
-        #TODO rewrite this method
+        # TODO rewrite this method
         self.text_win.move(0, 0)
 
         lower_bound = 0
         y, x = self.text_win.getmaxyx()
         upper_bound = y * x
-        bounded_selection = selectors.bound(session.current.selection, lower_bound, upper_bound)
-        bounded_partition = selectors.bound(selectors.partition(session.current.selection), lower_bound, upper_bound)
+        bounded_selection = current.session.selection.bound(lower_bound, upper_bound)
+        bounded_partition = current.session.selection.partition(current.session.text).bound(lower_bound, upper_bound)
         selection_index = 0
         try:
-            for interval in bounded_partition:
-                if interval in bounded_selection:
+            for beg, end in bounded_partition:
+                if (beg, end) in bounded_selection:
                     if pending_operation == None:
-                        self.text_win.addstr(session.current.text.get(interval), curses.color_pair(0) | curses.A_REVERSE)
+                        self.text_win.addstr(current.session.text[beg:end], curses.color_pair(0) | curses.A_REVERSE)
                     else:
                         self.text_win.addstr(pending_operation.new_content[selection_index], curses.color_pair(1) | curses.A_REVERSE)
                     selection_index += 1
                 else:
-                    self.text_win.addstr(session.current.text.get(interval))
+                    self.text_win.addstr(current.session.text[beg:end])
             self.text_win.addstr("EOF", curses.A_BOLD)
-            self.text_win.addstr(str(session.current.selection), curses.A_BOLD)  # DEBUG
+            self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
         except:
             pass
         self.text_win.clrtobot()
