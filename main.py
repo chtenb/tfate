@@ -14,6 +14,9 @@ class UserInterface:
         current.session.selection = Selection()
         current.session.selection.add((0, 1))
 
+        self.reduce_mode = False
+        self.extend_mode = False
+
     def main(self, stdscr):
         curses.use_default_colors()
         for i in range(0, curses.COLORS):
@@ -27,27 +30,54 @@ class UserInterface:
         self.status_win = curses.newwin(1, x, y - 1, 0)
         self.stdscr.refresh()
         while 1:
+            modes = []
+            if self.extend_mode:
+                modes.append("EXTEND")
+            if self.reduce_mode:
+                modes.append("REDUCE")
+            self.set_status(" ".join(modes))
             self.draw_text_win()
             self.normal_mode()
+
+    def select(self, selector):
+        # BUGGED !!!
+        if self.reduce_mode and self.extend_mode:
+            pass
+        elif self.reduce_mode:
+            current.session.selection.reduce(selector(current.session.selection))
+        elif self.extend_mode:
+            current.session.selection.extend(selector(current.session.selection))
+        else:
+            current.session.selection = selector(current.session.selection)
 
     def normal_mode(self):
         key = self.stdscr.getch()
         if key == ord('j'):
-            current.session.selection = selectors.move_to_next_line(current.session.selection)
+            self.select(selectors.move_to_next_line)
         elif key == ord('k'):
-            current.session.selection = selectors.move_to_previous_line(current.session.selection)
+            self.select(selectors.move_to_previous_line)
         elif key == ord('l'):
-            current.session.selection = selectors.move_to_next_char(current.session.selection)
+            self.select(selectors.move_to_next_char)
         elif key == ord('h'):
-            current.session.selection = selectors.move_to_previous_char(current.session.selection)
+            self.select(selectors.move_to_previous_char)
         elif key == ord('w'):
-            current.session.selection = selectors.select_next_word(current.session.selection)
+            self.select(selectors.select_next_word)
         elif key == ord('b'):
-            current.session.selection = selectors.select_previous_word(current.session.selection)
+            self.select(selectors.select_previous_word)
+        elif key == 27:
+            self.select(selectors.single_character)
         elif key == ord('i'):
             self.insert_mode(operators.insert_before)
+        elif key == ord('a'):
+            self.insert_mode(operators.insert_after)
+        elif key == ord('s'):
+            self.insert_mode(operators.insert_around)
         elif key == ord('c'):
             self.insert_mode(operators.insert_in_place)
+        elif key == ord('r'):
+            self.reduce_mode = not self.reduce_mode
+        elif key == ord('e'):
+            self.extend_mode = not self.extend_mode
         elif key == ord(':'):
             scope = vars(current.session)
             for name in vars(session.Session).keys():
@@ -63,15 +93,18 @@ class UserInterface:
         insert_text = ""
         operation = None
         while 1:
-            key2 = self.stdscr.getch()
-            if key2 == 27:
+            key = self.stdscr.getch()
+            if key == 27:
                 if operation != None:
                     current.session.apply(operation)
                     current.session.selection = operation.new_selection
                 break;
+            elif key == curses.KEY_BACKSPACE:
+                if len(insert_text) > 0:
+                    insert_text = insert_text[:-1]
             else:
-                insert_text += chr(key2)
-                operation = operator(current.session, current.session.selection, insert_text)
+                insert_text += chr(key)
+            operation = operator(current.session, current.session.selection, insert_text)
             self.draw_text_win(operation)
 
     def prompt(self, prompt_string=">"):
