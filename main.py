@@ -40,13 +40,11 @@ class UserInterface:
             self.normal_mode()
 
     def select(self, selector):
-        # BUGGED !!!
-        if self.reduce_mode and self.extend_mode:
-            pass
-        elif self.reduce_mode:
-            current.session.selection.reduce(selector(current.session.selection))
-        elif self.extend_mode:
-            current.session.selection.extend(selector(current.session.selection))
+        if self.reduce_mode or self.extend_mode:
+            if self.reduce_mode:
+                current.session.selection = current.session.selection.reduce(selector, current.session.text)
+            if self.extend_mode:
+                current.session.selection = current.session.selection.extend(selector, current.session.text)
         else:
             current.session.selection = selector(current.session.selection)
 
@@ -57,15 +55,19 @@ class UserInterface:
         elif key == ord('k'):
             self.select(selectors.move_to_previous_line)
         elif key == ord('l'):
-            self.select(selectors.move_to_next_char)
+            self.select(selectors.next_char)
         elif key == ord('h'):
-            self.select(selectors.move_to_previous_char)
+            self.select(selectors.previous_char)
         elif key == ord('w'):
-            self.select(selectors.select_next_word)
+            self.select(selectors.next_word)
         elif key == ord('b'):
-            self.select(selectors.select_previous_word)
+            self.select(selectors.previous_word)
         elif key == 27:
             self.select(selectors.single_character)
+        elif key == ord('z'):
+            self.select(selectors.invert)
+        elif key == ord('p'):
+            self.select(selectors.partition)
         elif key == ord('i'):
             self.insert_mode(operators.insert_before)
         elif key == ord('a'):
@@ -83,11 +85,13 @@ class UserInterface:
             for name in vars(session.Session).keys():
                 scope.update({name: eval('current.session.' + name)})
             scope.update({'current': current})
+            scope.update({'selectors': selectors})
             command = self.prompt(":")
             try:
                 exec(command, scope)
             except Exception as e:
                 self.set_status(command + " : " + str(e))
+                self.stdscr.getch()
 
     def insert_mode(self, operator):
         insert_text = ""
@@ -125,12 +129,11 @@ class UserInterface:
         lower_bound = 0
         y, x = self.text_win.getmaxyx()
         upper_bound = y * x
-        bounded_selection = current.session.selection.bound(lower_bound, upper_bound)
-        bounded_partition = current.session.selection.partition(current.session.text).bound(lower_bound, upper_bound)
+        bounded_partition = current.session.selection.partition(current.session.text, lower_bound, upper_bound)
         selection_index = 0
         try:
-            for beg, end in bounded_partition:
-                if (beg, end) in bounded_selection:
+            for in_selection, (beg, end) in bounded_partition:
+                if in_selection:
                     if pending_operation == None:
                         self.text_win.addstr(current.session.text[beg:end], curses.color_pair(0) | curses.A_REVERSE)
                     else:
