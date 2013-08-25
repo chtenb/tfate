@@ -80,6 +80,8 @@ class UserInterface:
             self.reduce_mode = not self.reduce_mode
         elif key == ord('e'):
             self.extend_mode = not self.extend_mode
+        elif key == ord('u'):
+            current.session.undo()
         elif key == ord(':'):
             scope = vars(current.session)
             for name in vars(session.Session).keys():
@@ -94,6 +96,7 @@ class UserInterface:
                 self.stdscr.getch()
 
     def insert_mode(self, operator):
+        self.set_status("INSERT")
         insert_text = ""
         operation = None
         while 1:
