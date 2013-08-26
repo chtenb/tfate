@@ -62,12 +62,12 @@ class UserInterface:
             self.select(selectors.next_word)
         elif key == ord('b'):
             self.select(selectors.previous_word)
+        elif key == ord('g'):
+            self.select(selectors.next_group)
         elif key == 27:
             self.select(selectors.single_character)
         elif key == ord('z'):
             self.select(selectors.invert)
-        elif key == ord('p'):
-            self.select(selectors.partition)
         elif key == ord('i'):
             self.insert_mode(operators.insert_before)
         elif key == ord('a'):
@@ -127,27 +127,51 @@ class UserInterface:
 
     def draw_text_win(self, pending_operation=None):
         # TODO rewrite this method
+        # The screen must be printed character wise
         self.text_win.move(0, 0)
 
         lower_bound = 0
         y, x = self.text_win.getmaxyx()
         upper_bound = y * x
-        bounded_partition = current.session.selection.partition(current.session.text, lower_bound, upper_bound)
         selection_index = 0
+
         try:
-            for in_selection, (beg, end) in bounded_partition:
-                if in_selection:
-                    if pending_operation == None:
-                        self.text_win.addstr(current.session.text[beg:end], curses.color_pair(0) | curses.A_REVERSE)
-                    else:
-                        self.text_win.addstr(pending_operation.new_content[selection_index], curses.color_pair(1) | curses.A_REVERSE)
-                    selection_index += 1
+            for position in range(lower_bound, min(upper_bound, len(current.session.text))):
+                attribute = curses.A_NORMAL
+                if pending_operation and pending_operation.old_selection.contains(position):
+                    pass
                 else:
-                    self.text_win.addstr(current.session.text[beg:end])
+                    if current.session.selection.contains(position):
+                        attribute |= curses.A_REVERSE
+                    if position in current.session.labeling:
+                        if current.session.labeling[position] == 'keyword':
+                            attribute |= curses.A_BOLD
+                    self.text_win.addch(current.session.text[position], attribute)
+
             self.text_win.addstr("EOF", curses.A_BOLD)
             self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
-        except:
+            self.text_win.addstr(str(current.session.labeling), curses.A_BOLD)  # DEBUG
+            self.text_win.addstr(str(current.session.OnRead._handlers), curses.A_BOLD)  # DEBUG
+            self.text_win.addstr(str(current.session.filetype), curses.A_BOLD)  # DEBUG
+        except curses.error:
             pass
+
+
+        #bounded_partition = current.session.selection.partition(current.session.text, lower_bound, upper_bound)
+        #try:
+            #for in_selection, (beg, end) in bounded_partition:
+                #if in_selection:
+                    #if pending_operation == None:
+                        #self.text_win.addstr(current.session.text[beg:end], curses.color_pair(0) | curses.A_REVERSE)
+                    #else:
+                        #self.text_win.addstr(pending_operation.new_content[selection_index], curses.color_pair(1) | curses.A_REVERSE)
+                    #selection_index += 1
+                #else:
+                    #self.text_win.addstr(current.session.text[beg:end])
+            #self.text_win.addstr("EOF", curses.A_BOLD)
+            #self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
+        #except:
+            #pass
         self.text_win.clrtobot()
         self.text_win.refresh()
 
