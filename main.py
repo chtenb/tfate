@@ -127,7 +127,6 @@ class UserInterface:
 
     def draw_text_win(self, pending_operation=None):
         # TODO rewrite this method
-        # The screen must be printed character wise
         self.text_win.move(0, 0)
 
         lower_bound = 0
@@ -135,18 +134,30 @@ class UserInterface:
         upper_bound = y * x
         selection_index = 0
 
+        if pending_operation:
+            operation_preview_printed = [False for interval in pending_operation.old_selection]
         try:
-            for position in range(lower_bound, min(upper_bound, len(current.session.text))):
+            position = lower_bound
+            while position < len(current.session.text):
+
+                # print preview of operation if existent at current position
+                if pending_operation:
+                    interval = pending_operation.old_selection.contains(position)
+                    if interval:
+                        index = pending_operation.old_selection.index(interval)
+                        if not operation_preview_printed[index]:
+                            self.text_win.addstr(pending_operation.new_content[index], curses.color_pair(1) | curses.A_REVERSE)
+                            position += interval[1] - interval[0]
+                            continue
+
                 attribute = curses.A_NORMAL
-                if pending_operation and pending_operation.old_selection.contains(position):
-                    pass
-                else:
-                    if current.session.selection.contains(position):
-                        attribute |= curses.A_REVERSE
-                    if position in current.session.labeling:
-                        if current.session.labeling[position] == 'keyword':
-                            attribute |= curses.A_BOLD
-                    self.text_win.addch(current.session.text[position], attribute)
+                if current.session.selection.contains(position):
+                    attribute |= curses.A_REVERSE
+                if position in current.session.labeling:
+                    if current.session.labeling[position] == 'keyword':
+                        attribute |= curses.A_BOLD
+                self.text_win.addch(current.session.text[position], attribute)
+                position += 1
 
             self.text_win.addstr("EOF", curses.A_BOLD)
             self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
