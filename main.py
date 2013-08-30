@@ -138,8 +138,8 @@ class UserInterface:
             operation_preview_printed = [False for interval in pending_operation.old_selection]
         try:
             position = lower_bound
-            while position < len(current.session.text):
 
+            while 1:
                 # print preview of operation if existent at current position
                 if pending_operation:
                     interval = pending_operation.old_selection.contains(position)
@@ -154,10 +154,13 @@ class UserInterface:
                 if current.session.selection.contains(position):
                     attribute |= curses.A_REVERSE
                 if position in current.session.labeling:
-                    if current.session.labeling[position] == 'keyword':
-                        attribute |= curses.A_BOLD
+                    for i, label in enumerate(['keyword', 'string', 'number']):
+                        if current.session.labeling[position] == label:
+                            attribute |= curses.color_pair(i + 1)
                 self.text_win.addch(current.session.text[position], attribute)
                 position += 1
+                if position >= len(current.session.text):
+                    break
 
             self.text_win.addstr("EOF", curses.A_BOLD)
             self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
