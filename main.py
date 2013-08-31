@@ -20,8 +20,7 @@ class UserInterface:
     def main(self, stdscr):
         curses.use_default_colors()
         for i in range(0, curses.COLORS):
-            curses.init_pair(i, i, curses.COLOR_BLACK)
-            # stdscr.addstr("Foo", curses.color_pair(i))
+            curses.init_pair(i, i, -1);
 
         self.stdscr = stdscr
         curses.curs_set(0)
@@ -96,10 +95,13 @@ class UserInterface:
                 self.stdscr.getch()
 
     def insert_mode(self, operator):
+
         self.set_status("INSERT")
         insert_text = ""
         operation = None
         while 1:
+            operation = operator(current.session, current.session.selection, insert_text)
+            self.draw_text_win(operation)
             key = self.stdscr.getch()
             if key == 27:
                 if operation != None:
@@ -111,8 +113,6 @@ class UserInterface:
                     insert_text = insert_text[:-1]
             else:
                 insert_text += chr(key)
-            operation = operator(current.session, current.session.selection, insert_text)
-            self.draw_text_win(operation)
 
     def prompt(self, prompt_string=">"):
         self.status_win.clear()
@@ -126,7 +126,6 @@ class UserInterface:
         return text_box.gather()[:-1]
 
     def draw_text_win(self, pending_operation=None):
-        # TODO rewrite this method
         self.text_win.move(0, 0)
 
         lower_bound = 0
@@ -146,23 +145,27 @@ class UserInterface:
                     if interval:
                         index = pending_operation.old_selection.index(interval)
                         if not operation_preview_printed[index]:
-                            self.text_win.addstr(pending_operation.new_content[index], curses.color_pair(1) | curses.A_REVERSE)
+                            self.text_win.addstr(pending_operation.new_content[index], curses.A_BOLD | curses.A_REVERSE)
                             position += interval[1] - interval[0]
                             continue
 
                 attribute = curses.A_NORMAL
+                char = current.session.text[position]
                 if current.session.selection.contains(position):
                     attribute |= curses.A_REVERSE
+                    # Display a newline character when selected
+                    if char == '\n':
+                        char = '↵\n'
                 if position in current.session.labeling:
-                    for i, label in enumerate(['keyword', 'string', 'number']):
+                    for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                         if current.session.labeling[position] == label:
                             attribute |= curses.color_pair(i + 1)
-                self.text_win.addch(current.session.text[position], attribute)
+                self.text_win.addstr(char, attribute)
                 position += 1
                 if position >= len(current.session.text):
                     break
 
-            self.text_win.addstr("EOF", curses.A_BOLD)
+            self.text_win.addstr("\nEOF", curses.A_BOLD)
             self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
             self.text_win.addstr(str(current.session.labeling), curses.A_BOLD)  # DEBUG
             self.text_win.addstr(str(current.session.OnRead._handlers), curses.A_BOLD)  # DEBUG
@@ -170,22 +173,6 @@ class UserInterface:
         except curses.error:
             pass
 
-
-        #bounded_partition = current.session.selection.partition(current.session.text, lower_bound, upper_bound)
-        #try:
-            #for in_selection, (beg, end) in bounded_partition:
-                #if in_selection:
-                    #if pending_operation == None:
-                        #self.text_win.addstr(current.session.text[beg:end], curses.color_pair(0) | curses.A_REVERSE)
-                    #else:
-                        #self.text_win.addstr(pending_operation.new_content[selection_index], curses.color_pair(1) | curses.A_REVERSE)
-                    #selection_index += 1
-                #else:
-                    #self.text_win.addstr(current.session.text[beg:end])
-            #self.text_win.addstr("EOF", curses.A_BOLD)
-            #self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
-        #except:
-            #pass
         self.text_win.clrtobot()
         self.text_win.refresh()
 
