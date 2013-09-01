@@ -54,9 +54,9 @@ class UserInterface:
     def selection_mode(self):
         key = self.stdscr.getch()
         if key == ord('j'):
-            self.select(selectors.move_to_next_line)
+            self.select(selectors.next_line)
         elif key == ord('k'):
-            self.select(selectors.move_to_previous_line)
+            self.select(selectors.previous_line)
         elif key == ord('l'):
             self.select(selectors.next_char)
         elif key == ord('h'):
@@ -70,7 +70,7 @@ class UserInterface:
         elif key == 27:
             self.select(selectors.single_character)
         elif key == ord('z'):
-            self.select(selectors.invert)
+            self.select(selectors.complement)
         elif key == ord('i'):
             self.operation_mode(operators.insert_before)
         elif key == ord('a'):
@@ -186,6 +186,8 @@ class UserInterface:
 def move_n_wrapped_lines_up(text, wrap, start, n):
     import math
     position = text.rfind('\n', 0, start)
+    if position == -1:
+        return 0
     while 1:
         next = text.rfind('\n', 0, position - 1)
         if next == -1:
