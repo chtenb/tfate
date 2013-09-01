@@ -13,21 +13,25 @@ class UserInterface:
         current.session.read()
         current.session.selection = Selection()
         current.session.selection.add((0, 1))
-
         self.reduce_mode = False
         self.extend_mode = False
 
     def main(self, stdscr):
+        # Initialize color pairs from the terminal color palette
         curses.use_default_colors()
         for i in range(0, curses.COLORS):
             curses.init_pair(i, i, -1);
+        curses.init_pair(9, -1, 0);
 
+        # Create curses windows
         self.stdscr = stdscr
         curses.curs_set(0)
         y, x = self.stdscr.getmaxyx()
         self.text_win = curses.newwin(y - 1, x, 0, 0)
         self.status_win = curses.newwin(1, x, y - 1, 0)
         self.stdscr.refresh()
+
+        # Enter the main loop
         while 1:
             modes = []
             if self.extend_mode:
@@ -35,8 +39,8 @@ class UserInterface:
             if self.reduce_mode:
                 modes.append("REDUCE")
             self.set_status(" ".join(modes))
-            self.draw_text_win()
-            self.normal_mode()
+            self.draw_text()
+            self.selection_mode()
 
     def select(self, selector):
         if self.reduce_mode or self.extend_mode:
@@ -47,7 +51,7 @@ class UserInterface:
         else:
             current.session.selection = selector(current.session.selection)
 
-    def normal_mode(self):
+    def selection_mode(self):
         key = self.stdscr.getch()
         if key == ord('j'):
             self.select(selectors.move_to_next_line)
@@ -68,13 +72,13 @@ class UserInterface:
         elif key == ord('z'):
             self.select(selectors.invert)
         elif key == ord('i'):
-            self.insert_mode(operators.insert_before)
+            self.operation_mode(operators.insert_before)
         elif key == ord('a'):
-            self.insert_mode(operators.insert_after)
+            self.operation_mode(operators.insert_after)
         elif key == ord('s'):
-            self.insert_mode(operators.insert_around)
+            self.operation_mode(operators.insert_around)
         elif key == ord('c'):
-            self.insert_mode(operators.insert_in_place)
+            self.operation_mode(operators.insert_in_place)
         elif key == ord('r'):
             self.reduce_mode = not self.reduce_mode
         elif key == ord('e'):
@@ -94,14 +98,13 @@ class UserInterface:
                 self.set_status(command + " : " + str(e))
                 self.stdscr.getch()
 
-    def insert_mode(self, operator):
-
-        self.set_status("INSERT")
+    def operation_mode(self, operator):
+        self.set_status("OPERATION")
         insert_text = ""
-        operation = None
         while 1:
             operation = operator(current.session, current.session.selection, insert_text)
-            self.draw_text_win(operation)
+            self.draw_text(operation)
+            self.set_status("Hi")
             key = self.stdscr.getch()
             if key == 27:
                 if operation != None:
@@ -114,61 +117,44 @@ class UserInterface:
             else:
                 insert_text += chr(key)
 
-    def prompt(self, prompt_string=">"):
-        self.status_win.clear()
-        y, x = self.stdscr.getmaxyx()
-        self.status_win.addstr(0, 0, prompt_string)
-        self.status_win.refresh()
-        l = len(prompt_string)
-        text_box_win = curses.newwin(1, x - l, y - 1, l)
-        text_box = Textbox(text_box_win)
-        text_box.edit()
-        return text_box.gather()[:-1]
-
-    def draw_text_win(self, pending_operation=None):
+    def draw_text(self, pending_operation=None):
         self.text_win.move(0, 0)
-
-        lower_bound = 0
+        # Find a suitable starting position
         y, x = self.text_win.getmaxyx()
-        upper_bound = y * x
-        selection_index = 0
-
-        if pending_operation:
-            operation_preview_printed = [False for interval in pending_operation.old_selection]
+        position = move_n_wrapped_lines_up(current.session.text, x, current.session.selection[0][0], int(y / 2))
         try:
-            position = lower_bound
-
-            while 1:
-                # print preview of operation if existent at current position
+            while position < len(current.session.text):
                 if pending_operation:
+                    # Print preview of operation if existent at current position
                     interval = pending_operation.old_selection.contains(position)
                     if interval:
                         index = pending_operation.old_selection.index(interval)
-                        if not operation_preview_printed[index]:
-                            self.text_win.addstr(pending_operation.new_content[index], curses.A_BOLD | curses.A_REVERSE)
-                            position += interval[1] - interval[0]
-                            continue
+                        self.text_win.addstr(pending_operation.new_content[index], curses.A_BOLD | curses.A_REVERSE)
+                        position += interval[1] - interval[0]
+                        continue
 
+                # Print next character of the text
                 attribute = curses.A_NORMAL
                 char = current.session.text[position]
+
+                # Apply attribute when char is selected
                 if current.session.selection.contains(position):
                     attribute |= curses.A_REVERSE
-                    # Display a newline character when selected
+                    # Display newline character explicitly when selected
                     if char == '\n':
                         char = '↵\n'
+
+                # Apply attribute when char is labeled
                 if position in current.session.labeling:
                     for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                         if current.session.labeling[position] == label:
                             attribute |= curses.color_pair(i + 1)
+
                 self.text_win.addstr(char, attribute)
                 position += 1
-                if position >= len(current.session.text):
-                    break
 
             self.text_win.addstr("\nEOF", curses.A_BOLD)
             self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
-            self.text_win.addstr(str(current.session.labeling), curses.A_BOLD)  # DEBUG
-            self.text_win.addstr(str(current.session.OnRead._handlers), curses.A_BOLD)  # DEBUG
             self.text_win.addstr(str(current.session.filetype), curses.A_BOLD)  # DEBUG
         except curses.error:
             pass
@@ -177,12 +163,37 @@ class UserInterface:
         self.text_win.refresh()
 
     def set_status(self, string):
+        self.status_win.bkgd(' ', curses.color_pair(9))
         try:
-            self.status_win.addstr(0, 0, string)
+            self.status_win.addstr(0, 0, string, curses.color_pair(9))
         except:
             pass
         self.status_win.clrtobot()
         self.status_win.refresh()
+
+    def prompt(self, prompt_string=">"):
+        self.status_win.clear()
+        y, x = self.stdscr.getmaxyx()
+        self.status_win.addstr(0, 0, prompt_string)
+        self.status_win.refresh()
+        l = len(prompt_string)
+        text_box_win = curses.newwin(1, x - l, y - 1, l)
+        text_box_win.bkgd(' ', curses.color_pair(9))
+        text_box = Textbox(text_box_win)
+        text_box.edit()
+        return text_box.gather()[:-1]
+
+def move_n_wrapped_lines_up(text, wrap, start, n):
+    import math
+    position = text.rfind('\n', 0, start)
+    while 1:
+        next = text.rfind('\n', 0, position - 1)
+        if next == -1:
+            return 0
+        n -= math.ceil((position - next) / wrap)
+        if n <= 0:
+            return position + 1
+        position = next
 
 ui = UserInterface()
 curses.wrapper(ui.main)
