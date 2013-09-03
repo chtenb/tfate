@@ -10,8 +10,9 @@ import logging
 def main(filename):
     s = Session(filename)
     s.selection = Selection()
+    print(bool(s.selection))
     s.selection.add((3,3))
-    print(s.selection)
+    print(bool(s.selection))
     s.selection.add((3,3))
     print(s.selection)
     s.selection.add((1,2))

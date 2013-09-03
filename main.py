@@ -35,19 +35,19 @@ class UserInterface:
         while 1:
             modes = []
             if self.extend_mode:
-                modes.append("EXTEND")
+                modes.append('EXTEND')
             if self.reduce_mode:
-                modes.append("REDUCE")
-            self.set_status(" ".join(modes))
+                modes.append('REDUCE')
+            self.set_status(' '.join(modes))
             self.draw_text()
             self.selection_mode()
 
     def select(self, selector):
         if self.reduce_mode or self.extend_mode:
             if self.reduce_mode:
-                current.session.selection = current.session.selection.reduce(selector, current.session.text)
+                current.session.selection = current.session.selection.reduce(selector)
             if self.extend_mode:
-                current.session.selection = current.session.selection.extend(selector, current.session.text)
+                current.session.selection = current.session.selection.extend(selector)
         else:
             current.session.selection = selector(current.session.selection)
 
@@ -65,8 +65,10 @@ class UserInterface:
             self.select(selectors.next_word)
         elif key == ord('b'):
             self.select(selectors.previous_word)
-        elif key == ord('g'):
-            self.select(selectors.next_group)
+        elif key == ord('}'):
+            self.select(selectors.next_paragraph)
+        elif key == ord('{'):
+            self.select(selectors.previous_paragraph)
         elif key == 27:
             self.select(selectors.single_character)
         elif key == ord('z'):
@@ -91,20 +93,19 @@ class UserInterface:
                 scope.update({name: eval('current.session.' + name)})
             scope.update({'current': current})
             scope.update({'selectors': selectors})
-            command = self.prompt(":")
+            command = self.prompt(':')
             try:
                 exec(command, scope)
             except Exception as e:
-                self.set_status(command + " : " + str(e))
+                self.set_status(command + ' : ' + str(e))
                 self.stdscr.getch()
 
     def operation_mode(self, operator):
-        self.set_status("OPERATION")
-        insert_text = ""
+        self.set_status('OPERATION')
+        insert_text = ''
         while 1:
             operation = operator(current.session, current.session.selection, insert_text)
             self.draw_text(operation)
-            self.set_status("Hi")
             key = self.stdscr.getch()
             if key == 27:
                 if operation != None:
@@ -121,7 +122,10 @@ class UserInterface:
         self.text_win.move(0, 0)
         # Find a suitable starting position
         y, x = self.text_win.getmaxyx()
-        position = move_n_wrapped_lines_up(current.session.text, x, current.session.selection[0][0], int(y / 2))
+        if current.session.selection:
+            position = move_n_wrapped_lines_up(current.session.text, x, current.session.selection[0][0], int(y / 2))
+        else:
+            position = 0
         try:
             while position < len(current.session.text):
                 if pending_operation:
@@ -153,7 +157,7 @@ class UserInterface:
                 self.text_win.addstr(char, attribute)
                 position += 1
 
-            self.text_win.addstr("\nEOF", curses.A_BOLD)
+            self.text_win.addstr('\nEOF', curses.A_BOLD)
             self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
             self.text_win.addstr(str(current.session.filetype), curses.A_BOLD)  # DEBUG
         except curses.error:
@@ -171,7 +175,7 @@ class UserInterface:
         self.status_win.clrtobot()
         self.status_win.refresh()
 
-    def prompt(self, prompt_string=">"):
+    def prompt(self, prompt_string='>'):
         self.status_win.clear()
         y, x = self.stdscr.getmaxyx()
         self.status_win.addstr(0, 0, prompt_string)
