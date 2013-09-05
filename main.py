@@ -2,19 +2,15 @@ import sys
 from protexted import session
 from protexted import selectors, operators
 from protexted.selection import Selection
-from protexted import current
 import curses
 from curses.textpad import Textbox
+import re
 
 
 class UserInterface:
     def __init__(self):
-        current.session = session.Session(sys.argv[1])
-        current.session.read()
-        current.session.selection = Selection()
-        current.session.selection.add((0, 1))
-        self.reduce_mode = False
-        self.extend_mode = False
+        self.session = session.Session(sys.argv[1])
+        self.session.read()
 
     def main(self, stdscr):
         # Initialize color pairs from the terminal color palette
@@ -34,83 +30,81 @@ class UserInterface:
         # Enter the main loop
         while 1:
             modes = []
-            if self.extend_mode:
+            if self.session.extend_mode:
                 modes.append('EXTEND')
-            if self.reduce_mode:
+            if self.session.reduce_mode:
                 modes.append('REDUCE')
             self.set_status(' '.join(modes))
             self.draw_text()
             self.selection_mode()
 
-    def select(self, selector):
-        if self.reduce_mode or self.extend_mode:
-            if self.reduce_mode:
-                current.session.selection = current.session.selection.reduce(selector)
-            if self.extend_mode:
-                current.session.selection = current.session.selection.extend(selector)
-        else:
-            current.session.selection = selector(current.session.selection)
 
     def selection_mode(self):
         key = self.stdscr.getch()
         if key == ord('j'):
-            self.select(selectors.next_line)
+            self.session.select(selectors.next_line)
         elif key == ord('k'):
-            self.select(selectors.previous_line)
+            self.session.select(selectors.previous_line)
         elif key == ord('l'):
-            self.select(selectors.next_char)
+            self.session.select(selectors.next_char)
         elif key == ord('h'):
-            self.select(selectors.previous_char)
+            self.session.select(selectors.previous_char)
         elif key == ord('w'):
-            self.select(selectors.next_word)
+            self.session.select(selectors.next_word)
         elif key == ord('b'):
-            self.select(selectors.previous_word)
+            self.session.select(selectors.previous_word)
         elif key == ord('}'):
-            self.select(selectors.next_paragraph)
+            self.session.select(selectors.next_paragraph)
         elif key == ord('{'):
-            self.select(selectors.previous_paragraph)
+            self.session.select(selectors.previous_paragraph)
         elif key == 27:
-            self.select(selectors.single_character)
+            self.session.select(selectors.single_character)
         elif key == ord('z'):
-            self.select(selectors.complement)
+            self.session.select(selectors.complement)
+        elif key == ord('f'):
+            char = chr(self.stdscr.getch())
+            self.session.select(selectors.pattern_selector(re.escape(char)))
+        elif key == ord('/'):
+            pattern = self.prompt('/')
+            self.session.select(selectors.pattern_selector(pattern))
         elif key == ord('i'):
-            self.operation_mode(operators.insert_before)
+            self.insert_mode(operators.insert_before)
         elif key == ord('a'):
-            self.operation_mode(operators.insert_after)
+            self.insert_mode(operators.insert_after)
         elif key == ord('s'):
-            self.operation_mode(operators.insert_around)
+            self.insert_mode(operators.insert_around)
         elif key == ord('c'):
-            self.operation_mode(operators.insert_in_place)
+            self.insert_mode(operators.insert_in_place)
+        elif key == ord('x'):
+            operation = operators.delete(self.session.selection)
+            self.session.apply(operation)
         elif key == ord('r'):
-            self.reduce_mode = not self.reduce_mode
+            self.session.reduce_mode = not self.session.reduce_mode
         elif key == ord('e'):
-            self.extend_mode = not self.extend_mode
+            self.session.extend_mode = not self.session.extend_mode
         elif key == ord('u'):
-            current.session.undo()
+            self.session.undo()
         elif key == ord(':'):
-            scope = vars(current.session)
+            scope = vars(self.session)
             for name in vars(session.Session).keys():
-                scope.update({name: eval('current.session.' + name)})
-            scope.update({'current': current})
-            scope.update({'selectors': selectors})
+                scope.update({name: eval('self.session.' + name)})
             command = self.prompt(':')
             try:
-                exec(command, scope)
+                print(eval(command, scope))
             except Exception as e:
                 self.set_status(command + ' : ' + str(e))
                 self.stdscr.getch()
 
-    def operation_mode(self, operator):
+    def insert_mode(self, operator):
         self.set_status('OPERATION')
         insert_text = ''
         while 1:
-            operation = operator(current.session, current.session.selection, insert_text)
+            operation = operator(self.session, self.session.selection, insert_text)
             self.draw_text(operation)
             key = self.stdscr.getch()
             if key == 27:
                 if operation != None:
-                    current.session.apply(operation)
-                    current.session.selection = operation.new_selection
+                    self.session.apply(operation)
                 break;
             elif key == curses.KEY_BACKSPACE:
                 if len(insert_text) > 0:
@@ -122,12 +116,12 @@ class UserInterface:
         self.text_win.move(0, 0)
         # Find a suitable starting position
         y, x = self.text_win.getmaxyx()
-        if current.session.selection:
-            position = move_n_wrapped_lines_up(current.session.text, x, current.session.selection[0][0], int(y / 2))
+        if self.session.selection:
+            position = move_n_wrapped_lines_up(self.session.text, x, self.session.selection[0][0], int(y / 2))
         else:
             position = 0
         try:
-            while position < len(current.session.text):
+            while position < len(self.session.text):
                 if pending_operation:
                     # Print preview of operation if existent at current position
                     interval = pending_operation.old_selection.contains(position)
@@ -139,27 +133,27 @@ class UserInterface:
 
                 # Print next character of the text
                 attribute = curses.A_NORMAL
-                char = current.session.text[position]
+                char = self.session.text[position]
 
                 # Apply attribute when char is selected
-                if current.session.selection.contains(position):
+                if self.session.selection.contains(position):
                     attribute |= curses.A_REVERSE
                     # Display newline character explicitly when selected
                     if char == '\n':
                         char = '↵\n'
 
                 # Apply attribute when char is labeled
-                if position in current.session.labeling:
+                if position in self.session.labeling:
                     for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
-                        if current.session.labeling[position] == label:
+                        if self.session.labeling[position] == label:
                             attribute |= curses.color_pair(i + 1)
 
                 self.text_win.addstr(char, attribute)
                 position += 1
 
             self.text_win.addstr('\nEOF', curses.A_BOLD)
-            self.text_win.addstr(str(current.session.selection), curses.A_BOLD)  # DEBUG
-            self.text_win.addstr(str(current.session.filetype), curses.A_BOLD)  # DEBUG
+            self.text_win.addstr(str(self.session.selection), curses.A_BOLD)  # DEBUG
+            self.text_win.addstr(str(self.session.filetype), curses.A_BOLD)  # DEBUG
         except curses.error:
             pass
 
