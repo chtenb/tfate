@@ -79,7 +79,7 @@ class UserInterface:
         elif key == ord('c'):
             self.insert_mode(operators.insert_in_place)
         elif key == ord('x'):
-            operation = operators.delete(self.session.selection)
+            operation = operators.delete(self.session.selection, self.session)
             self.session.apply(operation)
         elif key == ord('r'):
             self.session.reduce_mode = not self.session.reduce_mode
