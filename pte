@@ -1,3 +1,4 @@
+#!python
 import sys
 from protexted import session
 from protexted import selectors, operators
