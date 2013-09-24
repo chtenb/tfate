@@ -9,7 +9,10 @@ import re
 
 class UserInterface:
     def __init__(self):
-        self.session = session.Session(sys.argv[1])
+        if len(sys.argv) > 1:
+            self.session = session.Session(sys.argv[1])
+        else:
+            self.session = session.Session()
         self.session.read()
 
     def main(self, stdscr):
@@ -37,7 +40,6 @@ class UserInterface:
             self.set_status(' '.join(modes))
             self.draw_text()
             self.selection_mode()
-
 
     def selection_mode(self):
         key = self.stdscr.getch()
@@ -90,10 +92,11 @@ class UserInterface:
                 scope.update({name: eval('self.session.' + name)})
             command = self.prompt(':')
             try:
-                print(eval(command, scope))
+                self.set_status(str(eval(command, scope)))
             except Exception as e:
                 self.set_status(command + ' : ' + str(e))
-                self.stdscr.getch()
+            self.stdscr.getch()
+            self.status_win.clear()
 
     def insert_mode(self, operator):
         self.set_status('OPERATION')
@@ -120,16 +123,24 @@ class UserInterface:
             position = move_n_wrapped_lines_up(self.session.text, x, self.session.selection[0][0], int(y / 2))
         else:
             position = 0
+
         try:
-            while position < len(self.session.text):
+            while 1:
+                # Print preview of operation if existent at current position
                 if pending_operation:
-                    # Print preview of operation if existent at current position
-                    interval = pending_operation.old_selection.contains(position)
+                    interval = None
+                    for i in pending_operation.old_selection:
+                        if i[0] == position:
+                            interval = i
+                            break
                     if interval:
                         index = pending_operation.old_selection.index(interval)
                         self.text_win.addstr(pending_operation.new_content[index], curses.A_BOLD | curses.A_REVERSE)
                         position += interval[1] - interval[0]
-                        continue
+
+                # Stop printing when end of text reached
+                if position >= len(self.session.text):
+                    break
 
                 # Print next character of the text
                 attribute = curses.A_NORMAL
@@ -142,7 +153,7 @@ class UserInterface:
                     if char == '\n':
                         char = '↵\n'
 
-                # Apply attribute when char is labeled
+                # Apply attribute if char is labeled
                 if position in self.session.labeling:
                     for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                         if self.session.labeling[position] == label:
@@ -151,9 +162,9 @@ class UserInterface:
                 self.text_win.addstr(char, attribute)
                 position += 1
 
-            self.text_win.addstr('\nEOF', curses.A_BOLD)
-            self.text_win.addstr(str(self.session.selection), curses.A_BOLD)  # DEBUG
-            self.text_win.addstr(str(self.session.filetype), curses.A_BOLD)  # DEBUG
+            self.text_win.addstr('EOF\n', curses.A_BOLD)
+            self.text_win.addstr(" Selection: " + str(self.session.selection), curses.A_BOLD)  # DEBUG
+            self.text_win.addstr(" Type: " + str(self.session.filetype), curses.A_BOLD)  # DEBUG
         except curses.error:
             pass
 
@@ -180,6 +191,7 @@ class UserInterface:
         text_box = Textbox(text_box_win)
         text_box.edit()
         return text_box.gather()[:-1]
+
 
 def move_n_wrapped_lines_up(text, wrap, start, n):
     import math
