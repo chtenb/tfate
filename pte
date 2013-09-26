@@ -97,6 +97,10 @@ class UserInterface:
         elif key == ord('x'):
             operation = operators.delete(s.selection, s)
             s.apply(operation)
+        elif key == ord('y'):
+            s.copy()
+        elif key == ord('p'):
+            s.paste()
         elif key == ord('r'):
             s.reduce_mode = True
             s.extend_mode = False
@@ -139,56 +143,80 @@ class UserInterface:
             else:
                 insert_text += chr(key)
 
+    def draw_operation_interval(self, interval, content):
+        self.text_win.addstr(content.replace('\n', '↵\n'), curses.A_BOLD | curses.A_REVERSE)
+
+    def draw_selection_interval(self, interval):
+        beg, end = interval
+        if end - beg > 0:
+            self.draw_interval(interval, selected=True)
+        else:
+            self.text_win.addstr("ε", curses.A_REVERSE)
+
+    def draw_interval(self, interval, selected=False):
+        beg, end = interval
+        for position in range(beg, end):
+            # Print next character of the interval
+            attribute = curses.A_NORMAL
+            char = self.session.text[position]
+
+            # Apply attribute when char is selected
+            if selected:
+                attribute |= curses.A_REVERSE
+                # Display newline character explicitly when selected
+                if char == '\n':
+                    char = '↵\n'
+
+            # Apply attribute if char is labeled
+            if position in self.session.labeling:
+                for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
+                    if self.session.labeling[position] == label:
+                        attribute |= curses.color_pair(i + 1)
+
+            self.text_win.addstr(char, attribute)
+
     def draw_text(self, pending_operation=None):
         self.text_win.move(0, 0)
+
         # Find a suitable starting position
         y, x = self.text_win.getmaxyx()
-        if self.session.selection:
-            position = move_n_wrapped_lines_up(self.session.text, x, self.session.selection[0][0], int(y / 2))
-        else:
-            position = 0
+        position = move_n_wrapped_lines_up(self.session.text, x, self.session.selection[0][0], int(y / 2))
 
         try:
-            while 1:
-                # Print preview of operation if existent at current position
-                if pending_operation:
-                    interval = None
-                    for i in pending_operation.old_selection:
-                        if i[0] == position:
-                            interval = i
-                            break
-                    if interval:
-                        index = pending_operation.old_selection.index(interval)
-                        self.text_win.addstr(pending_operation.new_content[index].replace('\n', '↵\n'), curses.A_BOLD | curses.A_REVERSE)
-                        position += interval[1] - interval[0]
+            # Find index of first selected interval that has to be drawn
+            for index in range(len(self.session.selection)):
+                if self.session.selection[index][1] > position:
+                    break
 
-                # Stop printing when end of text reached
+            # Alternate between selected intervals and regular intervals
+            while 1:
+                if index < len(self.session.selection):
+                    interval = self.session.selection[index]  # interval is the next selected interval to be drawn
+
+                    if interval[0] <= position:
+                        # Print selected interval
+                        if pending_operation:
+                            self.draw_operation_interval(interval, pending_operation.new_content[index])
+                        else:
+                            self.draw_selection_interval(interval)
+                        position = interval[1]
+                        index += 1
+                    else:
+                        # Print regular interval
+                        self.draw_interval((position, interval[0]))
+                        position = interval[0]
+                else:
+                    self.draw_interval((position, len(self.session.text)))
+                    position = len(self.session.text)
+
                 if position >= len(self.session.text):
                     break
 
-                # Print next character of the text
-                attribute = curses.A_NORMAL
-                char = self.session.text[position]
-
-                # Apply attribute when char is selected
-                if self.session.selection.contains(position):
-                    attribute |= curses.A_REVERSE
-                    # Display newline character explicitly when selected
-                    if char == '\n':
-                        char = '↵\n'
-
-                # Apply attribute if char is labeled
-                if position in self.session.labeling:
-                    for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
-                        if self.session.labeling[position] == label:
-                            attribute |= curses.color_pair(i + 1)
-
-                self.text_win.addstr(char, attribute)
-                position += 1
-
             self.text_win.addstr('EOF\n', curses.A_BOLD)
-            self.set_status(self.session.filename + " | " + str(self.session.filetype) + " | " + self.mode + " | " + str(self.session.selection))
+            self.set_status(self.session.filename + " | " + str(self.session.filetype)
+                            + " | " + self.mode + " | " + str(self.session.selection))
         except curses.error:
+            # End of screen reached
             pass
 
         self.text_win.clrtobot()
