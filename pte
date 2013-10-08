@@ -16,6 +16,7 @@ class UserInterface:
         else:
             self.session = session.Session()
         self.session.read()
+        self.session.searchPattern = ""
 
     def main(self, stdscr):
         # Initialize color pairs from the terminal color palette
@@ -34,12 +35,7 @@ class UserInterface:
 
         # Enter the main loop
         while 1:
-            self.mode = 'SELECT'
-            if self.session.extend_mode:
-                self.mode = 'EXTEND'
-            if self.session.reduce_mode:
-                self.mode = 'REDUCE'
-
+            self.mode = self.session.selection_mode
             self.draw_text()
             self.selection_mode()
 
@@ -67,9 +63,8 @@ class UserInterface:
         elif key == ord('{'):
             s.select(selectors.previous_paragraph)
         elif key == 27:
-            if s.reduce_mode or s.extend_mode:
-                s.extend_mode = False
-                s.reduce_mode = False
+            if s.selection_mode != session.select_mode:
+                s.selection_mode = session.select_mode
             else:
                 s.select(selectors.single_character)
         elif key == ord('z'):
@@ -84,9 +79,11 @@ class UserInterface:
             s.searchPattern = re.escape(s.content(s.selection)[-1])
             s.select(selectors.pattern_selector(s.searchPattern))
         elif key == ord('n'):
-            s.select(selectors.pattern_selector(s.searchPattern))
+            if s.searchPattern:
+                s.select(selectors.pattern_selector(s.searchPattern))
         elif key == ord('N'):
-            s.select(selectors.pattern_selector(s.searchPattern, reverse=True))
+            if s.searchPattern:
+                s.select(selectors.pattern_selector(s.searchPattern, reverse=True))
         elif key == ord('i'):
             self.insert_mode(operators.insert_before)
         elif key == ord('a'):
@@ -103,13 +100,13 @@ class UserInterface:
         elif key == ord('p'):
             s.paste()
         elif key == ord('r'):
-            s.reduce_mode = True
-            s.extend_mode = False
+            s.selection_mode = session.reduce_mode
         elif key == ord('e'):
-            s.extend_mode = True
-            s.reduce_mode = False
+            s.selection_mode = session.extend_mode
         elif key == ord('u'):
             s.undo()
+        elif key == ord('W'):
+            s.write()
         elif key == ord(':'):
             scope = vars(s)
             for name in vars(session.Session).keys():
@@ -136,8 +133,7 @@ class UserInterface:
             if key == 27:
                 if operation != None:
                     self.session.apply(operation)
-                self.session.extend_mode = False
-                self.session.reduce_mode = False
+                self.session.selection_mode = session.select_mode
                 break;
             elif key == curses.KEY_BACKSPACE:
                 if len(insert_text) > 0:
@@ -146,14 +142,17 @@ class UserInterface:
                 insert_text += chr(key)
 
     def draw_operation_interval(self, interval, content):
-        self.text_win.addstr(content.replace('\n', '↵\n'), curses.A_BOLD | curses.A_REVERSE)
+        if content == '':
+            self.text_win.addstr('ε', curses.A_BOLD | curses.A_REVERSE)
+        else:
+            self.text_win.addstr(content.replace('\n', '↵\n'), curses.A_BOLD | curses.A_REVERSE)
 
     def draw_selection_interval(self, interval):
         beg, end = interval
         if end - beg > 0:
             self.draw_interval(interval, selected=True)
         else:
-            self.text_win.addstr("ε", curses.A_REVERSE)
+            self.text_win.addstr('ε', curses.A_REVERSE)
 
     def draw_interval(self, interval, selected=False):
         beg, end = interval
@@ -199,9 +198,6 @@ class UserInterface:
                     if interval[0] <= position:
                         # Print selected interval
                         if pending_operation:
-                            logging.debug('index: ' + str(index))
-                            logging.debug('new_content: ' + str(pending_operation.new_content))
-                            logging.debug('selection: ' + str(selection))
                             self.draw_operation_interval(interval, pending_operation.new_content[index])
                         else:
                             self.draw_selection_interval(interval)
