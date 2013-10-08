@@ -7,9 +7,9 @@ setup(name="pte",
       author_email="ctenbrinke@gmail.com",
       url="http://www.github.com/Chiel92/protexted",
       packages=['protexted',
-          'protexted.user',
           'protexted.undo_system',
           'protexted.labeling_system',
+          'protexted.clipboard_system',
           'protexted.filetype_system'
           ],
       scripts=["pte"]

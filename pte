@@ -6,6 +6,7 @@ from protexted.selection import Selection
 import curses
 from curses.textpad import Textbox
 import re
+import logging
 
 
 class UserInterface:
@@ -113,6 +114,7 @@ class UserInterface:
             scope = vars(s)
             for name in vars(session.Session).keys():
                 scope.update({name: eval('s.' + name)})
+            scope.update({'self': eval('s')})
             command = self.prompt(':')
             try:
                 result = eval(command, scope)
@@ -180,22 +182,26 @@ class UserInterface:
 
         # Find a suitable starting position
         y, x = self.text_win.getmaxyx()
-        position = move_n_wrapped_lines_up(self.session.text, x, self.session.selection[0][0], int(y / 2))
+        selection = self.session.selection
+        position = move_n_wrapped_lines_up(self.session.text, x, max(0, selection[0][0]), int(y / 2))
 
         try:
             # Find index of first selected interval that has to be drawn
-            for index in range(len(self.session.selection)):
-                if self.session.selection[index][1] > position:
+            for index in range(len(selection)):
+                if selection[index][1] > position:
                     break
 
             # Alternate between selected intervals and regular intervals
             while 1:
-                if index < len(self.session.selection):
-                    interval = self.session.selection[index]  # interval is the next selected interval to be drawn
+                if index < len(selection):
+                    interval = selection[index]  # interval is the next selected interval to be drawn
 
                     if interval[0] <= position:
                         # Print selected interval
                         if pending_operation:
+                            logging.debug('index: ' + str(index))
+                            logging.debug('new_content: ' + str(pending_operation.new_content))
+                            logging.debug('selection: ' + str(selection))
                             self.draw_operation_interval(interval, pending_operation.new_content[index])
                         else:
                             self.draw_selection_interval(interval)
