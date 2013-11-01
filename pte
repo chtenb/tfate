@@ -71,7 +71,7 @@ class UserInterface:
             s.select(selectors.complement)
         elif key == ord('f'):
             char = chr(self.stdscr.getch())
-            s.select(selectors.pattern_selector(re.escape(char)))
+            s.select(selectors.pattern_interval_selector(re.escape(char)))
         elif key == ord('/'):
             s.searchPattern = self.prompt('/')
             s.select(selectors.pattern_selector(s.searchPattern))
@@ -84,6 +84,9 @@ class UserInterface:
         elif key == ord('N'):
             if s.searchPattern:
                 s.select(selectors.pattern_selector(s.searchPattern, reverse=True))
+        elif key == ord('A'):
+            if s.searchPattern:
+                s.select(selectors.pattern_selector(s.searchPattern, all=True))
         elif key == ord('i'):
             self.insert_mode(operators.insert_before)
         elif key == ord('a'):
@@ -131,13 +134,13 @@ class UserInterface:
             self.draw_text(operation)
             key = self.stdscr.getch()
             if key == 27:
-                if operation != None:
-                    self.session.apply(operation)
+                self.session.apply(operation)
                 self.session.selection_mode = session.select_mode
                 break;
             elif key == curses.KEY_BACKSPACE:
-                if len(insert_text) > 0:
-                    insert_text = insert_text[:-1]
+                insert_text += '\b'
+            elif key == curses.KEY_DC:
+                insert_text += '\x7f'
             else:
                 insert_text += chr(key)
 
