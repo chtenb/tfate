@@ -88,13 +88,13 @@ class UserInterface:
             if s.searchPattern:
                 s.select(selectors.pattern_selector(s.searchPattern, all=True))
         elif key == ord('i'):
-            self.insert_mode(operators.insert_before)
+            self.insert_mode(operators.change_before)
         elif key == ord('a'):
-            self.insert_mode(operators.insert_after)
+            self.insert_mode(operators.change_after)
         elif key == ord('s'):
-            self.insert_mode(operators.insert_around)
+            self.insert_mode(operators.change_around)
         elif key == ord('c'):
-            self.insert_mode(operators.insert_in_place)
+            self.insert_mode(operators.change_in_place)
         elif key == ord('x'):
             operation = operators.delete(s.selection, s)
             s.apply(operation)
@@ -128,9 +128,10 @@ class UserInterface:
 
     def insert_mode(self, operator):
         self.mode = 'OPERATION'
-        insert_text = ''
+        insertions = ''
+        deletions = 0
         while 1:
-            operation = operator(self.session, self.session.selection, insert_text)
+            operation = operator(self.session, self.session.selection, insertions, deletions)
             self.draw_text(operation)
             key = self.stdscr.getch()
             if key == 27:
@@ -138,11 +139,15 @@ class UserInterface:
                 self.session.selection_mode = session.select_mode
                 break;
             elif key == curses.KEY_BACKSPACE:
-                insert_text += '\b'
+                if insertions:
+                    insertions = insertions[:-1]
+                else:
+                    deletions += 1
             elif key == curses.KEY_DC:
-                insert_text += '\x7f'
+                # Do something useful here?
+                pass
             else:
-                insert_text += chr(key)
+                insertions += chr(key)
 
     def draw_operation_interval(self, interval, content):
         if content == '':
