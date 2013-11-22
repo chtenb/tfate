@@ -62,11 +62,13 @@ class UserInterface:
             s.select(selectors.next_paragraph)
         elif key == ord('{'):
             s.select(selectors.previous_paragraph)
+        elif key == ord('m'):
+            s.select(selectors.join)
         elif key == 27:
             if s.selection_mode != session.select_mode:
                 s.selection_mode = session.select_mode
             else:
-                s.select(selectors.single_character)
+                s.select(selectors.empty)
         elif key == ord('z'):
             s.select(selectors.complement)
         elif key == ord('f'):
