@@ -47,9 +47,9 @@ class UserInterface:
         elif key == ord('k'):
             s.select(selectors.previous_line)
         elif key == ord('J'):
-            s.select(selectors.move_to_next_line)
+            s.select(selectors.next_full_line)
         elif key == ord('K'):
-            s.select(selectors.move_to_previous_line)
+            s.select(selectors.previous_full_line)
         elif key == ord('l'):
             s.select(selectors.next_char)
         elif key == ord('h'):
@@ -104,6 +104,8 @@ class UserInterface:
             s.copy()
         elif key == ord('p'):
             s.paste()
+        elif key == ord('P'):
+            s.paste(before=True)
         elif key == ord('r'):
             s.selection_mode = session.reduce_mode
         elif key == ord('e'):
