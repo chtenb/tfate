@@ -112,6 +112,8 @@ class UserInterface:
             s.selection_mode = session.extend_mode
         elif key == ord('u'):
             s.undo()
+        elif key == ord('U'):
+            s.redo()
         elif key == ord('W'):
             s.write()
         elif key == ord(':'):
@@ -122,7 +124,7 @@ class UserInterface:
             command = self.prompt(':')
             try:
                 result = eval(command, scope)
-                if result:
+                if result != None:
                     self.set_status(str(result))
                     self.stdscr.getch()
             except Exception as e:
@@ -227,6 +229,11 @@ class UserInterface:
                     break
 
             self.text_win.addstr('EOF\n', curses.A_BOLD)
+        except curses.error:
+            # End of screen reached
+            pass
+
+        try:
             self.set_status(self.session.filename + " | " + str(self.session.filetype)
                             + " | " + self.mode + " | " + str(self.session.selection))
         except curses.error:
