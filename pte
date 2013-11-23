@@ -7,7 +7,19 @@ import curses
 from curses.textpad import Textbox
 import re
 import logging
+import os
+import signal
 
+# Intercept ctrl-c, ctrl-\ and ctrl-z
+def signal_handler(signal, frame):
+    pass
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGQUIT, signal_handler)
+signal.signal(signal.SIGTSTP, signal_handler)
+
+# Lower the annoying delay for the escape character
+# VIM also uses 25 ms
+os.environ['ESCDELAY'] = '25'
 
 class UserInterface:
     def __init__(self):
@@ -42,6 +54,15 @@ class UserInterface:
     def selection_mode(self):
         key = self.stdscr.getch()
         s = self.session
+
+        if key == ord('Q'):
+            exit()
+
+        # Allow quantor to be set before a doing a selection
+        if key == ord('A'):
+            s.forall = True
+            key = self.stdscr.getch()
+
         if key == ord('j'):
             s.select(selectors.next_line)
         elif key == ord('k'):
@@ -86,9 +107,6 @@ class UserInterface:
         elif key == ord('N'):
             if s.searchPattern:
                 s.select(selectors.pattern_selector(s.searchPattern, reverse=True))
-        elif key == ord('A'):
-            if s.searchPattern:
-                s.select(selectors.pattern_selector(s.searchPattern, all=True))
         elif key == ord('i'):
             self.insert_mode(operators.change_before)
         elif key == ord('a'):
@@ -131,6 +149,9 @@ class UserInterface:
                 self.set_status(command + ' : ' + str(e))
                 self.stdscr.getch()
             self.status_win.clear()
+
+        # Reset quantors
+        s.forall = False
 
     def insert_mode(self, operator):
         self.mode = 'OPERATION'
