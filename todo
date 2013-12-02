@@ -1,5 +1,4 @@
 shortcut for begin and end of file
-keep track of unsaved changes
 easier file opening
 support multiple sessions
 better command interface (with completion)
