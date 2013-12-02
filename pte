@@ -11,6 +11,8 @@ import os
 import signal
 
 # Intercept ctrl-c, ctrl-\ and ctrl-z
+
+
 def signal_handler(signal, frame):
     pass
 signal.signal(signal.SIGINT, signal_handler)
@@ -20,6 +22,7 @@ signal.signal(signal.SIGTSTP, signal_handler)
 # Lower the annoying delay for the escape character
 # VIM also uses 25 ms
 os.environ['ESCDELAY'] = '25'
+
 
 class UserInterface:
     def __init__(self):
@@ -52,93 +55,105 @@ class UserInterface:
             self.selection_mode()
 
     def selection_mode(self):
-        key = self.stdscr.getch()
+        key = chr(self.stdscr.getch())
         s = self.session
 
-        if key == ord('Q'):
-            exit()
+        if key == 'Q':
+            if not self.session.saved:
+                self.set_status("Unsaved changes! Really quit? (y/n)")
+                while 1:
+                    c = chr(self.stdscr.getch())
+                    if c == 'y':
+                        exit()
+                    if c == 'n':
+                        break
+            else:
+                exit()
 
         # Allow quantor to be set before a doing a selection
-        if key == ord('A'):
+        if key == 'A':
             s.forall = True
             key = self.stdscr.getch()
 
-        if key == ord('j'):
+        if key == 'j':
             s.select(selectors.next_line)
-        elif key == ord('k'):
+        elif key == 'k':
             s.select(selectors.previous_line)
-        elif key == ord('J'):
+        elif key == 'J':
             s.select(selectors.next_full_line)
-        elif key == ord('K'):
+        elif key == 'K':
             s.select(selectors.previous_full_line)
-        elif key == ord('l'):
+        elif key == 'l':
             s.select(selectors.next_char)
-        elif key == ord('h'):
+        elif key == 'h':
             s.select(selectors.previous_char)
-        elif key == ord('w'):
+        elif key == 'w':
             s.select(selectors.next_word)
-        elif key == ord('b'):
+        elif key == 'b':
             s.select(selectors.previous_word)
-        elif key == ord('}'):
+        elif key == '}':
             s.select(selectors.next_paragraph)
-        elif key == ord('{'):
+        elif key == '{':
             s.select(selectors.previous_paragraph)
-        elif key == ord('m'):
+        elif key == 'm':
             s.select(selectors.join)
-        elif key == 27:
+        elif ord(key) == 27:
             if s.selection_mode != session.select_mode:
                 s.selection_mode = session.select_mode
             else:
                 s.select(selectors.empty)
-        elif key == ord('z'):
+        elif key == 'z':
             s.select(selectors.complement)
-        elif key == ord('f'):
+        elif key == 'f':
             char = chr(self.stdscr.getch())
             s.select(selectors.pattern_interval_selector(re.escape(char)))
-        elif key == ord('/'):
+        elif key == '/':
             s.searchPattern = self.prompt('/')
-            s.select(selectors.pattern_selector(s.searchPattern))
-        elif key == ord('*'):
+            s.select(selectors.global_pattern_selector(s.searchPattern))
+        elif key == '*':
             s.searchPattern = re.escape(s.content(s.selection)[-1])
-            s.select(selectors.pattern_selector(s.searchPattern))
-        elif key == ord('n'):
+            s.select(selectors.global_pattern_selector(s.searchPattern))
+        elif key == 'n':
             if s.searchPattern:
-                s.select(selectors.pattern_selector(s.searchPattern))
-        elif key == ord('N'):
+                s.select(selectors.global_pattern_selector(s.searchPattern))
+        elif key == 'N':
             if s.searchPattern:
-                s.select(selectors.pattern_selector(s.searchPattern, reverse=True))
-        elif key == ord('i'):
+                s.select(selectors.global_pattern_selector(s.searchPattern, reverse=True))
+        elif key == 'i':
             self.insert_mode(operators.change_before)
-        elif key == ord('a'):
+        elif key == 'a':
             self.insert_mode(operators.change_after)
-        elif key == ord('s'):
+        elif key == 's':
             self.insert_mode(operators.change_around)
-        elif key == ord('c'):
+        elif key == 'c':
             self.insert_mode(operators.change_in_place)
-        elif key == ord('x'):
-            operation = operators.delete(s.selection, s)
-            s.apply(operation)
-        elif key == ord('y'):
+        elif key == 'x':
+            operation = operators.delete(s.selection)
+            s.selection = s.apply(operation)
+        elif key == 'o':
+            s.selection = operators.open_line(s.selection)
+            self.insert_mode(operators.change_after)
+        elif key == 'y':
             s.copy()
-        elif key == ord('p'):
+        elif key == 'p':
             s.paste()
-        elif key == ord('P'):
+        elif key == 'P':
             s.paste(before=True)
-        elif key == ord('r'):
+        elif key == 'r':
             s.selection_mode = session.reduce_mode
-        elif key == ord('e'):
+        elif key == 'e':
             s.selection_mode = session.extend_mode
-        elif key == ord('u'):
+        elif key == 'u':
             s.undo()
-        elif key == ord('U'):
+        elif key == 'U':
             s.redo()
-        elif key == ord('W'):
+        elif key == 'W':
             s.write()
-        elif key == ord(':'):
+        elif key == ':':
             scope = vars(s)
             for name in vars(session.Session).keys():
                 scope.update({name: eval('s.' + name)})
-            scope.update({'self': eval('s')})
+            scope.update({'self': s})
             command = self.prompt(':')
             try:
                 result = eval(command, scope)
@@ -158,12 +173,11 @@ class UserInterface:
         insertions = ''
         deletions = 0
         while 1:
-            operation = operator(self.session, self.session.selection, insertions, deletions)
+            operation = operator(self.session.selection, insertions, deletions)
             self.draw_text(operation)
             key = self.stdscr.getch()
             if key == 27:
                 self.session.apply(operation)
-                self.session.selection_mode = session.select_mode
                 break;
             elif key == curses.KEY_BACKSPACE:
                 if insertions:
@@ -177,10 +191,8 @@ class UserInterface:
                 insertions += chr(key)
 
     def draw_operation_interval(self, interval, content):
-        if content == '':
-            self.text_win.addstr('ε', curses.A_BOLD | curses.A_REVERSE)
-        else:
-            self.text_win.addstr(content.replace('\n', '↵\n'), curses.A_BOLD | curses.A_REVERSE)
+        content = content.replace('\n', '↵\n') or 'ε'
+        self.text_win.addstr(content, curses.A_BOLD | curses.A_REVERSE)
 
     def draw_selection_interval(self, interval):
         beg, end = interval
@@ -255,7 +267,8 @@ class UserInterface:
             pass
 
         try:
-            self.set_status(self.session.filename + " | " + str(self.session.filetype)
+            self.set_status(self.session.filename +
+                           ("*" if not self.session.saved else "") + " | " + str(self.session.filetype)
                             + " | " + self.mode + " | " + str(self.session.selection))
         except curses.error:
             # End of screen reached
