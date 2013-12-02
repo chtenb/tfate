@@ -70,11 +70,6 @@ class UserInterface:
             else:
                 exit()
 
-        # Allow quantor to be set before a doing a selection
-        if key == 'A':
-            s.forall = True
-            key = self.stdscr.getch()
-
         if key == 'j':
             s.select(selectors.next_line)
         elif key == 'k':
@@ -164,9 +159,6 @@ class UserInterface:
                 self.set_status(command + ' : ' + str(e))
                 self.stdscr.getch()
             self.status_win.clear()
-
-        # Reset quantors
-        s.forall = False
 
     def insert_mode(self, operator):
         self.mode = 'OPERATION'
