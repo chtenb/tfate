@@ -2,9 +2,9 @@ import sys
 sys.path.insert(0, './ipython')
 import IPython
 
-from protexted.session import Session
-from protexted.selection import Selection
-from protexted import selectors, operators
+from fatecore.session import Session
+from fatecore.selection import Selection
+from fatecore import selectors, operators
 import logging
 
 def main(filename):

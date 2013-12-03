@@ -1,8 +1,8 @@
 #!python
 import sys
-from protexted import session
-from protexted import selectors, operators
-from protexted.selection import Selection
+from fatecore import session
+from fatecore import selectors, operators
+from fatecore.selection import Selection
 import curses
 from curses.textpad import Textbox
 import re
