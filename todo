@@ -2,3 +2,4 @@ shortcut for select all
 easier file opening
 support multiple sessions
 better command interface (with completion)
+move mappings to mapping.py
