@@ -1,4 +1,4 @@
-shortcut for select all
+fix drawing bug when file starts with newline chars
 easier file opening
 support multiple sessions
 better command interface (with completion)
