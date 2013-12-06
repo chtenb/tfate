@@ -37,7 +37,7 @@ class UserInterface:
 
         # Enter the main loop
         while 1:
-            self.mode = self.session.SELECTION_MODE
+            self.mode = self.session.selection_mode
             self.draw_text()
             self.normal_mode()
 
