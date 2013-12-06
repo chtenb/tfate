@@ -65,8 +65,8 @@ class UserInterface:
             if result != None:
                 self.set_status(str(result))
                 self.stdscr.getch()
-        except Exception as e:
-            self.set_status(command + ' : ' + str(e))
+        except Exception as err:
+            self.set_status(command + ' : ' + str(err))
             self.stdscr.getch()
         self.status_win.clear()
 
@@ -131,7 +131,8 @@ class UserInterface:
         # Find a suitable starting position
         ymax, xmax = self.text_win.getmaxyx()
         selection = self.session.selection
-        position = move_n_wrapped_lines_up(self.session.text, xmax, max(0, selection[0][0]), int(ymax / 2))
+        position = move_n_wrapped_lines_up(self.session.text, xmax,
+                                           max(0, selection[0][0]), int(ymax / 2))
 
         try:
             # Find index of first selected interval that has to be drawn
@@ -143,13 +144,16 @@ class UserInterface:
             # Alternate between selected intervals and regular intervals
             while 1:
                 if index < len(selection):
-                    interval = selection[index]  # interval is the next selected interval to be drawn
+                    # interval is the next selected interval to be drawn
+                    interval = selection[index]
 
                     if interval[0] <= position:
                         # Print selected interval
                         if pending_operator:
+                            pending_operation = pending_operator(self.session,
+                                                                 preview=True)
                             self.draw_operation_interval(interval,
-                                                         pending_operator(self.session, preview=True).new_content[index])
+                                                         pending_operation.new_content[index])
                         else:
                             self.draw_interval(interval, selected=True)
                         position = interval[1]
@@ -171,7 +175,8 @@ class UserInterface:
             pass
 
         try:
-            self.set_status(self.session.filename + ("*" if not self.session.saved else "")
+            self.set_status(self.session.filename
+                            + ("*" if not self.session.saved else "")
                             + " | " + str(self.session.filetype)
                             + " | " + self.mode
                             + " | " + str(self.session.selection))
@@ -207,6 +212,7 @@ class UserInterface:
         return text_box.gather()[:-1]
 
 
+# TODO: needs refactoring
 def move_n_wrapped_lines_up(text, wrap, start, n):
     position = text.rfind('\n', 0, start)
     if position == -1:
