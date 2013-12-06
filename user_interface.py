@@ -5,7 +5,6 @@ import key_mapping
 import curses
 from curses.textpad import Textbox
 import sys
-import logging
 
 
 class UserInterface:
