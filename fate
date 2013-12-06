@@ -8,10 +8,13 @@ import re
 import logging
 import os
 import signal
+from key_mapping import key_mapping
 
-# Intercept ctrl-c, ctrl-\ and ctrl-z
+
 def signal_handler(signal, frame):
     pass
+
+# Intercept ctrl-c, ctrl-\ and ctrl-z
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGQUIT, signal_handler)
 signal.signal(signal.SIGTSTP, signal_handler)
@@ -55,7 +58,9 @@ class UserInterface:
         key = chr(self.stdscr.getch())
         s = self.session
 
-        if key == 'Q':
+        if key in key_mapping:
+            s.apply(key_mapping[key])
+        elif key == 'Q':
             if not self.session.saved:
                 self.set_status("Unsaved changes! Really quit? (y/n)")
                 while 1:
@@ -66,38 +71,11 @@ class UserInterface:
                         break
             else:
                 exit()
-
-        if key == 'j':
-            s.apply(selectors.next_line)
-        elif key == 'k':
-            s.apply(selectors.previous_line)
-        elif key == 'J':
-            s.apply(selectors.next_full_line)
-        elif key == 'K':
-            s.apply(selectors.previous_full_line)
-        elif key == 'l':
-            s.apply(selectors.next_char)
-        elif key == 'h':
-            s.apply(selectors.previous_char)
-        elif key == 'w':
-            s.apply(selectors.next_word)
-        elif key == 'b':
-            s.apply(selectors.previous_word)
-        elif key == '}':
-            s.apply(selectors.next_paragraph)
-        elif key == '{':
-            s.apply(selectors.previous_paragraph)
-        elif key == 'm':
-            s.apply(selectors.join)
         elif ord(key) == 27:
             if s.selection_mode != modes.select_mode:
                 s.selection_mode = modes.select_mode
             else:
                 s.apply(selectors.empty)
-        elif key == 'z':
-            s.apply(selectors.complement)
-        elif key == 'A':
-            s.apply(selectors.everything)
         elif key == 'f':
             char = chr(self.stdscr.getch())
             s.apply(selectors.local_pattern_selector(re.escape(char)))
@@ -124,24 +102,12 @@ class UserInterface:
             self.insert_mode(operators.change_around)
         elif key == 'c':
             self.insert_mode(operators.change_in_place)
-        elif key == 'x':
-            s.apply(operators.delete)
         elif key == 'o':
             s.apply(actions.open_line_after)
             self.insert_mode(operators.change_after)
         elif key == 'O':
             s.apply(actions.open_line_before)
             self.insert_mode(operators.change_after)
-        elif key == 'y':
-            s.apply(actions.copy)
-        elif key == 'p':
-            s.apply(actions.paste_after)
-        elif key == 'P':
-            s.apply(actions.paste_before)
-        elif key == 'r':
-            s.apply(actions.reduce_mode)
-        elif key == 'e':
-            s.apply(actions.extend_mode)
         elif key == 'u':
             s.undo()
         elif key == 'U':

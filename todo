@@ -1,5 +1,7 @@
 fix drawing bug when file starts with newline chars
+move mappings to mapping.py
+improve navigating through text
+
 easier file opening
 support multiple sessions
 better command interface (with completion)
-move mappings to mapping.py
