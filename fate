@@ -1,10 +1,11 @@
 #!python
+"""Top level script which runs FATE."""
 from user_interface import UserInterface
 import curses
 import signal
 import os
 
-def signal_handler(signal, frame):
+def signal_handler(sig, frame):
     pass
 
 # Intercept ctrl-c, ctrl-\ and ctrl-z

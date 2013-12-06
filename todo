@@ -1,6 +1,6 @@
 fix drawing bug when file starts with newline chars
-move mappings to mapping.py
 improve navigating through text
+make insert spaces instead of tabs easier
 
 easier file opening
 support multiple sessions
