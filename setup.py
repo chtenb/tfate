@@ -6,10 +6,12 @@ setup(name="FATE",
       author="Chiel ten Brinke",
       author_email="ctenbrinke@gmail.com",
       url="http://www.github.com/Chiel92/fate",
-      packages=['fatecore',
-          'fatecore.undo_system',
-          'fatecore.labeling_system',
-          'fatecore.filetype_system'
+      packages=[
+          'tui',
+          'tui.fate',
+          'tui.fate.undo_system',
+          'tui.fate.labeling_system',
+          'tui.fate.filetype_system'
           ],
       scripts=["fate"]
       )

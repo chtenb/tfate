@@ -1,3 +1,6 @@
 [submodule "protexted"]
 	path = protexted
 	url = git@github.com:Chiel92/protexted.git
+[submodule "tui/fate"]
+	path = tui/fate
+	url = git@github.com:Chiel92/fate.git

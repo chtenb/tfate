@@ -1,7 +1,7 @@
 """This module contains the UserInterface class."""
-from fatecore.session import Session
-from fatecore import selectors, operators, actions, modes
-import key_mapping
+from .fate.session import Session
+from .fate import selectors, operators, actions, modes
+from . import key_mapping
 import curses
 from curses.textpad import Textbox
 import sys
@@ -65,8 +65,8 @@ class UserInterface:
             if result != None:
                 self.set_status(str(result))
                 self.stdscr.getch()
-        except Exception as err:
-            self.set_status(command + ' : ' + str(err))
+        except Exception as e:
+            self.set_status(command + ' : ' + str(e))
             self.stdscr.getch()
         self.status_win.clear()
 

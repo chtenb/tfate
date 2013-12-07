@@ -1,6 +1,6 @@
 #!python
 """Top level script which runs FATE."""
-from user_interface import UserInterface
+from tui.user_interface import UserInterface
 import curses
 import signal
 import os
