@@ -1,6 +1,6 @@
 """This module contains the UserInterface class."""
-from .fate.session import Session
-from .fate import selectors, operators, actions, modes
+from fate.session import Session
+from fate import selectors, operators, actions, modes
 from . import key_mapping
 import curses
 from curses.textpad import Textbox

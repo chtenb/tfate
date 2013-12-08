@@ -1,7 +1,7 @@
 """This module contains the key mapping as two dictionaries from chars to functions. The first one, `actions`, maps chars to actions. The
 second one, `ui_actions`, maps chars to ui actions, i.e. functions which take an UserInterface object."""
-from .fate import selectors, actions, operators
-from .fate.session import Session
+from fate import selectors, actions, operators
+from fate.session import Session
 from . import ui_actions
 
 

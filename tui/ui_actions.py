@@ -1,5 +1,5 @@
 """This module contains functions which act on the user interface. We shall call them ui actions."""
-from .fate import selectors, actions, operators
+from fate import selectors, actions, operators
 import re
 
 def quit_session(ui):
