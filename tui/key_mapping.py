@@ -5,7 +5,7 @@ from fate.session import Session
 from . import ui_actions
 
 
-actions = {
+action_keys = {
     'W': Session.write,
     'u': Session.undo,
     'U': Session.redo,
@@ -31,7 +31,7 @@ actions = {
     'x': operators.delete,
 }
 
-ui_actions = {
+ui_action_keys = {
     'Q': ui_actions.quit_session,
     'f': ui_actions.local_find,
     'F': ui_actions.local_find_backwards,

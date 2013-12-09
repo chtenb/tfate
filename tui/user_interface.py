@@ -2,6 +2,7 @@
 from fate.session import Session
 from fate import selectors, operators, actions, modes
 from . import key_mapping
+import user
 import curses
 from curses.textpad import Textbox
 import sys
@@ -17,6 +18,22 @@ class UserInterface:
         self.session.read()
         self.session.search_pattern = ""
         self.mode = modes.SELECT_MODE
+
+        # Load the right key mapping
+        # User maps override the default maps
+        self.action_keys = {}
+        self.action_keys.update(key_mapping.action_keys)
+        try:
+            self.action_keys.update(user.action_keys)
+        except AttributeError:
+            pass
+
+        self.ui_action_keys = {}
+        self.ui_action_keys.update(key_mapping.ui_action_keys)
+        try:
+            self.ui_action_keys.update(user.ui_action_keys)
+        except AttributeError:
+            pass
 
     def main(self, stdscr):
         """Actually starts the user interface."""
@@ -44,10 +61,10 @@ class UserInterface:
         """We are in normal mode."""
         key = chr(self.stdscr.getch())
 
-        if key in key_mapping.actions:
-            self.session.apply(key_mapping.actions[key])
-        elif key in key_mapping.ui_actions:
-            key_mapping.ui_actions[key](self)
+        if key in self.action_keys:
+            self.session.apply(self.action_keys[key])
+        elif key in self.ui_action_keys:
+            self.ui_action_keys[key](self)
         elif key == ':':
             self.command_mode()
 
