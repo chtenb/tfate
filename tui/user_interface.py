@@ -1,6 +1,6 @@
 """This module contains the UserInterface class."""
 from fate.session import Session
-from fate import selectors, operators, actions, modes
+from fate import actors, selectors, operators, modes
 from . import key_mapping
 import user
 import curses
@@ -62,7 +62,7 @@ class UserInterface:
         key = chr(self.stdscr.getch())
 
         if key in self.action_keys:
-            self.session.apply(self.action_keys[key])
+            self.action_keys[key](self.session)
         elif key in self.ui_action_keys:
             self.ui_action_keys[key](self)
         elif key == ':':
@@ -75,7 +75,7 @@ class UserInterface:
         scope.update({'self': session})
         scope.update({'selectors': selectors})
         scope.update({'operators': operators})
-        scope.update({'actions': actions})
+        scope.update({'actors': actors})
         command = self.prompt(':')
         try:
             result = eval(command, scope)
@@ -94,10 +94,11 @@ class UserInterface:
         deletions = 0
         while 1:
             pending_operator = operator_constructor(insertions, deletions)
-            self.draw_text(pending_operator)
+            pending_operation = pending_operator(self.session, preview=True)
+            self.draw_text(pending_operation)
             key = self.stdscr.getch()
             if key == 27:
-                self.session.apply(pending_operator)
+                pending_operation.do()
                 break
             elif key == curses.KEY_BACKSPACE:
                 if insertions:
@@ -141,7 +142,7 @@ class UserInterface:
 
                 self.text_win.addstr(char, attribute)
 
-    def draw_text(self, pending_operator=None):
+    def draw_text(self, pending_operation=None):
         """Draw the visible text in the text window."""
         self.text_win.move(0, 0)
 
@@ -166,9 +167,7 @@ class UserInterface:
 
                     if interval[0] <= position:
                         # Print selected interval
-                        if pending_operator:
-                            pending_operation = pending_operator(self.session,
-                                                                 preview=True)
+                        if pending_operation:
                             self.draw_operation_interval(interval,
                                                          pending_operation.new_content[index])
                         else:

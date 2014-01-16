@@ -1,14 +1,16 @@
-"""This module contains the key mapping as two dictionaries from chars to functions. The first one, `actions`, maps chars to actions. The
-second one, `ui_actions`, maps chars to ui actions, i.e. functions which take an UserInterface object."""
-from fate import selectors, actions, operators
+"""This module contains the key mapping as two dictionaries from chars to functions.
+The first one, `actions`, maps chars to actions.
+The second one, `ui_actions`, maps chars to ui actions,
+i.e. functions which take an UserInterface object."""
+from fate import selectors, actors, operators, modes
 from fate.session import Session
 from . import ui_actions
 
 
 action_keys = {
     'W': Session.write,
-    'u': Session.undo,
-    'U': Session.redo,
+    'u': Session.actiontree.undo,
+    'U': Session.actiontree.redo,
     'j': selectors.next_line,
     'k': selectors.previous_line,
     'J': selectors.next_full_line,
@@ -22,13 +24,14 @@ action_keys = {
     'm': selectors.join,
     'z': selectors.complement,
     'A': selectors.everything,
-    'y': actions.copy,
-    'p': actions.paste_after,
-    'P': actions.paste_before,
-    'r': actions.reduce_mode,
-    'e': actions.extend_mode,
-    chr(27): actions.escape,
-    'x': operators.delete,
+    'y': actors.copy,
+    'p': actors.paste_after,
+    'P': actors.paste_before,
+    'x': actors.cut,
+    chr(27): actors.escape,
+    'd': operators.delete,
+    'r': modes.reduce_mode,
+    'e': modes.extend_mode,
 }
 
 ui_action_keys = {
@@ -46,4 +49,3 @@ ui_action_keys = {
     'o': ui_actions.open_line_after,
     'O': ui_actions.open_line_before,
 }
-

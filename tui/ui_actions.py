@@ -1,5 +1,5 @@
-"""This module contains functions which act on the user interface. We shall call them ui actions."""
-from fate import selectors, actions, operators
+"""This module contains functions which act on the user interface. We shall call them ui actors."""
+from fate import actors, selectors, operators
 import re
 
 def quit_session(ui):
@@ -50,10 +50,10 @@ def search_previous(ui):
 
 
 def open_line_after(ui):
-    ui.session.apply(actions.open_line_after)
+    ui.session.apply(actors.open_line_after)
     ui.insert_mode(operators.change_after)
 
 
 def open_line_before(ui):
-    ui.session.apply(actions.open_line_before)
+    ui.session.apply(actors.open_line_before)
     ui.insert_mode(operators.change_after)
