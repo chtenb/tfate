@@ -2,7 +2,7 @@
 The first one, `actions`, maps chars to actions.
 The second one, `ui_actions`, maps chars to ui actions,
 i.e. functions which take an UserInterface object."""
-from fate import selectors, actors, operators, modes
+from fate import selectors, actors, operators, modes, clipboard
 from fate.session import Session
 from . import ui_actions
 
@@ -25,8 +25,9 @@ action_keys = {
     'u': actors.undo,
     'U': actors.redo,
     'y': actors.copy,
-    'p': actors.paste_after,
-    'P': actors.paste_before,
+    'Y': clipboard.clear,
+    'p': clipboard.paste_after,
+    'P': clipboard.paste_before,
     'x': actors.cut,
     chr(27): actors.escape,
     'd': operators.delete,

@@ -47,7 +47,8 @@ class UserInterface:
         self.stdscr = stdscr
         curses.curs_set(0)
         ymax, xmax = self.stdscr.getmaxyx()
-        self.text_win = curses.newwin(ymax - 5, xmax, 0, 0)
+        self.text_win = curses.newwin(ymax - 6, xmax, 0, 0)
+        self.clipboard_win = curses.newwin(1, xmax, ymax - 6, 0)
         self.actiontree_win = curses.newwin(4, xmax, ymax - 5, 0)
         self.status_win = curses.newwin(1, xmax, ymax - 1, 0)
         self.stdscr.refresh()
@@ -57,6 +58,7 @@ class UserInterface:
             self.mode = self.session.selection_mode
             self.draw_text()
             self.draw_action_tree()
+            self.draw_clipboard()
             self.normal_mode()
 
     def normal_mode(self):
@@ -232,11 +234,22 @@ class UserInterface:
     def draw_action_tree(self):
         """Draw the current actiontree to the actiontree_win."""
         try:
-            self.actiontree_win.addstr(0, 0, self.session.actiontree.pretty_print())
+            self.actiontree_win.addstr(0, 0, self.session.actiontree.dump())
         except curses.error:
             # End of window reached
             pass
+        self.actiontree_win.clrtobot()
         self.actiontree_win.refresh()
+
+    def draw_clipboard(self):
+        """Draw the current clipboard to the clipboard_win."""
+        try:
+            self.clipboard_win.addstr(0, 0, self.session.clipboard.dump())
+        except curses.error:
+            # End of window reached
+            pass
+        self.clipboard_win.clrtobot()
+        self.clipboard_win.refresh()
 
 
 # TODO: needs refactoring
