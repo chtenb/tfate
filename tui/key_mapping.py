@@ -9,8 +9,6 @@ from . import ui_actions
 
 action_keys = {
     'W': Session.write,
-    'u': Session.actiontree.undo,
-    'U': Session.actiontree.redo,
     'j': selectors.next_line,
     'k': selectors.previous_line,
     'J': selectors.next_full_line,
@@ -24,6 +22,8 @@ action_keys = {
     'm': selectors.join,
     'z': selectors.complement,
     'A': selectors.everything,
+    'u': actors.undo,
+    'U': actors.redo,
     'y': actors.copy,
     'p': actors.paste_after,
     'P': actors.paste_before,

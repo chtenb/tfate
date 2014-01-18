@@ -47,7 +47,8 @@ class UserInterface:
         self.stdscr = stdscr
         curses.curs_set(0)
         ymax, xmax = self.stdscr.getmaxyx()
-        self.text_win = curses.newwin(ymax - 1, xmax, 0, 0)
+        self.text_win = curses.newwin(ymax - 5, xmax, 0, 0)
+        self.actiontree_win = curses.newwin(4, xmax, ymax - 5, 0)
         self.status_win = curses.newwin(1, xmax, ymax - 1, 0)
         self.stdscr.refresh()
 
@@ -55,6 +56,7 @@ class UserInterface:
         while 1:
             self.mode = self.session.selection_mode
             self.draw_text()
+            self.draw_action_tree()
             self.normal_mode()
 
     def normal_mode(self):
@@ -94,7 +96,7 @@ class UserInterface:
         deletions = 0
         while 1:
             pending_operator = operator_constructor(insertions, deletions)
-            pending_operation = pending_operator(self.session, preview=True)
+            pending_operation = pending_operator(self.session, preview=True).sub_actions[0]
             self.draw_text(pending_operation)
             key = self.stdscr.getch()
             if key == 27:
@@ -110,37 +112,6 @@ class UserInterface:
                 pass
             else:
                 insertions += chr(key)
-
-    def draw_operation_interval(self, interval, content):
-        """Draw an interval which is operated upon."""
-        content = content.replace('\n', '↵\n') or 'ε'
-        self.text_win.addstr(content, curses.A_BOLD | curses.A_REVERSE)
-
-    def draw_interval(self, interval, selected=False):
-        """Draw a regular interval."""
-        beg, end = interval
-        if end - beg == 0:
-            self.text_win.addstr('ε', curses.A_REVERSE)
-        else:
-            for position in range(beg, end):
-                # Print next character of the interval
-                attribute = curses.A_NORMAL
-                char = self.session.text[position]
-
-                # Apply attribute when char is selected
-                if selected:
-                    attribute |= curses.A_REVERSE
-                    # Display newline character explicitly when selected
-                    if char == '\n':
-                        char = '↵\n'
-
-                # Apply attribute if char is labeled
-                if position in self.session.labeling:
-                    for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
-                        if self.session.labeling[position] == label:
-                            attribute |= curses.color_pair(i + 1)
-
-                self.text_win.addstr(char, attribute)
 
     def draw_text(self, pending_operation=None):
         """Draw the visible text in the text window."""
@@ -203,6 +174,37 @@ class UserInterface:
         self.text_win.clrtobot()
         self.text_win.refresh()
 
+    def draw_operation_interval(self, interval, content):
+        """Draw an interval which is operated upon."""
+        content = content.replace('\n', '↵\n') or 'ε'
+        self.text_win.addstr(content, curses.A_BOLD | curses.A_REVERSE)
+
+    def draw_interval(self, interval, selected=False):
+        """Draw a regular interval."""
+        beg, end = interval
+        if end - beg == 0:
+            self.text_win.addstr('ε', curses.A_REVERSE)
+        else:
+            for position in range(beg, end):
+                # Print next character of the interval
+                attribute = curses.A_NORMAL
+                char = self.session.text[position]
+
+                # Apply attribute when char is selected
+                if selected:
+                    attribute |= curses.A_REVERSE
+                    # Display newline character explicitly when selected
+                    if char == '\n':
+                        char = '↵\n'
+
+                # Apply attribute if char is labeled
+                if position in self.session.labeling:
+                    for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
+                        if self.session.labeling[position] == label:
+                            attribute |= curses.color_pair(i + 1)
+
+                self.text_win.addstr(char, attribute)
+
     def set_status(self, string):
         """Set the content of the status window."""
         self.status_win.bkgd(' ', curses.color_pair(9))
@@ -226,6 +228,15 @@ class UserInterface:
         text_box = Textbox(text_box_win)
         text_box.edit()
         return text_box.gather()[:-1]
+
+    def draw_action_tree(self):
+        """Draw the current actiontree to the actiontree_win."""
+        try:
+            self.actiontree_win.addstr(0, 0, self.session.actiontree.pretty_print())
+        except curses.error:
+            # End of window reached
+            pass
+        self.actiontree_win.refresh()
 
 
 # TODO: needs refactoring

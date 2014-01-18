@@ -1,5 +1,5 @@
 fix drawing bug when file starts with newline chars
-improve navigating through text
+improve navigating through display of text, actiontree and clipboard
 make insert spaces instead of tabs easier
 
 easier file opening
