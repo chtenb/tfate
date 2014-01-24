@@ -97,9 +97,12 @@ class UserInterface:
         insertions = ''
         deletions = 0
         while 1:
+            # This is a hacky fix to display the pending operation
+            # There must eventually be a neat way to do this
             pending_operator = operator_constructor(insertions, deletions)
-            pending_operation = pending_operator(self.session, preview=True).sub_actions[0]
-            self.draw_text(pending_operation)
+            pending_operation = pending_operator(self.session, preview=True)
+            inner_operation = pending_operation.sub_actions[0]
+            self.draw_text(inner_operation)
             key = self.stdscr.getch()
             if key == 27:
                 pending_operation.do()
@@ -234,7 +237,7 @@ class UserInterface:
     def draw_action_tree(self):
         """Draw the current actiontree to the actiontree_win."""
         try:
-            self.actiontree_win.addstr(0, 0, self.session.actiontree.dump())
+            self.actiontree_win.addstr(0, 0, 'History:\n' + self.session.actiontree.dump())
         except curses.error:
             # End of window reached
             pass
@@ -244,7 +247,7 @@ class UserInterface:
     def draw_clipboard(self):
         """Draw the current clipboard to the clipboard_win."""
         try:
-            self.clipboard_win.addstr(0, 0, self.session.clipboard.dump())
+            self.clipboard_win.addstr(0, 0, 'Clipboard: ' + self.session.clipboard.dump())
         except curses.error:
             # End of window reached
             pass
