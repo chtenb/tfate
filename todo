@@ -1,3 +1,4 @@
+in order to preview arbitrary actions, and have always correct focus computations, actions must have a preview flag, which will prevent from history pollution.
 fix drawing bug when file starts with newline chars
 improve navigating through display of text, actiontree and clipboard
 make insert spaces instead of tabs easier
@@ -5,3 +6,4 @@ make insert spaces instead of tabs easier
 easier file opening
 support multiple sessions
 better command interface (with completion)
+unicode art and colors!

@@ -4,8 +4,11 @@ from fate import actors, selectors, operators, modes
 from . import key_mapping
 import user
 import curses
-from curses.textpad import Textbox
 import sys
+from .textwin import TextWin
+from .clipboardwin import ClipboardWin
+from .actionwin import ActionWin
+from .statuswin import StatusWin
 
 
 class UserInterface:
@@ -47,18 +50,21 @@ class UserInterface:
         self.stdscr = stdscr
         curses.curs_set(0)
         ymax, xmax = self.stdscr.getmaxyx()
-        self.text_win = curses.newwin(ymax - 6, xmax, 0, 0)
-        self.clipboard_win = curses.newwin(1, xmax, ymax - 6, 0)
-        self.actiontree_win = curses.newwin(4, xmax, ymax - 5, 0)
+        self.text_win = TextWin(xmax, ymax - 6, 0, 0, self.session)
+        self.clipboard_win = ClipboardWin(xmax, 1, 0, ymax - 6, self.session)
+        self.actiontree_win = ActionWin(xmax, 4, 0, ymax - 5, self.session)
         self.status_win = curses.newwin(1, xmax, ymax - 1, 0)
+        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session)
         self.stdscr.refresh()
 
         # Enter the main loop
         while 1:
             self.mode = self.session.selection_mode
-            self.draw_text()
-            self.draw_action_tree()
-            self.draw_clipboard()
+            self.text_win.draw()
+            self.clipboard_win.draw()
+            self.actiontree_win.draw()
+            self.status_win.draw(self.mode)
+
             self.normal_mode()
 
     def normal_mode(self):
@@ -80,16 +86,16 @@ class UserInterface:
         scope.update({'selectors': selectors})
         scope.update({'operators': operators})
         scope.update({'actors': actors})
-        command = self.prompt(':')
+        command = self.status_win.prompt(':')
         try:
             result = eval(command, scope)
             if result != None:
-                self.set_status(str(result))
+                self.status_win.set_status(str(result))
                 self.stdscr.getch()
         except Exception as e:
-            self.set_status(command + ' : ' + str(e))
+            self.status_win.set_status(command + ' : ' + str(e))
             self.stdscr.getch()
-        self.status_win.clear()
+        self.status_win.draw(self.mode)
 
     def insert_mode(self, operator_constructor):
         """We are in insert mode."""
@@ -102,7 +108,7 @@ class UserInterface:
             pending_operator = operator_constructor(insertions, deletions)
             pending_operation = pending_operator(self.session, preview=True)
             inner_operation = pending_operation.sub_actions[0]
-            self.draw_text(inner_operation)
+            self.text_win.draw(inner_operation)
             key = self.stdscr.getch()
             if key == 27:
                 pending_operation.do()
@@ -118,153 +124,3 @@ class UserInterface:
             else:
                 insertions += chr(key)
 
-    def draw_text(self, pending_operation=None):
-        """Draw the visible text in the text window."""
-        self.text_win.move(0, 0)
-
-        # Find a suitable starting position
-        ymax, xmax = self.text_win.getmaxyx()
-        selection = self.session.selection
-        position = move_n_wrapped_lines_up(self.session.text, xmax,
-                                           max(0, selection[0][0]), int(ymax / 2))
-
-        try:
-            # Find index of first selected interval that has to be drawn
-            index = 0
-            for index in range(len(selection)):
-                if selection[index][1] > position:
-                    break
-
-            # Alternate between selected intervals and regular intervals
-            while 1:
-                if index < len(selection):
-                    # interval is the next selected interval to be drawn
-                    interval = selection[index]
-
-                    if interval[0] <= position:
-                        # Print selected interval
-                        if pending_operation:
-                            self.draw_operation_interval(interval,
-                                                         pending_operation.new_content[index])
-                        else:
-                            self.draw_interval(interval, selected=True)
-                        position = interval[1]
-                        index += 1
-                    else:
-                        # Print regular interval
-                        self.draw_interval((position, interval[0]))
-                        position = interval[0]
-                else:
-                    self.draw_interval((position, len(self.session.text)))
-                    position = len(self.session.text)
-
-                if position >= len(self.session.text):
-                    break
-
-            self.text_win.addstr('EOF\n', curses.A_BOLD)
-        except curses.error:
-            # End of window reached
-            pass
-
-        try:
-            self.set_status(self.session.filename
-                            + ("*" if not self.session.saved else "")
-                            + " | " + str(self.session.filetype)
-                            + " | " + self.mode
-                            + " | " + str(self.session.selection))
-        except curses.error:
-            # End of window reached
-            pass
-
-        self.text_win.clrtobot()
-        self.text_win.refresh()
-
-    def draw_operation_interval(self, interval, content):
-        """Draw an interval which is operated upon."""
-        content = content.replace('\n', '↵\n') or 'ε'
-        self.text_win.addstr(content, curses.A_BOLD | curses.A_REVERSE)
-
-    def draw_interval(self, interval, selected=False):
-        """Draw a regular interval."""
-        beg, end = interval
-        if end - beg == 0:
-            self.text_win.addstr('ε', curses.A_REVERSE)
-        else:
-            for position in range(beg, end):
-                # Print next character of the interval
-                attribute = curses.A_NORMAL
-                char = self.session.text[position]
-
-                # Apply attribute when char is selected
-                if selected:
-                    attribute |= curses.A_REVERSE
-                    # Display newline character explicitly when selected
-                    if char == '\n':
-                        char = '↵\n'
-
-                # Apply attribute if char is labeled
-                if position in self.session.labeling:
-                    for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
-                        if self.session.labeling[position] == label:
-                            attribute |= curses.color_pair(i + 1)
-
-                self.text_win.addstr(char, attribute)
-
-    def set_status(self, string):
-        """Set the content of the status window."""
-        self.status_win.bkgd(' ', curses.color_pair(9))
-        try:
-            self.status_win.addstr(0, 0, string, curses.color_pair(9))
-        except curses.error:
-            # End of window reached
-            pass
-        self.status_win.clrtobot()
-        self.status_win.refresh()
-
-    def prompt(self, prompt_string='>'):
-        """Prompt the user for an input string."""
-        self.status_win.clear()
-        ymax, xmax = self.stdscr.getmaxyx()
-        self.status_win.addstr(0, 0, prompt_string)
-        self.status_win.refresh()
-        prompt_len = len(prompt_string)
-        text_box_win = curses.newwin(1, xmax - prompt_len, ymax - 1, prompt_len)
-        text_box_win.bkgd(' ', curses.color_pair(9))
-        text_box = Textbox(text_box_win)
-        text_box.edit()
-        return text_box.gather()[:-1]
-
-    def draw_action_tree(self):
-        """Draw the current actiontree to the actiontree_win."""
-        try:
-            self.actiontree_win.addstr(0, 0, 'History:\n' + self.session.actiontree.dump())
-        except curses.error:
-            # End of window reached
-            pass
-        self.actiontree_win.clrtobot()
-        self.actiontree_win.refresh()
-
-    def draw_clipboard(self):
-        """Draw the current clipboard to the clipboard_win."""
-        try:
-            self.clipboard_win.addstr(0, 0, 'Clipboard: ' + self.session.clipboard.dump())
-        except curses.error:
-            # End of window reached
-            pass
-        self.clipboard_win.clrtobot()
-        self.clipboard_win.refresh()
-
-
-# TODO: needs refactoring
-def move_n_wrapped_lines_up(text, wrap, start, n):
-    position = text.rfind('\n', 0, start)
-    if position == -1:
-        return 0
-    while 1:
-        next = text.rfind('\n', 0, position - 1)
-        if next == -1:
-            return 0
-        n -= int((position - next) / wrap) + 1
-        if n <= 0:
-            return position + 1
-        position = next
