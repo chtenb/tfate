@@ -140,7 +140,7 @@ attr-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct argument names
 #argument-rgx=[a-z_][a-z0-9_]{2,30}$
-variable-rgx=[a-z_][a-z0-9_]*$
+argument-rgx=[a-z_][a-z0-9_]*$
 
 # Regular expression which should only match correct variable names
 #variable-rgx=[a-z_][a-z0-9_]{2,30}$

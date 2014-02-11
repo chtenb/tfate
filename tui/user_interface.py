@@ -103,15 +103,17 @@ class UserInterface:
         insertions = ''
         deletions = 0
         while 1:
+            pending_operator = operator_constructor(insertions, deletions)
+            pending_operator(self.session)
+
             # This is a hacky fix to display the pending operation
             # There must eventually be a neat way to do this
-            pending_operator = operator_constructor(insertions, deletions)
-            pending_operation = pending_operator(self.session, preview=True)
-            inner_operation = pending_operation.sub_actions[0]
-            self.text_win.draw(inner_operation)
+            #pending_operation = pending_operator(self.session, preview=True)
+            #inner_operation = pending_operation.sub_actions[0]
+
+            self.text_win.draw()
             key = self.stdscr.getch()
             if key == 27:
-                pending_operation.do()
                 break
             elif key == curses.KEY_BACKSPACE:
                 if insertions:
@@ -123,4 +125,7 @@ class UserInterface:
                 pass
             else:
                 insertions += chr(key)
+
+            # Undo the preview of the pending operator
+            self.session.actiontree.hard_undo()
 

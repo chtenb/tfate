@@ -4,7 +4,7 @@ import re
 
 def quit_session(ui):
     if not ui.session.saved:
-        ui.statuswin.set_status("Unsaved changes! Really quit? (y/n)")
+        ui.status_win.set_status("Unsaved changes! Really quit? (y/n)")
         while 1:
             char = chr(ui.stdscr.getch())
             if char == 'y':
