@@ -1,3 +1,4 @@
+"""This module is for messing with input characters."""
 import curses
 
 def main(stdscr):

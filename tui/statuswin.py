@@ -20,9 +20,9 @@ class StatusWin(Win):
 
     def set_status(self, string):
         """Set the content of the status window."""
-        self.win.bkgd(' ', curses.color_pair(9))
+        self.win.bkgd(' ', curses.color_pair(17))
         try:
-            self.win.addstr(0, 0, string, curses.color_pair(9))
+            self.win.addstr(0, 0, string, curses.color_pair(17))
         except curses.error:
             # End of window reached
             pass
@@ -38,7 +38,7 @@ class StatusWin(Win):
         self.win.refresh()
         prompt_len = len(prompt_string)
         text_box_win = curses.newwin(1, xmax - prompt_len, y, x + prompt_len)
-        text_box_win.bkgd(' ', curses.color_pair(9))
+        text_box_win.bkgd(' ', curses.color_pair(17))
         text_box = Textbox(text_box_win)
         text_box.edit()
         return text_box.gather()[:-1]

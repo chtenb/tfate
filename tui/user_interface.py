@@ -41,10 +41,12 @@ class UserInterface:
     def main(self, stdscr):
         """Actually starts the user interface."""
         # Initialize color pairs from the terminal color palette
+        # 0 is the default, 1-16 are the palette colors,
+        # 17-32 are palette colors with a different background
         curses.use_default_colors()
-        for i in range(0, curses.COLORS):
-            curses.init_pair(i, i, -1)
-        curses.init_pair(9, -1, 0)
+        for i in range(0, 15):
+            curses.init_pair(i + 1, i, -1)
+            curses.init_pair(i + 17, i, 8)
 
         # Create curses windows
         self.stdscr = stdscr
@@ -124,4 +126,8 @@ class UserInterface:
 
             # Undo the preview of the pending operator
             self.session.actiontree.hard_undo()
+
+    def prompt(self, prompt_string='>'):
+        """Prompt the user for an input string."""
+        return self.status_win.prompt(prompt_string)
 

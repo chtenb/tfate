@@ -59,7 +59,7 @@ class TextWin(Win):
             if position in labeling:
                 for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                     if labeling[position] == label:
-                        attribute |= curses.color_pair(i + 1)
+                        attribute |= curses.color_pair(10 + i)
 
             try:
                 self.win.addstr(char, attribute)
