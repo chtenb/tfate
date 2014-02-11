@@ -74,14 +74,14 @@ class TextWin(Win):
 def move_n_wrapped_lines_up(text, max_line_width, start, n):
     """Return position that is n lines above start."""
     position = text.rfind('\n', 0, start)
-    if position == -1:
+    if position <= 0:
         return 0
     while 1:
-        nextline = text.rfind('\n', 0, position - 1)
-        if nextline == -1:
+        previousline = text.rfind('\n', 0, position - 1)
+        if previousline <= 0:
             return 0
-        n -= int((position - nextline) / max_line_width) + 1
+        n -= int((position - previousline) / max_line_width) + 1
         if n <= 0:
             return position + 1
-        position = nextline
+        position = previousline
 

@@ -103,13 +103,9 @@ class UserInterface:
         insertions = ''
         deletions = 0
         while 1:
+            # Apply the operator to provide a preview
             pending_operator = operator_constructor(insertions, deletions)
             pending_operator(self.session)
-
-            # This is a hacky fix to display the pending operation
-            # There must eventually be a neat way to do this
-            #pending_operation = pending_operator(self.session, preview=True)
-            #inner_operation = pending_operation.sub_actions[0]
 
             self.text_win.draw()
             key = self.stdscr.getch()
