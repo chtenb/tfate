@@ -27,19 +27,8 @@ class ActionWin(Win):
         # Then print tree downwards until exceed height or width
         string = '\n'.join(dump(upperleft, actiontree.current_node, self.height, self.width))
 
-        try:
-            self.win.addstr(0, 0, 'History:\n' + string)
-           # parent = (str(actiontree.current_node.parent.action) + '\n'
-                     # if actiontree.current_node.parent else '')
-           # current = str(self.session.actiontree.current_node.action)
-           # self.win.addstr(0, 0, 'Current action:\n' + parent + current)
-
-        except curses.error:
-           # End of window reached
-            pass
-        self.win.clrtobot()
-        self.win.refresh()
-
+        self.draw_line('History:')
+        self.draw_line(string)
 
 def traverse_up(node, height, width):
     """Traverse upwards until exceed height or width."""
@@ -82,3 +71,4 @@ def dump(node, current_node, height=0, width=0):
 
         result.extend(child_dump)
     return result
+

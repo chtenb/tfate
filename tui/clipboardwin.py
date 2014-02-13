@@ -11,10 +11,11 @@ class ClipboardWin(Win):
 
     def draw(self):
         """Draw clipboard"""
-        string = '-'.join('o' for x in self.session.clipboard.storage)
-        try:
-            self.win.addstr(0, 0, 'Clipboard: ' + string)
-        except curses.error:
-            # End of window reached
-            pass
-        Win.draw(self)
+        caption = 'Clipboard: '
+        content = ', '.join(self.session.clipboard.peek() or ['Empty'])
+        stack = '-'.join('o' for x in self.session.clipboard.storage)
+        stacktail = stack[1 - self.width:]
+
+        self.draw_line(caption)
+        self.draw_line(content)
+        self.draw_line(stacktail)

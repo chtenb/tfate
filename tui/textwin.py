@@ -16,12 +16,11 @@ class TextWin(Win):
         labeling = self.session.labeling
 
         # Find a suitable starting position
-        self.win.move(0, 0)
-        ymax, xmax = self.win.getmaxyx()
         length = len(text)
-        position = move_n_wrapped_lines_up(self.session.text, xmax,
+        position = move_n_wrapped_lines_up(text,
+                                           self.width,
                                            max(0, selection[0][0]),
-                                           int(ymax / 2))
+                                           int(self.height / 2))
 
         # Find the places of all empty selected intervals
         empty_intervals = []
@@ -32,11 +31,7 @@ class TextWin(Win):
         # Draw every character
         while 1:
             if position >= length:
-                try:
-                    self.win.addstr('EOF\n', curses.A_BOLD)
-                except curses.error:
-                    # End of window reached
-                    pass
+                self.draw_line('EOF', curses.A_BOLD)
                 break
 
             # Draw possible empty selected interval at position
@@ -68,8 +63,6 @@ class TextWin(Win):
                 # End of window reached
                 break
 
-        self.win.clrtobot()
-        self.win.refresh()
 
 def move_n_wrapped_lines_up(text, max_line_width, start, n):
     """Return position that is n lines above start."""
@@ -84,4 +77,3 @@ def move_n_wrapped_lines_up(text, max_line_width, start, n):
         if n <= 0:
             return position + 1
         position = previousline
-

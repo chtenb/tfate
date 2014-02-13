@@ -48,37 +48,42 @@ class UserInterface:
             curses.init_pair(i + 1, i, -1)
             curses.init_pair(i + 17, i, 8)
 
-        # Create curses windows
         self.stdscr = stdscr
         curses.curs_set(0)
-        ymax, xmax = self.stdscr.getmaxyx()
-        self.text_win = TextWin(xmax, ymax - 10, 0, 0, self.session)
-        self.clipboard_win = ClipboardWin(xmax, 1, 0, ymax - 10, self.session)
-        self.actiontree_win = ActionWin(xmax, 9, 0, ymax - 9, self.session)
-        self.status_win = curses.newwin(1, xmax, ymax - 1, 0)
-        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session)
-        self.stdscr.refresh()
+        self.create_windows()
 
         # Enter the main loop
         while 1:
             self.mode = self.session.selection_mode
-            self.text_win.draw()
-            self.clipboard_win.draw()
-            self.actiontree_win.draw()
-            self.status_win.draw(self.mode)
+            self.text_win.refresh()
+            self.clipboard_win.refresh()
+            self.actiontree_win.refresh()
+            self.status_win.refresh()
 
             self.normal_mode()
+
+    def create_windows(self):
+        """Create all curses windows."""
+        ymax, xmax = self.stdscr.getmaxyx()
+        self.text_win = TextWin(xmax, ymax - 10, 0, 0, self.session)
+        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
+        self.actiontree_win = ActionWin(xmax, 7, 0, ymax - 7, self.session)
+        self.status_win = curses.newwin(1, xmax, ymax - 1, 0)
+        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
+        self.stdscr.refresh()
 
     def normal_mode(self):
         """We are in normal mode."""
         key = chr(self.stdscr.getch())
 
-        if key in self.action_keys:
+        if key == chr(curses.KEY_RESIZE):
+            self.create_windows()
+        elif key == ':':
+            self.command_mode()
+        elif key in self.action_keys:
             self.action_keys[key](self.session)
         elif key in self.ui_action_keys:
             self.ui_action_keys[key](self)
-        elif key == ':':
-            self.command_mode()
 
     def command_mode(self):
         """We are in command mode."""
