@@ -14,6 +14,7 @@ class Win():
 
     def draw(self):
         """Draw the window."""
+        self.win.clrtobot()
         self.win.refresh()
 
     @property

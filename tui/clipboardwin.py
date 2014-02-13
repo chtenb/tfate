@@ -11,10 +11,10 @@ class ClipboardWin(Win):
 
     def draw(self):
         """Draw clipboard"""
+        string = '-'.join('o' for x in self.session.clipboard.storage)
         try:
-            self.win.addstr(0, 0, 'Clipboard: ' + self.session.clipboard.dump())
+            self.win.addstr(0, 0, 'Clipboard: ' + string)
         except curses.error:
             # End of window reached
             pass
-        self.win.clrtobot()
-        self.win.refresh()
+        Win.draw(self)
