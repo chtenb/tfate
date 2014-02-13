@@ -50,3 +50,4 @@ ui_action_keys = {
     'o': ui_actions.open_line_after,
     'O': ui_actions.open_line_before,
 }
+

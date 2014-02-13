@@ -57,3 +57,4 @@ def open_line_after(ui):
 def open_line_before(ui):
     actors.open_line_before(ui.session)
     ui.insert_mode(operators.change_after)
+

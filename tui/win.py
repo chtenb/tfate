@@ -16,10 +16,19 @@ class Win():
         """Draw the window."""
         self.win.refresh()
 
-    def draw_focused_string(self, string, n):
-        """Draw string with focus on nth character."""
-        height, width = self.win.getmaxyx()
+    @property
+    def width(self):
+        """Width of the window."""
+        _, width = self.win.getmaxyx()
+        return width
 
+    @property
+    def height(self):
+        """Height of the window."""
+        height, _ = self.win.getmaxyx()
+        return height
+
+    def draw_centered_string(self, string, n):
+        """Draw string centered on nth character."""
         self.win.move(0, 0)
-
 

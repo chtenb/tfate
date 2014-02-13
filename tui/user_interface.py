@@ -52,9 +52,9 @@ class UserInterface:
         self.stdscr = stdscr
         curses.curs_set(0)
         ymax, xmax = self.stdscr.getmaxyx()
-        self.text_win = TextWin(xmax, ymax - 6, 0, 0, self.session)
-        self.clipboard_win = ClipboardWin(xmax, 1, 0, ymax - 6, self.session)
-        self.actiontree_win = ActionWin(xmax, 4, 0, ymax - 5, self.session)
+        self.text_win = TextWin(xmax, ymax - 10, 0, 0, self.session)
+        self.clipboard_win = ClipboardWin(xmax, 1, 0, ymax - 10, self.session)
+        self.actiontree_win = ActionWin(xmax, 9, 0, ymax - 9, self.session)
         self.status_win = curses.newwin(1, xmax, ymax - 1, 0)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session)
         self.stdscr.refresh()
@@ -102,6 +102,7 @@ class UserInterface:
     def insert_mode(self, operator_constructor):
         """We are in insert mode."""
         self.mode = 'OPERATION'
+        self.status_win.draw(self.mode)
         insertions = ''
         deletions = 0
         while 1:
