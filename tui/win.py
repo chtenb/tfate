@@ -36,7 +36,8 @@ class Win():
 
     def draw_line(self, string, attributes=None):
         """Try to draw string ending with an eol."""
-        self.draw_string(string + '\n', attributes)
+        self.draw_string(string, attributes)
+        self.draw_string(''.join([' ' for _ in range(self.width - len(string))]), attributes)
 
     @property
     def width(self):
@@ -61,4 +62,3 @@ class Win():
         """Y coordinate of upper left corner."""
         y, _ = self.win.getbegyx()
         return y
-

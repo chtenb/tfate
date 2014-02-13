@@ -58,6 +58,7 @@ class UserInterface:
             self.text_win.refresh()
             self.clipboard_win.refresh()
             self.actiontree_win.refresh()
+            self.status_win.draw_default_status()
             self.status_win.refresh()
 
             self.normal_mode()
@@ -68,7 +69,6 @@ class UserInterface:
         self.text_win = TextWin(xmax, ymax - 10, 0, 0, self.session)
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.actiontree_win = ActionWin(xmax, 7, 0, ymax - 7, self.session)
-        self.status_win = curses.newwin(1, xmax, ymax - 1, 0)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
         self.stdscr.refresh()
 
@@ -100,14 +100,14 @@ class UserInterface:
                 self.status_win.set_status(str(result))
                 self.stdscr.getch()
         except Exception as e:
-            self.status_win.set_status(command + ' : ' + str(e))
+            self.status_win.draw_status(command + ' : ' + str(e))
             self.stdscr.getch()
-        self.status_win.draw(self.mode)
+        self.status_win.refresh()
 
     def insert_mode(self, operator_constructor):
         """We are in insert mode."""
         self.mode = 'OPERATION'
-        self.status_win.draw(self.mode)
+        self.status_win.refresh()
         insertions = ''
         deletions = 0
         while 1:
@@ -115,7 +115,7 @@ class UserInterface:
             pending_operator = operator_constructor(insertions, deletions)
             pending_operator(self.session)
 
-            self.text_win.draw()
+            self.text_win.refresh()
             key = self.stdscr.getch()
             if key == 27:
                 break

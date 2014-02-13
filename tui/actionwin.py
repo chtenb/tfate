@@ -23,34 +23,40 @@ class ActionWin(Win):
         # and parents branches, and width/2 children and parents
 
         # So first traverse upwards until exceed height or width
-        upperleft = traverse_up(actiontree.current_node, int(self.height / 2), int(self.width / 2))
+        upperleft = traverse_up(actiontree.current_node,
+                                int((self.height - 1) * 2 / 3),
+                                int((self.width - 1) * 2 / 3))
         # Then print tree downwards until exceed height or width
-        string = '\n'.join(dump(upperleft, actiontree.current_node, self.height, self.width))
+        string = '\n'.join(dump(upperleft, actiontree.current_node,
+                                self.height, self.width))
+        #string = str(dump(upperleft, actiontree.current_node,
+                                #self.height, self.width))
 
-        self.draw_line('History:')
-        self.draw_line(string)
+        self.draw_line('History', curses.color_pair(17))
+        self.draw_string(string)
+
 
 def traverse_up(node, height, width):
     """Traverse upwards until exceed height or width."""
-    if not node.parent or height <= 0 or width <= 0:
+    parent = node.parent
+    if not parent or height <= 0 or width <= 0:
         return node
-    elif len(node.parent.children) == 1:
-        return traverse_up(node.parent, height, width - 2)
     else:
-        return traverse_up(node.parent, height - 1, width - 2)
+        return traverse_up(parent, height - len(parent.children) + 1, width - 2)
 
 
-def dump(node, current_node, height=0, width=0):
+def dump(node, current_node, height, width):
     """
     Return an array with the pretty printed lines of children
     of node, until we exceed height or width.
     """
     me = 'X' if node is current_node else 'o'
 
-    if not node.children:
+    if not node.children:  # or height <= 0 or width <= 0:
         return [me]
 
     result = []
+    height -= 1
     for i, child in enumerate(node.children):
         child_dump = dump(child, current_node, height, width - 2)
         height -= len(child_dump)
@@ -71,4 +77,3 @@ def dump(node, current_node, height=0, width=0):
 
         result.extend(child_dump)
     return result
-

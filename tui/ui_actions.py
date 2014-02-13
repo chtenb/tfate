@@ -1,10 +1,13 @@
-"""This module contains functions which act on the user interface. We shall call them ui actors."""
+"""
+This module contains functions which act on the user interface.
+We shall call them ui actors.
+"""
 from fate import actors, selectors, operators
 import re
 
 def quit_session(ui):
     if not ui.session.saved:
-        ui.status_win.set_status("Unsaved changes! Really quit? (y/n)")
+        ui.status_win.draw_status("Unsaved changes! Really quit? (y/n)")
         while 1:
             char = chr(ui.stdscr.getch())
             if char == 'y':

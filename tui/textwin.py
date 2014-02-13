@@ -17,8 +17,7 @@ class TextWin(Win):
 
         # Find a suitable starting position
         length = len(text)
-        position = move_n_wrapped_lines_up(text,
-                                           self.width,
+        position = move_n_wrapped_lines_up(text, self.width,
                                            max(0, selection[0][0]),
                                            int(self.height / 2))
 
