@@ -23,23 +23,28 @@ class ActionWin(Win):
         # and parents branches, and width/2 children and parents
 
         # So first traverse upwards until exceed height or width
-        upperleft = traverse_up(actiontree.current_node,
+        upperbound = traverse_up(actiontree.current_node,
                                 int((self.height - 1) * 2 / 3),
                                 int((self.width - 1) * 2 / 3))
         # Then print tree downwards until exceed height or width
-        string = '\n'.join(dump(upperleft, actiontree.current_node,
+        string = '\n'.join(dump(upperbound, actiontree.current_node,
                                 self.height, self.width))
-        #string = str(dump(upperleft, actiontree.current_node,
-                                #self.height, self.width))
 
         self.draw_line('History', curses.color_pair(17))
+
+        #lines = [', '.join([str((i, j)) for j in range(100)]) for i in range(100)]
+        #string = '\n'.join(lines)
+        #string = self.crop(string, 3910)
+
+        center = string.find('X')
+        string = self.crop(string, center)
         self.draw_string(string)
 
 
 def traverse_up(node, height, width):
     """Traverse upwards until exceed height or width."""
     parent = node.parent
-    if not parent or height <= 0 or width <= 0:
+    if not parent:# or height <= 0 or width <= 0:
         return node
     else:
         return traverse_up(parent, height - len(parent.children) + 1, width - 2)

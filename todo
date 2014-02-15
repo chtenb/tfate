@@ -1,8 +1,10 @@
-fix display of actiontree
+SHORT TERM
+fix display of actiontree, first make it work without bounding
 improve navigating through display of text, actiontree and clipboard
+better command interface (with completion) using rlcompleter module
 make insert spaces instead of tabs easier
 
+LONG TERM
 easier file opening
 support multiple sessions
-better command interface (with completion)
 unicode art and colors!
