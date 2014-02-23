@@ -1,6 +1,7 @@
 """This module contains the UserInterface class."""
 from fate.session import Session
 from fate import actors, selectors, operators, modes
+from fate.operation import Operation
 from . import key_mapping
 import user
 import curses
@@ -55,6 +56,8 @@ class UserInterface:
         # Enter the main loop
         while 1:
             self.mode = self.session.selection_mode
+            if self.session.insertoperation:
+                self.mode = 'INSERT'
             self.text_win.refresh()
             self.clipboard_win.refresh()
             self.actiontree_win.refresh()
@@ -78,6 +81,8 @@ class UserInterface:
 
         if key == chr(curses.KEY_RESIZE):
             self.create_windows()
+        elif self.session.insertoperation:
+            self.insert_mode(key)
         elif key == ':':
             self.command_mode()
         elif key in self.action_keys:
@@ -104,34 +109,19 @@ class UserInterface:
             self.stdscr.getch()
         self.status_win.refresh()
 
-    def insert_mode(self, operator_constructor):
+    def insert_mode(self, key):
         """We are in insert mode."""
-        self.mode = 'OPERATION'
-        self.status_win.refresh()
-        insertions = ''
-        deletions = 0
-        while 1:
-            # Apply the operator to provide a preview
-            pending_operator = operator_constructor(insertions, deletions)
-            pending_operator(self.session)
+        session = self.session
 
-            self.text_win.refresh()
-            key = self.stdscr.getch()
-            if key == 27:
-                break
-            elif key == curses.KEY_BACKSPACE:
-                if insertions:
-                    insertions = insertions[:-1]
-                else:
-                    deletions += 1
-            elif key == curses.KEY_DC:
-                # Do something useful here?
-                pass
-            else:
-                insertions += chr(key)
-
-            # Undo the preview of the pending operator
-            self.session.actiontree.hard_undo()
+        if key == chr(27):
+            session.insertoperation.done()
+            return
+        elif key == chr(curses.KEY_BACKSPACE):
+            char = '\b'
+        else:
+            char = key
+        session.insertoperation.feed(char)
+        self.text_win.refresh()
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""

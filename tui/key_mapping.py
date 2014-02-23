@@ -33,6 +33,10 @@ action_keys = {
     'd': operators.delete,
     'r': modes.reduce_mode,
     'e': modes.extend_mode,
+    'i': operators.change_before,
+    'a': operators.change_after,
+    's': operators.change_around,
+    'c': operators.change_in_place,
 }
 
 ui_action_keys = {
@@ -43,11 +47,17 @@ ui_action_keys = {
     '*': ui_actions.search_current_content,
     'n': ui_actions.search_next,
     'N': ui_actions.search_previous,
-    'i': lambda ui: ui.insert_mode(operators.change_before),
-    'a': lambda ui: ui.insert_mode(operators.change_after),
-    's': lambda ui: ui.insert_mode(operators.change_around),
-    'c': lambda ui: ui.insert_mode(operators.change_in_place),
     'o': ui_actions.open_line_after,
     'O': ui_actions.open_line_before,
 }
+
+def print_key_mapping():
+    """Prints the keys with their explanation."""
+    def print_key(key, action):
+        print(key + ': ' + action.__docs__)
+
+    for key, action in action_keys.items():
+        print_key(key, action)
+    for key, action in ui_action_keys.items():
+        print_key(key, action)
 

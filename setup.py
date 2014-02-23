@@ -1,8 +1,8 @@
 from distutils.core import setup
 
-setup(name='FATE',
+setup(name='fate',
       version='0.0.1',
-      description='Terminal user interface for FATE',
+      description='Terminal user interface for fate',
       author='Chiel ten Brinke',
       author_email='ctenbrinke@gmail.com',
       url='http://www.github.com/Chiel92/fate',
@@ -10,7 +10,6 @@ setup(name='FATE',
       packages=[
           'tui',
           'fate',
-          'fate.undo_system',
           'fate.labeling_system',
           'fate.filetype_system'
       ],

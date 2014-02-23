@@ -31,7 +31,11 @@ def local_find_backwards(ui):
 def search(ui):
     s = ui.session
     s.search_pattern = ui.prompt('/')
-    selectors.global_pattern_selector(s.search_pattern)(s)
+    try:
+        selectors.global_pattern_selector(s.search_pattern)(s)
+    except:
+        ui.status_win.draw_status('Invalid regex')
+        ui.stdscr.getch()
 
 
 def search_current_content(ui):

@@ -24,18 +24,14 @@ class ActionWin(Win):
 
         # So first traverse upwards until exceed height or width
         upperbound = traverse_up(actiontree.current_node,
-                                int((self.height - 1) * 2 / 3),
-                                int((self.width - 1) * 2 / 3))
+                                int(self.height / 2) + 1,
+                                int(self.width / 2) + 1)
+                                #self.height, self.width)
         # Then print tree downwards until exceed height or width
         string = '\n'.join(dump(upperbound, actiontree.current_node,
                                 self.height, self.width))
 
         self.draw_line('History', curses.color_pair(17))
-
-        #lines = [', '.join([str((i, j)) for j in range(100)]) for i in range(100)]
-        #string = '\n'.join(lines)
-        #string = self.crop(string, 3910)
-
         center = string.find('X')
         string = self.crop(string, center)
         self.draw_string(string)
@@ -44,7 +40,7 @@ class ActionWin(Win):
 def traverse_up(node, height, width):
     """Traverse upwards until exceed height or width."""
     parent = node.parent
-    if not parent:# or height <= 0 or width <= 0:
+    if not parent or height <= 0 or width <= 0:
         return node
     else:
         return traverse_up(parent, height - len(parent.children) + 1, width - 2)
@@ -57,14 +53,13 @@ def dump(node, current_node, height, width):
     """
     me = 'X' if node is current_node else 'o'
 
-    if not node.children:  # or height <= 0 or width <= 0:
+    if not node.children or height <= 0 or width <= 0:
         return [me]
 
     result = []
-    height -= 1
     for i, child in enumerate(node.children):
         child_dump = dump(child, current_node, height, width - 2)
-        height -= len(child_dump)
+        height -= len(child_dump) - 1
         last_child = '|' if i < len(node.children) - 1 else ' '
 
         if i == 0:

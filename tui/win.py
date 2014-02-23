@@ -44,7 +44,7 @@ class Win:
         self.win.refresh()
 
     def draw(self):
-        """This draw method needs to be overridden."""
+        """This draw method needs to be overridden to draw the window content."""
         pass
 
     def draw_string(self, string, attributes=None):
@@ -63,7 +63,8 @@ class Win:
         self.draw_string(string, attributes)
         self.draw_string(''.join([' ' for _ in range(self.width - len(string))]), attributes)
 
-    def get_coords(self, lines, pos):
+    @staticmethod
+    def get_coords(lines, pos):
         """Compute the coordinates of pos in lines."""
         y = 0
         line_beg = 0
@@ -99,33 +100,3 @@ class Win:
 
         return '\n'.join(lines)
 
-    # NOTE Problem: how to handle colored characters?
-    # Maybe create a colored string class
-    def draw_centered_string(self, string, center, wrapping=False):
-        """Draw given string centered at given center char."""
-        def upperleft(string, center, wrapping):
-            """Compute the character to draw in the upperleft corner."""
-            text = self.session.text
-
-            # Now move n lines up
-            line = center + 1
-            n = int(self.height / 2)
-            while 1:
-                previousline = text.rfind('\n', 0, line - 1)
-                if previousline <= 0:
-                    return 0
-
-                if wrapping:
-                    n -= int((line - previousline) / self.width) + 1
-                else:
-                    n -= 1
-
-                if n <= 0:
-                    return line + 1
-                line = previousline
-
-        if not wrapping:
-            string = self.crop(string, center)
-
-        self.draw_string(string)
-        # self.draw_string(string[upperleft(string, center, wrapping):])

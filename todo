@@ -1,8 +1,8 @@
 SHORT TERM
-fix display of actiontree, first make it work without bounding
+fix insertion of unicode characters
+make insert spaces instead of tabs easier
 improve navigating through display of text, actiontree and clipboard
 better command interface (with completion) using rlcompleter module
-make insert spaces instead of tabs easier
 
 LONG TERM
 easier file opening
