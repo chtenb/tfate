@@ -37,6 +37,8 @@ action_keys = {
     'a': operators.change_after,
     's': operators.change_around,
     'c': operators.change_in_place,
+    'o': actors.open_line_after,
+    'O': actors.open_line_before,
 }
 
 ui_action_keys = {
@@ -47,8 +49,6 @@ ui_action_keys = {
     '*': ui_actions.search_current_content,
     'n': ui_actions.search_next,
     'N': ui_actions.search_previous,
-    'o': ui_actions.open_line_after,
-    'O': ui_actions.open_line_before,
 }
 
 def print_key_mapping():

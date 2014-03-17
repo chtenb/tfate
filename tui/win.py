@@ -10,6 +10,7 @@ class Win:
 
     def __init__(self, width, height, x, y, session):
         self.win = curses.newwin(height, width, y, x)
+        self.win.keypad(1)
         self.session = session
 
     @property

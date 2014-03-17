@@ -2,7 +2,7 @@ SHORT TERM
 fix insertion of unicode characters
 make insert spaces instead of tabs easier
 improve navigating through display of text, actiontree and clipboard
-better command interface (with completion) using rlcompleter module
+better command interface (with completion) using rlcompleter module, or the code module
 
 LONG TERM
 easier file opening

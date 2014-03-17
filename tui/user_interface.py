@@ -10,6 +10,9 @@ from .textwin import TextWin
 from .clipboardwin import ClipboardWin
 from .actionwin import ActionWin
 from .statuswin import StatusWin
+from .commandwin import CommandWin
+import logging
+from rlcompleter import Completer
 
 
 class UserInterface:
@@ -57,7 +60,8 @@ class UserInterface:
         while 1:
             self.mode = self.session.selection_mode
             if self.session.insertoperation:
-                self.mode = 'INSERT'
+                #self.mode = 'INSERT'
+                self.mode = self.session.insertoperation.__class__.__name__
             self.text_win.refresh()
             self.clipboard_win.refresh()
             self.actiontree_win.refresh()
@@ -73,6 +77,7 @@ class UserInterface:
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.actiontree_win = ActionWin(xmax, 7, 0, ymax - 7, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
+        self.command_win = CommandWin(int(xmax/2), 5, int(xmax/2), 4, self.session, self)
         self.stdscr.refresh()
 
     def normal_mode(self):
@@ -84,30 +89,11 @@ class UserInterface:
         elif self.session.insertoperation:
             self.insert_mode(key)
         elif key == ':':
-            self.command_mode()
+            self.command_win.prompt()
         elif key in self.action_keys:
             self.action_keys[key](self.session)
         elif key in self.ui_action_keys:
             self.ui_action_keys[key](self)
-
-    def command_mode(self):
-        """We are in command mode."""
-        session = self.session
-        scope = vars(session)
-        scope.update({'self': session})
-        scope.update({'selectors': selectors})
-        scope.update({'operators': operators})
-        scope.update({'actors': actors})
-        command = self.status_win.prompt(':')
-        try:
-            result = eval(command, scope)
-            if result != None:
-                self.status_win.set_status(str(result))
-                self.stdscr.getch()
-        except Exception as e:
-            self.status_win.draw_status(command + ' : ' + str(e))
-            self.stdscr.getch()
-        self.status_win.refresh()
 
     def insert_mode(self, key):
         """We are in insert mode."""
@@ -116,8 +102,8 @@ class UserInterface:
         if key == chr(27):
             session.insertoperation.done()
             return
-        elif key == chr(curses.KEY_BACKSPACE):
-            char = '\b'
+        #elif key == chr(curses.KEY_BACKSPACE):
+            #char = '\b'
         else:
             char = key
         session.insertoperation.feed(char)
@@ -126,4 +112,8 @@ class UserInterface:
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
         return self.status_win.prompt(prompt_string)
+
+def publics(obj):
+    """Return all object in __dir__ not starting with '_'"""
+    return (name for name in dir(obj) if not name.startswith('_'))
 

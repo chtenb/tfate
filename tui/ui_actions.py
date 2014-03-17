@@ -55,13 +55,3 @@ def search_previous(ui):
     if s.search_pattern:
         selectors.global_pattern_selector(s.search_pattern, reverse=True)(s)
 
-
-def open_line_after(ui):
-    actors.open_line_after(ui.session)
-    ui.insert_mode(operators.change_after)
-
-
-def open_line_before(ui):
-    actors.open_line_before(ui.session)
-    ui.insert_mode(operators.change_after)
-
