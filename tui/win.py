@@ -13,6 +13,10 @@ class Win:
         self.win.keypad(1)
         self.session = session
 
+    def resize(self, width=None, height=None):
+        self.win.resize(height, width)
+
+
     @property
     def width(self):
         """Width of the window."""
@@ -25,6 +29,10 @@ class Win:
         height, _ = self.win.getmaxyx()
         return height
 
+    @height.setter
+    def height(self, value):
+        self.resize(self.width, value)
+
     @property
     def x(self):
         """X coordinate of upper left corner."""
@@ -36,6 +44,10 @@ class Win:
         """Y coordinate of upper left corner."""
         y, _ = self.win.getbegyx()
         return y
+
+    def set_background(self, attributes):
+        """Set the background attributes."""
+        self.win.bkgdset(' ', attributes)
 
     def refresh(self):
         """Refresh the window."""
@@ -77,7 +89,6 @@ class Win:
 
         x = (pos - line_beg)
 
-        # logging.debug(str((x, y)))
         return x, y
 
     def crop(self, string, center):

@@ -77,35 +77,39 @@ class UserInterface:
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.actiontree_win = ActionWin(xmax, 7, 0, ymax - 7, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
-        self.command_win = CommandWin(int(xmax/2), 5, int(xmax/2), 4, self.session, self)
+        self.command_win = CommandWin(int(xmax/2), 2, int(xmax/2), 4, self.session, self)
         self.stdscr.refresh()
+
+    def refesh(self):
+        self.text_win.refresh()
+        self.clipboard_win.refresh()
+        self.actiontree_win.refresh()
+        self.status_win.refresh()
 
     def normal_mode(self):
         """We are in normal mode."""
-        key = chr(self.stdscr.getch())
+        char = chr(self.stdscr.getch())
 
-        if key == chr(curses.KEY_RESIZE):
+        if char == chr(curses.KEY_RESIZE):
             self.create_windows()
         elif self.session.insertoperation:
-            self.insert_mode(key)
-        elif key == ':':
+            self.insert_mode(char)
+        elif char == ':':
             self.command_win.prompt()
-        elif key in self.action_keys:
-            self.action_keys[key](self.session)
-        elif key in self.ui_action_keys:
-            self.ui_action_keys[key](self)
+        elif char in self.action_keys:
+            self.action_keys[char](self.session)
+        elif char in self.ui_action_keys:
+            self.ui_action_keys[char](self)
 
-    def insert_mode(self, key):
+    def insert_mode(self, char):
         """We are in insert mode."""
         session = self.session
 
-        if key == chr(27):
+        if char == chr(27):
             session.insertoperation.done()
             return
-        #elif key == chr(curses.KEY_BACKSPACE):
-            #char = '\b'
-        else:
-            char = key
+        elif char == chr(curses.KEY_BACKSPACE):
+            char = '\b'
         session.insertoperation.feed(char)
         self.text_win.refresh()
 

@@ -10,11 +10,12 @@ class StatusWin(Win):
     def __init__(self, width, height, x, y, session, ui):
         Win.__init__(self, width, height, x, y, session)
         self.ui = ui
+        self.set_background(curses.color_pair(17))
         self.draw_default_status()
 
     def draw(self):
         """Draw the current status."""
-        self.draw_line(self.status, curses.color_pair(17))
+        self.draw_string(self.status)
 
     def draw_default_status(self):
         """Set the status to the default value."""
