@@ -11,27 +11,27 @@ class CommandWin(Win):
 
     def __init__(self, width, height, x, y, session, ui):
         Win.__init__(self, width, height, x, y, session)
+        self.win.bkgd(' ', curses.color_pair(17))
         self.ui = ui
 
     def draw(self):
-        self.win.bkgd(' ', curses.color_pair(17))
         if self.text:
             self.draw_string(self.text, curses.color_pair(17))
         else:
-            for i, completion in enumerate(self.completions):
+            for i, (name, descr) in enumerate(self.completions):
                 attributes = curses.color_pair(1 if self.current_completion == i else 17)
-                self.draw_line(completion, attributes)
+                self.draw_line(name + '  ' + descr, attributes, wrapping=True)
 
     def prompt(self):
         """Prompt the user for an input string."""
         session = self.session
-        scope = vars(session)
-        scope.update({'self': session})
-        scope.update(vars(selectors))
-        scope.update(vars(operators))
-        scope.update(vars(actors))
+        self.scope = vars(session)
+        self.scope.update({'self': session})
+        self.scope.update(vars(selectors))
+        self.scope.update(vars(operators))
+        self.scope.update(vars(actors))
 
-        self.completer = Completer(scope)
+        self.completer = Completer(self.scope)
         self.completions = []
         self.current_completion = 0
 
@@ -40,9 +40,11 @@ class CommandWin(Win):
         command = self.get_command()
 
         try:
-            result = eval(command, scope)
+            result = eval(command, self.scope)
             if callable(result):
-                result(session)
+                result = result(session)
+                if callable(result):
+                    result(session)
             elif result != None:
                 self.text = str(result)
                 self.refresh()
@@ -54,32 +56,31 @@ class CommandWin(Win):
 
     def get_command(self):
         """Get the command from the user."""
-        result = ''
+        command = ''
         while 1:
             char = self.win.get_wch()
 
             if char == '\n':
                 # Return command
-                return result
+                return command
             elif char == '\t' or char == curses.KEY_BTAB:
                 # Select completion
                 d = 1 if char == '\t' else -1
                 self.current_completion = (self.current_completion + d) % len(self.completions)
-                result = self.completions[self.current_completion]
+                command = self.completions[self.current_completion][0]
             else:
-                # Update input and completions
+                # Update input
                 if char == curses.KEY_BACKSPACE:
-                    result = result[:-1]
+                    command = command[:-1]
                 else:
-                    result += char
+                    command += char
+
+                # Update completions
                 self.current_completion = 0
-                i = 0
-                self.completions = [result]
-                while 1:
-                    completion = self.completer.complete(result, i)
-                    if not completion:
-                        break
-                    self.completions.append(completion)
-                    i += 1
+                self.completions = [(command, '')]
+                if command:
+                    for name, obj in self.scope.items():
+                        if name.startswith(command):
+                            self.completions.append((name, repr(obj)))
             self.refresh()
 

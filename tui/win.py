@@ -48,20 +48,20 @@ class Win:
         """This draw method needs to be overridden to draw the window content."""
         pass
 
-    def draw_string(self, string, attributes=None):
+    def draw_string(self, string, attributes=0, wrapping=False):
         """Try to draw a string with given attributes."""
         try:
-            if attributes:
-                self.win.addstr(string, attributes)
+            if wrapping:
+                self.win.addnstr(string, self.width, attributes)
             else:
-                self.win.addstr(string)
+                self.win.addstr(string, attributes)
         except curses.error:
             # End of window reached
             pass
 
-    def draw_line(self, string, attributes=None):
+    def draw_line(self, string, attributes=0, wrapping=False):
         """Try to draw string ending with an eol."""
-        self.draw_string(string, attributes)
+        self.draw_string(string, attributes, wrapping)
         self.draw_string(''.join([' ' for _ in range(self.width - len(string))]), attributes)
 
     @staticmethod
