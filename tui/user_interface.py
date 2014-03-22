@@ -1,18 +1,16 @@
 """This module contains the UserInterface class."""
 from fate.session import Session
-from fate import actors, selectors, operators, modes
-from fate.operation import Operation
+from fate import modes
 from . import key_mapping
 import user
 import curses
 import sys
 from .textwin import TextWin
 from .clipboardwin import ClipboardWin
-from .actionwin import ActionWin
+from .undowin import UndoWin
 from .statuswin import StatusWin
 from .commandwin import CommandWin
 import logging
-from rlcompleter import Completer
 
 
 class UserInterface:
@@ -60,14 +58,9 @@ class UserInterface:
         while 1:
             self.mode = self.session.selection_mode
             if self.session.insertoperation:
-                #self.mode = 'INSERT'
                 self.mode = self.session.insertoperation.__class__.__name__
-            self.text_win.refresh()
-            self.clipboard_win.refresh()
-            self.actiontree_win.refresh()
             self.status_win.draw_default_status()
-            self.status_win.refresh()
-
+            self.refresh()
             self.normal_mode()
 
     def create_windows(self):
@@ -75,15 +68,16 @@ class UserInterface:
         ymax, xmax = self.stdscr.getmaxyx()
         self.text_win = TextWin(xmax, ymax - 10, 0, 0, self.session)
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
-        self.actiontree_win = ActionWin(xmax, 7, 0, ymax - 7, self.session)
+        self.undo_win = UndoWin(xmax, 7, 0, ymax - 7, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
         self.command_win = CommandWin(int(xmax/2), 2, int(xmax/2), 4, self.session, self)
         self.stdscr.refresh()
 
-    def refesh(self):
+    def refresh(self):
+        """Refresh all subwindows."""
         self.text_win.refresh()
         self.clipboard_win.refresh()
-        self.actiontree_win.refresh()
+        self.undo_win.refresh()
         self.status_win.refresh()
 
     def normal_mode(self):
@@ -97,7 +91,9 @@ class UserInterface:
         elif char == ':':
             self.command_win.prompt()
         elif char in self.action_keys:
-            self.action_keys[char](self.session)
+            result = self.action_keys[char](self.session)
+            if callable(result):
+                result(self.session)
         elif char in self.ui_action_keys:
             self.ui_action_keys[char](self)
 

@@ -20,38 +20,38 @@ def quit_session(ui):
 
 def local_find(ui):
     char = chr(ui.stdscr.getch())
-    selectors.local_pattern_selector(re.escape(char))(ui.session)
+    selectors.SelectLocalPattern(re.escape(char), ui.session)(ui.session)
 
 
 def local_find_backwards(ui):
     char = chr(ui.stdscr.getch())
-    selectors.local_pattern_selector(re.escape(char), reverse=True)(ui.session)
+    selectors.SelectLocalPattern(re.escape(char), ui.session, reverse=True)(ui.session)
 
 
 def search(ui):
     s = ui.session
     s.search_pattern = ui.prompt('/')
     try:
-        selectors.global_pattern_selector(s.search_pattern)(s)
-    except:
-        ui.status_win.draw_status('Invalid regex')
+        selectors.SelectPattern(s.search_pattern, s)(s)
+    except Exception as e:
+        ui.status_win.draw_status(str(e))
         ui.stdscr.getch()
 
 
 def search_current_content(ui):
     s = ui.session
     s.search_pattern = re.escape(s.content(s.selection)[-1])
-    selectors.global_pattern_selector(s.search_pattern)(s)
+    selectors.SelectPattern(s.search_pattern, s)(s)
 
 
 def search_next(ui):
     s = ui.session
     if s.search_pattern:
-        selectors.global_pattern_selector(s.search_pattern)(s)
+        selectors.SelectPattern(s.search_pattern, s)(s)
 
 
 def search_previous(ui):
     s = ui.session
     if s.search_pattern:
-        selectors.global_pattern_selector(s.search_pattern, reverse=True)(s)
+        selectors.SelectPattern(s.search_pattern, s, reverse=True)(s)
 

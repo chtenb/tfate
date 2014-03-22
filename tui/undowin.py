@@ -3,8 +3,8 @@ import curses
 from .win import Win
 
 
-class ActionWin(Win):
-    """Window containing the actiontree."""
+class UndoWin(Win):
+    """Window containing the undotree."""
 
     def __init__(self, width, height, x, y, session):
         Win.__init__(self, width, height, x, y, session)
@@ -18,17 +18,17 @@ class ActionWin(Win):
             ↳ o-o-o
                 ↳ o-o-o
         """
-        actiontree = self.session.actiontree
+        undotree = self.session.undotree
         # We only have to print height/2 children branches
         # and parents branches, and width/2 children and parents
 
         # So first traverse upwards until exceed height or width
-        upperbound = traverse_up(actiontree.current_node,
+        upperbound = traverse_up(undotree.current_node,
                                 int(self.height / 2) + 1,
                                 int(self.width / 2) + 1)
                                 #self.height, self.width)
         # Then print tree downwards until exceed height or width
-        string = '\n'.join(dump(upperbound, actiontree.current_node,
+        string = '\n'.join(dump(upperbound, undotree.current_node,
                                 self.height, self.width))
 
         self.draw_line('History', curses.color_pair(17))

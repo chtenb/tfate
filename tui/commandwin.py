@@ -17,6 +17,7 @@ class CommandWin(Win):
 
     def draw(self):
         if self.text:
+            self.height = max(self.min_height, int(len(self.text) / self.width))
             self.draw_string(self.text, curses.color_pair(17))
         else:
             for i, (name, descr) in enumerate(self.completions):
@@ -86,7 +87,7 @@ class CommandWin(Win):
                 self.completions = [(command, '')]
                 if command:
                     for name, obj in self.scope.items():
-                        if name.startswith(command):
+                        if name.lower().startswith(command.lower()):
                             self.completions.append((name, repr(obj)))
                 self.height = max(self.min_height, len(self.completions))
             self.ui.text_win.refresh()
