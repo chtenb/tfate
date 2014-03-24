@@ -50,6 +50,7 @@ class CommandWin(Win):
             self.refresh()
             self.win.getch()
         else:
+            # TODO: put this in a try, except TypeError
             if callable(result):
                 result = result(session)
                 if callable(result):

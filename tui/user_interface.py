@@ -56,12 +56,14 @@ class UserInterface:
 
         # Enter the main loop
         while 1:
-            self.mode = self.session.selection_mode
-            if self.session.insertoperation:
-                self.mode = self.session.insertoperation.__class__.__name__
-            self.status_win.draw_default_status()
-            self.refresh()
+            if not self.session.interactionstack.isempty:
+                self.mode = ' -> '.join(i.__class__.__name__
+                                        for i in self.session.interactionstack.storage)
+            else:
+                self.mode = self.session.selection_mode
+            self.status_win.set_default_status()
             self.normal_mode()
+            self.refresh()
 
     def create_windows(self):
         """Create all curses windows."""
@@ -70,8 +72,9 @@ class UserInterface:
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.undo_win = UndoWin(xmax, 7, 0, ymax - 7, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
-        self.command_win = CommandWin(int(xmax/2), 2, int(xmax/2), 4, self.session, self)
+        self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4, self.session, self)
         self.stdscr.refresh()
+        self.refresh()
 
     def refresh(self):
         """Refresh all subwindows."""
@@ -86,7 +89,7 @@ class UserInterface:
 
         if char == chr(curses.KEY_RESIZE):
             self.create_windows()
-        elif self.session.insertoperation:
+        elif not self.session.interactionstack.isempty:
             self.insert_mode(char)
         elif char == ':':
             self.command_win.prompt()
@@ -100,20 +103,20 @@ class UserInterface:
     def insert_mode(self, char):
         """We are in insert mode."""
         session = self.session
+        interaction = session.interactionstack.peek()
 
         if char == chr(27):
-            session.insertoperation.done()
+            interaction.proceed(session)
             return
         elif char == chr(curses.KEY_BACKSPACE):
             char = '\b'
-        session.insertoperation.feed(char)
-        self.text_win.refresh()
+        interaction.insert(session, char)
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
         return self.status_win.prompt(prompt_string)
 
+
 def publics(obj):
     """Return all object in __dir__ not starting with '_'"""
     return (name for name in dir(obj) if not name.startswith('_'))
-

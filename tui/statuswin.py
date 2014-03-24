@@ -11,13 +11,13 @@ class StatusWin(Win):
         Win.__init__(self, width, height, x, y, session)
         self.ui = ui
         self.set_background(curses.color_pair(17))
-        self.draw_default_status()
+        self.set_default_status()
 
     def draw(self):
         """Draw the current status."""
         self.draw_string(self.status)
 
-    def draw_default_status(self):
+    def set_default_status(self):
         """Set the status to the default value."""
         self.status = (self.session.filename
                        + ("*" if not self.session.saved else "")
