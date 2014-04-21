@@ -19,7 +19,7 @@ def signal_handler(sig, frame):
     pass
 
 # Intercept ctrl-c, ctrl-\ and ctrl-z
-signal.signal(signal.SIGINT, signal_handler)
+#signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGQUIT, signal_handler)
 signal.signal(signal.SIGTSTP, signal_handler)
 

@@ -26,11 +26,12 @@ action_keys = {
     'U': actors.redo,
     'y': clipboard.copy,
     'Y': clipboard.clear,
-    'p': clipboard.PasteAfter,
-    'P': clipboard.PasteBefore,
-    'x': actors.cut,
+    'p': clipboard.paste_after,
+    'P': clipboard.paste_after,
+    'x': actors.Cut,
+    'X': actors.CutChange,
     chr(27): actors.escape,
-    'd': operators.Delete,
+    'd': operators.delete,
     'r': modes.reduce_mode,
     'e': modes.extend_mode,
     'i': operators.ChangeBefore,
@@ -54,6 +55,7 @@ ui_action_keys = {
 def print_key_mapping():
     """Prints the keys with their explanation."""
     def print_key(key, action):
+        """Prints single key with docstring."""
         print(key + ': ' + action.__docs__)
 
     for key, action in action_keys.items():

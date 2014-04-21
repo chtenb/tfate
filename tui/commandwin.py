@@ -1,12 +1,11 @@
 "Module containing StatusWin class."""
 import curses
-from curses.textpad import Textbox
 from .win import Win
-from rlcompleter import Completer
 from fate import selectors, operators, actors
 
 
 class CommandWin(Win):
+
     """Window for the command interface."""
 
     def __init__(self, width, height, x, y, session, ui):
@@ -33,7 +32,6 @@ class CommandWin(Win):
         self.scope.update(vars(operators))
         self.scope.update(vars(actors))
 
-        self.completer = Completer(self.scope)
         self.completions = [('', '')]
         self.current_completion = 0
 
@@ -74,7 +72,8 @@ class CommandWin(Win):
             elif char == '\t' or char == curses.KEY_BTAB:
                 # Select completion
                 d = 1 if char == '\t' else -1
-                self.current_completion = (self.current_completion + d) % len(self.completions)
+                self.current_completion = ((self.current_completion + d)
+                                           % len(self.completions))
                 command = self.completions[self.current_completion][0]
             else:
                 # Update input
@@ -93,4 +92,3 @@ class CommandWin(Win):
                 self.height = max(self.min_height, len(self.completions))
             self.ui.text_win.refresh()
             self.refresh()
-

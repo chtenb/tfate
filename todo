@@ -1,7 +1,10 @@
 SHORT TERM
-make insert spaces instead of tabs easier
 improve navigating through display of text, actiontree and clipboard
 allow statements and multiple lines in commandwin
+fix drawing bug commandwindow
+make sure fields also get completed in commandwindow
+make keymap part of session, make interaction keymap part of interaction
+fix key input bugs
 
 LONG TERM
 easier file opening

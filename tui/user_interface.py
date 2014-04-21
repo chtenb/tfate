@@ -10,11 +10,13 @@ from .clipboardwin import ClipboardWin
 from .undowin import UndoWin
 from .statuswin import StatusWin
 from .commandwin import CommandWin
-import logging
+from logging import debug
 
 
 class UserInterface:
+
     """This class provides a user interface for interacting with a session object."""
+
     def __init__(self):
         if len(sys.argv) > 1:
             self.session = Session(sys.argv[1])
@@ -52,12 +54,14 @@ class UserInterface:
 
         self.stdscr = stdscr
         curses.curs_set(0)
+        self.stdscr.keypad(1)
         self.create_windows()
 
         # Enter the main loop
         while 1:
             if not self.session.interactionstack.isempty:
-                self.mode = ' -> '.join(i.__class__.__name__
+                self.mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
+                                        else i.__class__.__name__
                                         for i in self.session.interactionstack.storage)
             else:
                 self.mode = self.session.selection_mode
@@ -72,7 +76,8 @@ class UserInterface:
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.undo_win = UndoWin(xmax, 7, 0, ymax - 7, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
-        self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4, self.session, self)
+        self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
+                                      self.session, self)
         self.stdscr.refresh()
         self.refresh()
 
@@ -85,32 +90,34 @@ class UserInterface:
 
     def normal_mode(self):
         """We are in normal mode."""
-        char = chr(self.stdscr.getch())
+        char = self.stdscr.get_wch()
+        # debug(char)
 
-        if char == chr(curses.KEY_RESIZE):
+        if char == curses.KEY_RESIZE:
             self.create_windows()
         elif not self.session.interactionstack.isempty:
-            self.insert_mode(char)
+            self.interactive_mode(char)
         elif char == ':':
             self.command_win.prompt()
         elif char in self.action_keys:
-            result = self.action_keys[char](self.session)
-            if callable(result):
-                result(self.session)
+            action = self.action_keys[char]
+            while callable(action):
+                action = action(self.session)
         elif char in self.ui_action_keys:
             self.ui_action_keys[char](self)
 
-    def insert_mode(self, char):
-        """We are in insert mode."""
+    def interactive_mode(self, char):
+        """We are in interactive mode."""
         session = self.session
         interaction = session.interactionstack.peek()
 
         if char == chr(27):
+            # If escape is pressed, try to finish current action
             interaction.proceed(session)
             return
-        elif char == chr(curses.KEY_BACKSPACE):
+        elif char == curses.KEY_BACKSPACE:
             char = '\b'
-        interaction.insert(session, char)
+        interaction.interact(session, char)
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
