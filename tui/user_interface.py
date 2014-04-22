@@ -5,6 +5,7 @@ from . import key_mapping
 import user
 import curses
 import sys
+from .sessionwin import SessionWin
 from .textwin import TextWin
 from .clipboardwin import ClipboardWin
 from .undowin import UndoWin
@@ -72,12 +73,14 @@ class UserInterface:
     def create_windows(self):
         """Create all curses windows."""
         ymax, xmax = self.stdscr.getmaxyx()
-        self.text_win = TextWin(xmax, ymax - 10, 0, 0, self.session)
+        self.session_win = SessionWin(xmax, 1, 0, 0, self.session, self)
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.undo_win = UndoWin(xmax, 7, 0, ymax - 7, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
                                       self.session, self)
+        self.text_win = TextWin(xmax, ymax - 7 - 3 - 1 - 1, 0, 1, self.session)
+
         self.stdscr.refresh()
         self.refresh()
 
@@ -87,6 +90,7 @@ class UserInterface:
         self.clipboard_win.refresh()
         self.undo_win.refresh()
         self.status_win.refresh()
+        self.session_win.refresh()
 
     def normal_mode(self):
         """We are in normal mode."""

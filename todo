@@ -1,12 +1,12 @@
 SHORT TERM
-improve navigating through display of text, actiontree and clipboard
-allow statements and multiple lines in commandwin
+make sure empty intervals before EOF get displayed
 fix drawing bug commandwindow
-make sure fields also get completed in commandwindow
-make keymap part of session, make interaction keymap part of interaction
-fix key input bugs
-
-LONG TERM
 easier file opening
 support multiple sessions
+allow statements and multiple lines in commandwin
+make sure fields also get completed in commandwindow
+improve navigating through display of text, actiontree and clipboard
+make keymap part of session, make interaction keymap part of interaction
+
+LONG TERM
 unicode art and colors!
