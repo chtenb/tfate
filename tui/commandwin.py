@@ -1,7 +1,6 @@
 "Module containing StatusWin class."""
 import curses
 from .win import Win
-from fate import selectors, operators, actors
 
 
 class CommandWin(Win):
@@ -25,12 +24,15 @@ class CommandWin(Win):
 
     def prompt(self):
         """Prompt the user for an input string."""
-        session = self.session
-        self.scope = vars(session)
-        self.scope.update({'self': session})
+        from . import ui_actions
+        from fate import selectors, operators, actors
+
+        self.scope = vars(self.session)
+        self.scope.update({'self': self.session})
         self.scope.update(vars(selectors))
         self.scope.update(vars(operators))
         self.scope.update(vars(actors))
+        self.scope.update(vars(ui_actions))
 
         self.completions = [('', '')]
         self.current_completion = 0
@@ -48,15 +50,19 @@ class CommandWin(Win):
             self.refresh()
             self.win.getch()
         else:
-            # TODO: put this in a try, except TypeError
-            if callable(result):
-                result = result(session)
-                if callable(result):
-                    result(session)
-            elif result != None:
-                self.text = str(result)
-                self.refresh()
-                self.win.getch()
+            # We find out whether we have a ui action or a session action by trying
+            # TODO change this! It doesn't work often
+            for argument in [self.session, self.ui]:
+                try:
+                    while callable(result):
+                        result = result(argument)
+
+                    if result != None:
+                        self.text = str(result)
+                        self.refresh()
+                        self.win.getch()
+                except (TypeError, AttributeError):
+                    pass
 
     def get_command(self):
         """Get the command from the user."""

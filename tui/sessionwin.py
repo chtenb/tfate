@@ -1,7 +1,6 @@
 "Module containing SessionWin class."""
 import curses
 from .win import Win
-import fate.session as session_module
 
 
 class SessionWin(Win):
@@ -15,8 +14,9 @@ class SessionWin(Win):
 
     def draw(self):
         """Draw the current session headers."""
-        for s in session_module.session_list:
-            header = s.filename or 'nameless'
-            color = 31 if s is self.ui.session else 17
+        from . import userinterface
+        for ui in userinterface.ui_list:
+            header = ui.session.filename or '<nameless>'
+            color = 31 if ui is self.ui else 17
             self.draw_string(header + ' ', curses.color_pair(color))
 

@@ -1,10 +1,8 @@
 """This module contains the UserInterface class."""
 from fate.session import Session
 from fate import modes
-from . import key_mapping
 import user
 import curses
-import sys
 from .sessionwin import SessionWin
 from .textwin import TextWin
 from .clipboardwin import ClipboardWin
@@ -13,22 +11,24 @@ from .statuswin import StatusWin
 from .commandwin import CommandWin
 from logging import debug
 
+ui_list = []
 
 class UserInterface:
 
     """This class provides a user interface for interacting with a session object."""
 
-    def __init__(self):
-        if len(sys.argv) > 1:
-            self.session = Session(sys.argv[1])
-        else:
-            self.session = Session()
-        self.session.read()
+    def __init__(self, stdscr, filename=''):
+        ui_list.append(self)
+        self.stdscr = stdscr
+        self.session = Session(filename)
+
         self.session.search_pattern = ""
         self.mode = modes.SELECT_MODE
 
         # Load the right key mapping
         # User maps override the default maps
+        # TODO: allow filetype dependent mapping changes
+        from . import key_mapping
         self.action_keys = {}
         self.action_keys.update(key_mapping.action_keys)
         try:
@@ -43,19 +43,8 @@ class UserInterface:
         except AttributeError:
             pass
 
-    def main(self, stdscr):
-        """Actually starts the user interface."""
-        # Initialize color pairs from the terminal color palette
-        # 0 is the default, 1-16 are the palette colors,
-        # 17-32 are palette colors with a different background
-        curses.use_default_colors()
-        for i in range(0, 15):
-            curses.init_pair(i + 1, i, -1)
-            curses.init_pair(i + 17, i, 8)
-
-        self.stdscr = stdscr
-        curses.curs_set(0)
-        self.stdscr.keypad(1)
+    def activate(self):
+        """Activate the user interface."""
         self.create_windows()
 
         # Enter the main loop

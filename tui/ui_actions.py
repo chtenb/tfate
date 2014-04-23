@@ -4,10 +4,12 @@ We shall call them ui actors.
 """
 from fate import actors, selectors, operators
 import re
+from .userinterface import UserInterface, ui_list
+
 
 def quit_session(ui):
     if not ui.session.saved:
-        ui.status_win.draw_status("Unsaved changes! Really quit? (y/n)")
+        ui.status_win.draw_status('Unsaved changes! Really quit? (y/n)')
         while 1:
             char = chr(ui.stdscr.getch())
             if char == 'y':
@@ -16,6 +18,17 @@ def quit_session(ui):
                 break
     else:
         exit()
+
+
+def open_session(ui):
+    filename = ui.status_win.prompt('filename: ')
+    ui = UserInterface(ui.stdscr, filename)
+    ui.activate()
+
+def next_session(ui):
+    index = ui_list.index(ui)
+    next_ui = ui_list[(index + 1) % len(ui_list)]
+    next_ui.activate()
 
 
 def local_find(ui):
@@ -54,4 +67,3 @@ def search_previous(ui):
     s = ui.session
     if s.search_pattern:
         selectors.SelectPattern(s.search_pattern, s, reverse=True)(s)
-
