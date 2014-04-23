@@ -1,6 +1,8 @@
 "Module containing StatusWin class."""
 import curses
 from .win import Win
+from itertools import chain
+from logging import debug
 
 
 class CommandWin(Win):
@@ -27,12 +29,14 @@ class CommandWin(Win):
         from . import ui_actions
         from fate import selectors, operators, actors
 
-        self.scope = vars(self.session)
-        self.scope.update({'self': self.session})
-        self.scope.update(vars(selectors))
-        self.scope.update(vars(operators))
-        self.scope.update(vars(actors))
-        self.scope.update(vars(ui_actions))
+        self.session_scope = vars(self.session)
+        self.session_scope.update({'self': self.session})
+        self.session_scope.update(vars(selectors))
+        self.session_scope.update(vars(operators))
+        self.session_scope.update(vars(actors))
+
+        self.ui_scope = vars(ui_actions)
+        debug(str(self.ui_scope))
 
         self.completions = [('', '')]
         self.current_completion = 0
@@ -44,25 +48,25 @@ class CommandWin(Win):
             return
 
         try:
-            result = eval(command, self.scope)
+            scope = self.session_scope
+            scope.update(self.ui_scope)
+            #dict(chain(self.session_scope.items(), self.ui_scope.items()))
+            result = eval(command, scope)
         except Exception as e:
             self.text = command + ' : ' + str(e)
             self.refresh()
             self.win.getch()
         else:
-            # We find out whether we have a ui action or a session action by trying
-            # TODO change this! It doesn't work often
-            for argument in [self.session, self.ui]:
-                try:
-                    while callable(result):
-                        result = result(argument)
+            while callable(result):
+                if result.__name__ in self.ui_scope:
+                    result = result(self.ui)
+                else:
+                    result = result(self.session)
 
-                    if result != None:
-                        self.text = str(result)
-                        self.refresh()
-                        self.win.getch()
-                except (TypeError, AttributeError):
-                    pass
+            if result != None:
+                self.text = str(result)
+                self.refresh()
+                self.win.getch()
 
     def get_command(self):
         """Get the command from the user."""
@@ -92,7 +96,8 @@ class CommandWin(Win):
                 self.current_completion = 0
                 self.completions = [(command, '')]
                 if command:
-                    for name, obj in self.scope.items():
+                    for name, obj in chain(self.session_scope.items(),
+                                           self.ui_scope.items()):
                         if name.lower().startswith(command.lower()):
                             self.completions.append((name, repr(obj)))
                 self.height = max(self.min_height, len(self.completions))
