@@ -95,8 +95,14 @@ class UserInterface:
 
     def normal_mode(self):
         """We are in normal mode."""
-        char = self.stdscr.get_wch()
-        # debug(char)
+        while 1:
+            try:
+                char = self.stdscr.get_wch()
+            except curses.error:
+                pass
+            else:
+                char = curses.unctrl(char).decode()
+                break
 
         if char == curses.KEY_RESIZE:
             self.create_windows()

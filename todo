@@ -1,12 +1,18 @@
 SHORT TERM
-make sure empty intervals before EOF get displayed
-fix drawing bug commandwindow
-easier file opening
-support multiple sessions
-allow statements and multiple lines in commandwin
-make sure fields also get completed in commandwindow
-improve navigating through display of text, actiontree and clipboard
-make keymap part of session, make interaction keymap part of interaction
+Make sure empty intervals before EOF get displayed
+Add window displaying the logs
+Move prompt functionality from statuswin to commandwin
+Allow statements and multiple lines in commandwin
+Make sure fields also get completed in commandwindow
+Improve navigating through display of text, actiontree and clipboard
+Think about keymap
+    Make keymap part of session,
+    Make interaction keymap part of interaction
+    Maybe a certain part of the key mapping has to be moved to fatecore
+    We want dvorak user to be able to easily transform
+    We want the key capture to be left to the user interface
+    We may not want an intermediate key representation because it makes customizing more difficult because the intermediate keymap may differ from the keys the user uses.
 
 LONG TERM
-unicode art and colors!
+Unicode art and colors!
+Easier file opening
