@@ -50,7 +50,6 @@ class CommandWin(Win):
         try:
             scope = self.session_scope
             scope.update(self.ui_scope)
-            #dict(chain(self.session_scope.items(), self.ui_scope.items()))
             result = eval(command, scope)
         except Exception as e:
             self.text = command + ' : ' + str(e)
@@ -66,6 +65,7 @@ class CommandWin(Win):
             if result != None:
                 self.text = str(result)
                 self.refresh()
+                self.ui.refresh()
                 self.win.getch()
 
     def get_command(self):
@@ -101,5 +101,6 @@ class CommandWin(Win):
                         if name.lower().startswith(command.lower()):
                             self.completions.append((name, repr(obj)))
                 self.height = max(self.min_height, len(self.completions))
-            self.ui.text_win.refresh()
+
+            self.ui.refresh()
             self.refresh()

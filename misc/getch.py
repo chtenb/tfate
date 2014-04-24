@@ -2,13 +2,12 @@
 """This module is for messing with input characters."""
 import curses
 import signal
-import rlcompleter
 
 def signal_handler(sig, frame):
     pass
 
 # Intercept ctrl-c, ctrl-\ and ctrl-z
-#signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGQUIT, signal_handler)
 signal.signal(signal.SIGTSTP, signal_handler)
 
@@ -20,6 +19,7 @@ def main(stdscr):
 
     while 1:
         c = stdscr.get_wch()
+        #c = stdscr.getch()
         if c == ord('q'):
             break
 
@@ -34,5 +34,9 @@ def main(stdscr):
                 name = 'not in range'
             stdscr.addstr('repr: {}, chr: {}, name: {}\n'.format(repr(c), char, name))
         else:
-            stdscr.addstr('repr: {}, type: {}\n'.format(repr(c), type(c)))
+            try:
+                nr = ord(c)
+            except ValueError:
+                nr = 'not in range'
+            stdscr.addstr('repr: {}, ord: {}, type: {}\n'.format(repr(c), nr, type(c)))
 curses.wrapper(main)

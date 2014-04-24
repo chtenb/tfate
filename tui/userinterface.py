@@ -81,6 +81,18 @@ class UserInterface:
         self.status_win.refresh()
         self.session_win.refresh()
 
+    def exit(self):
+        """Exit userinterface and corresponding session."""
+        self.session.exit()
+        index = ui_list.index(self)
+        del ui_list[index]
+        if index < len(ui_list):
+            ui_list[index].activate()
+        elif 0 <= index - 1:
+            ui_list[index - 1].activate()
+        else:
+            exit()
+
     def normal_mode(self):
         """We are in normal mode."""
         char = self.stdscr.get_wch()

@@ -7,27 +7,38 @@ import re
 from .userinterface import UserInterface, ui_list
 
 
+def open_session(ui):
+    """Open a new session."""
+    filename = ui.status_win.prompt('filename: ')
+    ui = UserInterface(ui.stdscr, filename)
+    ui.activate()
+
+
 def quit_session(ui):
+    """Close current session."""
     if not ui.session.saved:
         ui.status_win.draw_status('Unsaved changes! Really quit? (y/n)')
         while 1:
             char = chr(ui.stdscr.getch())
             if char == 'y':
-                exit()
+                ui.exit()
             if char == 'n':
                 break
     else:
-        exit()
+        ui.exit()
 
-
-def open_session(ui):
-    filename = ui.status_win.prompt('filename: ')
-    ui = UserInterface(ui.stdscr, filename)
-    ui.activate()
 
 def next_session(ui):
+    """Go to the next session."""
     index = ui_list.index(ui)
     next_ui = ui_list[(index + 1) % len(ui_list)]
+    next_ui.activate()
+
+
+def previous_session(ui):
+    """Go to the previous session."""
+    index = ui_list.index(ui)
+    next_ui = ui_list[(index - 1) % len(ui_list)]
     next_ui.activate()
 
 
