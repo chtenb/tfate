@@ -13,6 +13,7 @@ from logging import debug
 
 ui_list = []
 
+
 class UserInterface:
 
     """This class provides a user interface for interacting with a session object."""
@@ -93,16 +94,24 @@ class UserInterface:
         else:
             exit()
 
-    def normal_mode(self):
-        """We are in normal mode."""
+    def getkey(self):
+        """
+        Wait for the user to press a key and convert it to a string.
+        """
         while 1:
             try:
                 char = self.stdscr.get_wch()
             except curses.error:
                 pass
             else:
-                char = curses.unctrl(char).decode()
-                break
+                # Modify if ctrl was pressed
+                char = curses.unctrl(char)
+                # Return char as a string
+                return char.decode()
+
+    def normal_mode(self):
+        """We are in normal mode."""
+        char = self.getkey()
 
         if char == curses.KEY_RESIZE:
             self.create_windows()

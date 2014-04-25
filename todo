@@ -1,5 +1,4 @@
 SHORT TERM
-Make sure empty intervals before EOF get displayed
 Add window displaying the logs
 Move prompt functionality from statuswin to commandwin
 Allow statements and multiple lines in commandwin

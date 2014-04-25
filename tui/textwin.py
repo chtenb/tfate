@@ -4,6 +4,7 @@ from .win import Win
 
 
 class TextWin(Win):
+
     """Window containing the text"""
 
     def __init__(self, width, height, x, y, session):
@@ -22,14 +23,12 @@ class TextWin(Win):
                                            int(self.height / 2))
 
         # Find the places of all empty selected intervals
-        empty_intervals = []
-        for end, beg in selection:
-            if end - beg == 0:
-                empty_intervals.append(beg)
+        empty_intervals = [beg for beg, end in reversed(selection)
+                           if end - beg == 0]
 
         # Draw every character
         while 1:
-            if position >= length:
+            if position >= length and not empty_intervals:
                 self.draw_line('EOF', curses.A_BOLD)
                 break
 
