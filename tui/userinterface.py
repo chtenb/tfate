@@ -1,5 +1,5 @@
 """This module contains the UserInterface class."""
-from fate.session import Session
+from fate.session import Session, session_list
 from fate import modes
 import user
 import curses
@@ -11,17 +11,15 @@ from .statuswin import StatusWin
 from .commandwin import CommandWin
 from logging import debug
 
-ui_list = []
-
 
 class UserInterface:
 
     """This class provides a user interface for interacting with a session object."""
 
     def __init__(self, stdscr, filename=''):
-        ui_list.append(self)
         self.stdscr = stdscr
         self.session = Session(filename)
+        self.session.OnQuit.add(self.exit)
 
         self.session.search_pattern = ""
         self.mode = modes.SELECT_MODE
@@ -29,18 +27,11 @@ class UserInterface:
         # Load the right key mapping
         # User maps override the default maps
         # TODO: allow filetype dependent mapping changes
-        from . import key_mapping
-        self.action_keys = {}
-        self.action_keys.update(key_mapping.action_keys)
+        from fate import key_mapping
+        self.session.key_mapping = {}
+        self.session.key_mapping.update(key_mapping.action_keys)
         try:
-            self.action_keys.update(user.action_keys)
-        except AttributeError:
-            pass
-
-        self.ui_action_keys = {}
-        self.ui_action_keys.update(key_mapping.ui_action_keys)
-        try:
-            self.ui_action_keys.update(user.ui_action_keys)
+            self.session.key_mapping.update(user.action_keys)
         except AttributeError:
             pass
 
@@ -82,17 +73,19 @@ class UserInterface:
         self.status_win.refresh()
         self.session_win.refresh()
 
-    def exit(self):
-        """Exit userinterface and corresponding session."""
-        self.session.exit()
-        index = ui_list.index(self)
-        del ui_list[index]
-        if index < len(ui_list):
-            ui_list[index].activate()
-        elif 0 <= index - 1:
-            ui_list[index - 1].activate()
+    def exit(self, session):
+        """Activate next session, if existent."""
+        assert session is self.session
+
+        index = session_list.index(session)
+        if len(session_list) == 1:
+            return
+
+        if index < len(session_list) - 1:
+            next_session = session_list[index]
         else:
-            exit()
+            next_session = session_list[index - 1]
+        next_session.ui.activate()
 
     def getchar(self):
         """Retrieve input character from user as a readable string."""
@@ -147,12 +140,10 @@ class UserInterface:
             self.interactive_mode(char)
         elif char == ':':
             self.command_win.prompt()
-        elif char in self.action_keys:
-            action = self.action_keys[char]
+        elif char in self.session.key_mapping:
+            action = self.session.key_mapping[char]
             while callable(action):
                 action = action(self.session)
-        elif char in self.ui_action_keys:
-            self.ui_action_keys[char](self)
 
     def interactive_mode(self, char):
         """We are in interactive mode."""
@@ -160,12 +151,9 @@ class UserInterface:
         interaction = session.interactionstack.peek()
 
         if char == 'Esc':
-            # If escape is pressed, try to finish current action
             interaction.proceed(session)
-            return
-        elif char == 'Backspace':
-            char = '\b'
-        interaction.interact(session, char)
+        else:
+            interaction.interact(session, char)
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""

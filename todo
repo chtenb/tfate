@@ -1,4 +1,6 @@
 SHORT TERM
+Challenge: implement ui as a plugin
+    main loop will be moved to fate
 make ui member of session, then scope split is not needed anymore
     i.e. ui_actions can receive a session
 first check for colors before colorpair init

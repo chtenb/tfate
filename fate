@@ -11,7 +11,7 @@ import sys
 path_to_fate = os.path.dirname(os.path.abspath(__file__)) + '/lib_fate/'
 sys.path.insert(0, path_to_fate)
 
-from tui.userinterface import UserInterface, ui_list
+from tui.userinterface import UserInterface
 import curses
 
 
@@ -37,8 +37,8 @@ def main(stdscr):
 
     filenames = sys.argv[1:] or ['']
     for filename in filenames:
-        UserInterface(stdscr, filename)
+        ui = UserInterface(stdscr, filename)
 
-    ui_list[0].activate()
+    ui.activate()
 
 curses.wrapper(main)

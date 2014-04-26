@@ -14,9 +14,9 @@ class SessionWin(Win):
 
     def draw(self):
         """Draw the current session headers."""
-        from . import userinterface
-        for ui in userinterface.ui_list:
-            header = ui.session.filename or '<nameless>'
-            color = 31 if ui is self.ui else 17
+        from fate.session import session_list
+        for session in session_list:
+            header = session.filename or '<nameless>'
+            color = 31 if session is self.ui.session else 17
             self.draw_string(header + ' ', curses.color_pair(color))
 
