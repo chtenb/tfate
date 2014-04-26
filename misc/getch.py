@@ -1,19 +1,7 @@
 #!python
 """This module is for messing with input characters."""
 import curses
-import signal
 
-
-def handle_ctrl_c(sig, frame):
-    curses.unget_wch(3)
-
-
-def handle_ctrl_z(sig, frame):
-    curses.unget_wch(26)
-
-# Intercept ctrl-c, ctrl-z
-signal.signal(signal.SIGINT, handle_ctrl_c)
-signal.signal(signal.SIGTSTP, handle_ctrl_z)
 
 def key_info(char):
     try:
@@ -25,58 +13,80 @@ def key_info(char):
     except:
         _chr = -1
     try:
-        bytestring = curses.unctrl(char)
+        unctrl = curses.unctrl(char)
     except:
-        bytestring = b'-1'
+        unctrl = 'no unctrl'
     try:
         name = curses.keyname(char)
     except:
         name = 'no name'
 
-    return ('repr: {}, type: {}, ord: {}, chr: {}, bytestring: {}, name: {}\n'
-                .format(repr(char), type(char), _ord, _chr, bytestring, name))
+    return ('repr: {}, type: {}, ord: {}, chr: {}, unctrl: {}, name: {}\n'
+            .format(repr(char), type(char), _ord, _chr, unctrl, name))
 
-
-def getkey(stdscr):
-    char = -1
-    while char == -1:
-        char = stdscr.getch()
-        stdscr.addstr(key_info(char))
-
-        try:
-            result = curses.keyname(char)
-        except:
-            result = char
-        else:
-            result = result.decode()
-
-        return result
 
 def getchar(stdscr):
-    char = -1
-    while char == -1:
-        char = stdscr.get_wch()
-        stdscr.addstr(key_info(char))
+    while 1:
+        try:
+            char = stdscr.get_wch()
+            break
+        except curses.error:
+            pass
 
-        if isinstance(char, int):
-            try:
-                result = curses.keyname(char)
-            except:
-                result = char
-            else:
-                result = result.decode()
+    stdscr.addstr(key_info(char))
+
+    if isinstance(char, str):
+        _ord = ord(char)
+
+        # Replace special characters with a readable string
+        if _ord == 27:
+            result = 'Esc'
+        elif _ord == 10:
+            result = '\n'
+        elif _ord == 9:
+            result = '\t'
+        elif _ord < 32:
+            result = curses.unctrl(char)
+            result = result.decode()
+            result = 'Ctrl-' + result[1]
         else:
             result = char
 
-        return result
+    elif isinstance(char, int):
+        # char must be some kind of function key
+        if char == curses.KEY_BACKSPACE:
+            result = '\b'
+        else:
+            result = curses.keyname(char)
+            result = result.decode()
+            result = result[4] + result[5:].lower()
+            # Remove parenthesis for function keys
+            result.replace('(', '')
+            result.replace(')', '')
+    else:
+        raise IOError('Can\'t handle input character type: {}.'
+                      .format(str(type(char))))
+
+    stdscr.addstr(key_info(result))
+    return result
+
 
 def main(stdscr):
     stdscr.keypad(1)
+    curses.raw()
+
+    for i in range(127):
+        stdscr.addstr(repr(chr(i)))
+
+    stdscr.addstr('\n\n')
+
+    for i in range(127):
+        stdscr.addstr(repr(curses.unctrl(chr(i))))
+
+    stdscr.addstr('special characters: {}\n\n'.format('œă好'))
 
     while 1:
-        #c = getkey(stdscr)
         c = getchar(stdscr)
         if c == 'q':
             break
-        stdscr.addstr('result: {}\n'.format(str(c)))
 curses.wrapper(main)

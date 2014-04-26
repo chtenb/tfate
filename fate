@@ -12,25 +12,7 @@ path_to_fate = os.path.dirname(os.path.abspath(__file__)) + '/lib_fate/'
 sys.path.insert(0, path_to_fate)
 
 from tui.userinterface import UserInterface, ui_list
-import signal
 import curses
-
-
-def handle_ctrl_c(sig, frame):
-    curses.unget_wch(3)
-
-
-def handle_ctrl_z(sig, frame):
-    curses.unget_wch(26)
-
-
-def handle_ctrl_bslash(sig, frame):
-    pass
-
-# Intercept ctrl-c, ctrl-z and ctrl-\
-signal.signal(signal.SIGINT, handle_ctrl_c)
-signal.signal(signal.SIGTSTP, handle_ctrl_z)
-signal.signal(signal.SIGQUIT, handle_ctrl_bslash)
 
 
 # Lower the annoying delay for the escape character
@@ -50,6 +32,7 @@ def main(stdscr):
         curses.init_pair(i + 17, i, 8)
 
     curses.curs_set(0)
+    curses.raw()
     stdscr.keypad(1)
 
     filenames = sys.argv[1:] or ['']

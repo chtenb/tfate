@@ -94,26 +94,54 @@ class UserInterface:
         else:
             exit()
 
-    def getkey(self):
-        """
-        Wait for the user to press a key and convert it to a string.
-        """
+    def getchar(self):
+        """Retrieve input character from user as a readable string."""
         while 1:
             try:
                 char = self.stdscr.get_wch()
+                break
             except curses.error:
                 pass
+
+        if isinstance(char, str):
+            _ord = ord(char)
+
+            # Replace special characters with a readable string
+            if _ord == 27:
+                result = 'Esc'
+            elif _ord == 10:
+                result = '\n'
+            elif _ord == 9:
+                result = '\t'
+            elif _ord < 32:
+                result = curses.unctrl(char)
+                result = result.decode()
+                result = 'Ctrl-' + result[1]
             else:
-                # Modify if ctrl was pressed
-                char = curses.unctrl(char)
-                # Return char as a string
-                return char.decode()
+                result = char
+
+        elif isinstance(char, int):
+            # char must be some kind of function key
+            if char == curses.KEY_BACKSPACE:
+                result = '\b'
+            else:
+                result = curses.keyname(char)
+                result = result.decode()
+                result = result[4] + result[5:].lower()
+                # Remove parenthesis for function keys
+                result.replace('(', '')
+                result.replace(')', '')
+        else:
+            raise IOError('Can\'t handle input character type: {}.'
+                          .format(str(type(char))))
+        return result
 
     def normal_mode(self):
         """We are in normal mode."""
-        char = self.getkey()
+        char = self.getchar()
+        debug(char)
 
-        if char == curses.KEY_RESIZE:
+        if char == 'Resize':
             self.create_windows()
         elif not self.session.interactionstack.isempty:
             self.interactive_mode(char)
@@ -131,11 +159,11 @@ class UserInterface:
         session = self.session
         interaction = session.interactionstack.peek()
 
-        if char == chr(27):
+        if char == 'Esc':
             # If escape is pressed, try to finish current action
             interaction.proceed(session)
             return
-        elif char == curses.KEY_BACKSPACE:
+        elif char == 'Backspace':
             char = '\b'
         interaction.interact(session, char)
 

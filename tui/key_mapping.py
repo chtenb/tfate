@@ -8,7 +8,7 @@ from . import ui_actions
 
 
 action_keys = {
-    'W': Session.write,
+    'Ctrl-W': Session.write,
     'j': selectors.NextLine,
     'k': selectors.PreviousLine,
     'J': selectors.NextFullLine,
@@ -30,7 +30,7 @@ action_keys = {
     'P': clipboard.paste_after,
     'x': actors.Cut,
     'X': actors.CutChange,
-    chr(27): actors.escape,
+    'Esc': actors.escape,
     'd': operators.delete,
     'r': modes.reduce_mode,
     'e': modes.extend_mode,
@@ -43,7 +43,10 @@ action_keys = {
 }
 
 ui_action_keys = {
-    'Q': ui_actions.quit_session,
+    'Ctrl-Q': ui_actions.quit_session,
+    'Ctrl-O': ui_actions.open_session,
+    'Ctrl-N': ui_actions.next_session,
+    'Ctrl-P': ui_actions.previous_session,
     'f': ui_actions.local_find,
     'F': ui_actions.local_find_backwards,
     '/': ui_actions.search,
