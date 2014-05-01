@@ -19,6 +19,7 @@ class UserInterface:
     def __init__(self, stdscr, filename=''):
         self.stdscr = stdscr
         self.session = Session(filename)
+        self.session.ui = self
         self.session.OnQuit.add(self.exit)
 
         self.session.search_pattern = ""
@@ -127,12 +128,12 @@ class UserInterface:
         else:
             raise IOError('Can\'t handle input character type: {}.'
                           .format(str(type(char))))
+        debug(result)
         return result
 
     def normal_mode(self):
         """We are in normal mode."""
         char = self.getchar()
-        debug(char)
 
         if char == 'Resize':
             self.create_windows()

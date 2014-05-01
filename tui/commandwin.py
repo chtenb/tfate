@@ -1,7 +1,6 @@
 "Module containing StatusWin class."""
 import curses
 from .win import Win
-from itertools import chain
 from logging import debug
 
 
@@ -26,17 +25,14 @@ class CommandWin(Win):
 
     def prompt(self):
         """Prompt the user for an input string."""
-        from . import ui_actions
-        from fate import selectors, operators, actors
+        from fate import selectors, operators, actors, ui_actions
 
-        self.session_scope = vars(self.session)
-        self.session_scope.update({'self': self.session})
-        self.session_scope.update(vars(selectors))
-        self.session_scope.update(vars(operators))
-        self.session_scope.update(vars(actors))
-
-        self.ui_scope = vars(ui_actions)
-        debug(str(self.ui_scope))
+        self.scope = vars(self.session)
+        self.scope.update({'self': self.session})
+        self.scope.update(vars(selectors))
+        self.scope.update(vars(operators))
+        self.scope.update(vars(actors))
+        self.scope.update(vars(ui_actions))
 
         self.completions = [('', '')]
         self.current_completion = 0
@@ -48,19 +44,14 @@ class CommandWin(Win):
             return
 
         try:
-            scope = self.session_scope
-            scope.update(self.ui_scope)
-            result = eval(command, scope)
+            result = eval(command, self.scope)
         except Exception as e:
             self.text = command + ' : ' + str(e)
             self.refresh()
             self.win.getch()
         else:
             while callable(result):
-                if result.__name__ in self.ui_scope:
-                    result = result(self.ui)
-                else:
-                    result = result(self.session)
+                result = result(self.session)
 
             if result != None:
                 self.text = str(result)
@@ -72,14 +63,14 @@ class CommandWin(Win):
         """Get the command from the user."""
         command = ''
         while 1:
-            char = self.win.get_wch()
+            char = self.ui.getchar()
 
-            if char == '\x1b':
+            if char == 'Esc':
                 return
             elif char == '\n':
                 # Return command
                 return command
-            elif char == '\t' or char == curses.KEY_BTAB:
+            elif char == '\t' or char == 'Btab':
                 # Select completion
                 d = 1 if char == '\t' else -1
                 self.current_completion = ((self.current_completion + d)
@@ -87,7 +78,7 @@ class CommandWin(Win):
                 command = self.completions[self.current_completion][0]
             else:
                 # Update input
-                if char == curses.KEY_BACKSPACE:
+                if char == '\b':
                     command = command[:-1]
                 else:
                     command += char
@@ -96,8 +87,7 @@ class CommandWin(Win):
                 self.current_completion = 0
                 self.completions = [(command, '')]
                 if command:
-                    for name, obj in chain(self.session_scope.items(),
-                                           self.ui_scope.items()):
+                    for name, obj in self.scope.items():
                         if name.lower().startswith(command.lower()):
                             self.completions.append((name, repr(obj)))
                 self.height = max(self.min_height, len(self.completions))

@@ -5,9 +5,6 @@ Isolate colorpair handling from print statements
     The colors have to be made public or have to be taken modulo curses.COLORS
 Challenge: implement ui as a plugin
     main loop will be moved to fate
-make ui member of session, then scope split is not needed anymore
-    i.e. ui_actions can receive a session
-first check for colors before colorpair init
 line numbers
 check if uiactions keymap can be merged
 Add window displaying the logs
