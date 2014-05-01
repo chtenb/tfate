@@ -1,4 +1,8 @@
 SHORT TERM
+Isolate colorpair handling from print statements
+    We can allow print statements to specify foreground and background colors
+    Inside the print method this is then translated into a colorpair and printed
+    The colors have to be made public or have to be taken modulo curses.COLORS
 Challenge: implement ui as a plugin
     main loop will be moved to fate
 make ui member of session, then scope split is not needed anymore

@@ -3,19 +3,19 @@ Module containing Win class.
 The Win class is meant to hide some common interaction with curses.
 """
 import curses
+from logging import debug
 
 
 class Win:
+
     """Abstract window class"""
 
     def __init__(self, width, height, x, y, session):
         self.win = curses.newwin(height, width, y, x)
-        self.win.keypad(1)
         self.session = session
 
     def resize(self, width=None, height=None):
         self.win.resize(height, width)
-
 
     @property
     def width(self):
@@ -60,7 +60,7 @@ class Win:
         """This draw method needs to be overridden to draw the window content."""
         pass
 
-    def draw_string(self, string, attributes=0, wrapping=False):
+    def draw_string(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw a string with given attributes."""
         try:
             if wrapping:
@@ -69,12 +69,14 @@ class Win:
                 self.win.addstr(string, attributes)
         except curses.error:
             # End of window reached
-            pass
+            if not silent:
+                raise
 
-    def draw_line(self, string, attributes=0, wrapping=False):
+    def draw_line(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw string ending with an eol."""
-        self.draw_string(string, attributes, wrapping)
-        self.draw_string(''.join([' ' for _ in range(self.width - len(string))]), attributes)
+        self.draw_string(string, attributes, wrapping, silent)
+        self.draw_string(
+                ''.join([' ' for _ in range(self.width - len(string))]), attributes)
 
     @staticmethod
     def get_coords(lines, pos):
@@ -111,4 +113,3 @@ class Win:
         lines = [line[xoffset:xoffset + self.width - 1] for line in lines]
 
         return '\n'.join(lines)
-

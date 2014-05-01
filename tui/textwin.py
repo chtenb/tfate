@@ -28,34 +28,34 @@ class TextWin(Win):
 
         # Draw every character
         while 1:
-            if position >= length and not empty_intervals:
-                self.draw_line('EOF', curses.A_BOLD)
-                break
-
-            # Draw possible empty selected interval at position
-            if empty_intervals and empty_intervals[0] == position:
-                self.win.addstr('ε', curses.A_REVERSE)
-                empty_intervals.remove(empty_intervals[0])
-                continue
-
-            attribute = curses.A_NORMAL
-            char = text[position]
-
-            # Apply reverse attribute when char is selected
-            if selection.contains(position):
-                attribute |= curses.A_REVERSE
-                # display newline character explicitly when selected
-                if char == '\n':
-                    char = '↵\n'
-
-            # Apply color attribute if char is labeled
-            if position in labeling:
-                for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
-                    if labeling[position] == label:
-                        attribute |= curses.color_pair(10 + i)
-
             try:
-                self.win.addstr(char, attribute)
+                if position >= length and not empty_intervals:
+                    self.draw_line('EOF', attributes=curses.A_BOLD, silent=False)
+                    break
+
+                # Draw possible empty selected interval at position
+                if empty_intervals and empty_intervals[0] == position:
+                    self.draw_string('ε', attributes=curses.A_REVERSE, silent=False)
+                    empty_intervals.remove(empty_intervals[0])
+                    continue
+
+                attributes = curses.A_NORMAL
+                char = text[position]
+
+                # Apply reverse attribute when char is selected
+                if selection.contains(position):
+                    attributes |= curses.A_REVERSE
+                    # display newline character explicitly when selected
+                    if char == '\n':
+                        char = '↵\n'
+
+                # Apply color attribute if char is labeled
+                if position in labeling:
+                    for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
+                        if labeling[position] == label:
+                            attributes |= curses.color_pair(10 + i)
+
+                self.draw_string(char, attributes=attributes, silent=False)
                 position += 1
             except curses.error:
                 # End of window reached

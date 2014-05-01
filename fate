@@ -26,12 +26,17 @@ def main(stdscr):
     # Initialize color pairs from the terminal color palette
     # 0 is the default, 1-16 are the palette colors,
     # 17-32 are palette colors with a different background
+    # We assume that color 8 has good contrast with other colors
+    curses.start_color()
     curses.use_default_colors()
     for i in range(0, 15):
         curses.init_pair(i + 1, i, -1)
         curses.init_pair(i + 17, i, 8)
 
+    # No cursor
     curses.curs_set(0)
+
+    # Key input settings
     curses.raw()
     stdscr.keypad(1)
 
