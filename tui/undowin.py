@@ -1,5 +1,4 @@
 "Module containing ActionWin class."""
-import curses
 from .win import Win
 
 
@@ -31,7 +30,7 @@ class UndoWin(Win):
         string = '\n'.join(dump(upperbound, undotree.current_node,
                                 self.height, self.width))
 
-        self.draw_line('History', curses.color_pair(17))
+        self.draw_line('History', self.colorpair(0, 1))
         center = string.find('X')
         string = self.crop(string, center)
         self.draw_string(string)

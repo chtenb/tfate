@@ -1,7 +1,7 @@
 "Module containing StatusWin class."""
-import curses
 from .win import Win
 from logging import debug
+import curses
 
 
 class CommandWin(Win):
@@ -10,17 +10,17 @@ class CommandWin(Win):
 
     def __init__(self, width, height, x, y, session, ui):
         Win.__init__(self, width, height, x, y, session)
-        self.win.bkgd(' ', curses.color_pair(17))
+        self.win.bkgd(' ', self.colorpair(0, 1))
         self.ui = ui
         self.min_height = height
 
     def draw(self):
         if self.text:
             self.height = max(self.min_height, int(len(self.text) / self.width))
-            self.draw_string(self.text, curses.color_pair(17))
+            self.draw_string(self.text, self.colorpair(0, 1))
         else:
             for i, (name, descr) in enumerate(self.completions):
-                attributes = curses.color_pair(31 if self.current_completion == i else 17)
+                attributes = self.colorpair(14 if self.current_completion == i else 0, 1)
                 self.draw_line(name + '  ' + descr, attributes, wrapping=True)
 
     def prompt(self):

@@ -10,7 +10,7 @@ class StatusWin(Win):
     def __init__(self, width, height, x, y, session, ui):
         Win.__init__(self, width, height, x, y, session)
         self.ui = ui
-        self.set_background(curses.color_pair(17))
+        self.set_background(self.colorpair(0, 1))
         self.set_default_status()
 
     def draw(self):
@@ -34,12 +34,12 @@ class StatusWin(Win):
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
         self.win.erase()
-        self.draw_string(prompt_string, curses.color_pair(17))
+        self.draw_string(prompt_string, self.colorpair(17))
         self.win.refresh()
         prompt_len = len(prompt_string)
         text_box_win = curses.newwin(1, self.width - prompt_len,
                                      self.y, self.x + prompt_len)
-        text_box_win.bkgd(' ', curses.color_pair(17))
+        text_box_win.bkgd(' ', self.colorpair(17))
         text_box = Textbox(text_box_win)
         text_box.edit()
         return text_box.gather()[:-1]

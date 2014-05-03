@@ -53,7 +53,7 @@ class TextWin(Win):
                 if position in labeling:
                     for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                         if labeling[position] == label:
-                            attributes |= curses.color_pair(10 + i)
+                            attributes |= self.colorpair(10 + i)
 
                 self.draw_string(char, attributes=attributes, silent=False)
                 position += 1

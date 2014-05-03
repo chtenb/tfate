@@ -1,8 +1,11 @@
 """This module contains the UserInterface class."""
+import curses
 from fate.session import Session, session_list
 from fate import modes
 import user
-import curses
+
+from logging import debug
+
 from .sessionwin import SessionWin
 from .textwin import TextWin
 from .clipboardwin import ClipboardWin
@@ -10,15 +13,15 @@ from .undowin import UndoWin
 from .statuswin import StatusWin
 from .commandwin import CommandWin
 from .logwin import LogWin
-from logging import debug
+from . import STDSCR
 
 
 class UserInterface:
 
     """This class provides a user interface for interacting with a session object."""
 
-    def __init__(self, stdscr, filename=''):
-        self.stdscr = stdscr
+    def __init__(self, filename=''):
+        self.stdscr = STDSCR
         self.session = Session(filename)
         self.session.ui = self
         self.session.OnQuit.add(self.exit)
@@ -57,13 +60,13 @@ class UserInterface:
         """Create all curses windows."""
         ymax, xmax = self.stdscr.getmaxyx()
         self.session_win = SessionWin(xmax, 1, 0, 0, self.session, self)
-        self.log_win = LogWin(xmax, 10, 0, ymax - 20, self.session)
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.undo_win = UndoWin(xmax, 7, 0, ymax - 7, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
                                       self.session, self)
-        self.text_win = TextWin(xmax, ymax - 7 - 3 - 1 - 1, 0, 1, self.session)
+        self.text_win = TextWin(xmax, ymax - 7 - 3 - 1 - 1 - 5, 0, 1, self.session)
+        self.log_win = LogWin(xmax, 5, 0, ymax - 15, self.session, self)
 
         self.stdscr.refresh()
         self.refresh()

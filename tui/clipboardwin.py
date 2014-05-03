@@ -1,5 +1,4 @@
 "Module containing ClipboardWin class."""
-import curses
 from .win import Win
 
 
@@ -16,6 +15,6 @@ class ClipboardWin(Win):
         stack = '-'.join('o' for x in self.session.clipboard.storage)
         stacktail = stack[1 - self.width:]
 
-        self.draw_line(caption, curses.color_pair(17))
+        self.draw_line(caption, self.colorpair(0, 1))
         self.draw_line(content)
         self.draw_line(stacktail)

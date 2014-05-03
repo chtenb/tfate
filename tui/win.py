@@ -4,6 +4,7 @@ The Win class is meant to hide some common interaction with curses.
 """
 import curses
 from logging import debug
+from . import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS
 
 
 class Win:
@@ -45,6 +46,30 @@ class Win:
         y, _ = self.win.getbegyx()
         return y
 
+    @staticmethod
+    def colorpair(pair, alt_background=0):
+        """
+        Return the attribute corresponding to the color pair number.
+        If alt_background is 1, an alternative background is applied.
+        """
+        if not HAS_COLORS:
+            if alt_background:
+                return curses.A_REVERSE
+            else:
+                return curses.A_NORMAL
+        else:
+            result = curses.A_NORMAL
+            colorpair = pair % (COLOR_PAIRS + 1)
+
+            if alt_background == 1:
+                if HAS_BACKGROUND_COLORS:
+                    colorpair = pair + COLOR_PAIRS + 1
+                else:
+                    result |= curses.A_REVERSE
+
+            result |= curses.color_pair(colorpair)
+            return result
+
     def set_background(self, attributes):
         """Set the background attributes."""
         self.win.bkgdset(' ', attributes)
@@ -76,7 +101,7 @@ class Win:
         """Try to draw string ending with an eol."""
         self.draw_string(string, attributes, wrapping, silent)
         self.draw_string(
-                ''.join([' ' for _ in range(self.width - len(string))]), attributes)
+            ''.join([' ' for _ in range(self.width - len(string))]), attributes)
 
     @staticmethod
     def get_coords(lines, pos):

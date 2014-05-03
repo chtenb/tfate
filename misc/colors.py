@@ -17,6 +17,7 @@ def main(stdscr):
     stdscr.addstr('can_change_color: {}\n'.format(curses.can_change_color()))
     stdscr.addstr('has_colors: {}\n'.format(curses.has_colors()))
     stdscr.addstr('COLORS: {}\n'.format(curses.COLORS))
+    stdscr.addstr('COLOR_PAIRS: {}\n'.format(curses.COLOR_PAIRS))
 
     stdscr.getch()
 
@@ -37,13 +38,17 @@ def main(stdscr):
     # Init color pairs
     for i in range(curses.COLORS):
         curses.init_pair(i + 1, i, -1)
-        curses.init_pair(i + 1 + curses.COLORS, i, 2)
-        stdscr.addstr(str(curses.color_pair(i)) + ', ')
+        curses.init_pair(i + 1 + curses.COLORS, i, 3)
+        #stdscr.addstr(str(curses.color_pair(i)) + ', ')
 
     # Demonstrate color pairs
     stdscr.addstr('\ncolorpairs: ')
     for i in range(curses.COLORS):
         stdscr.addstr(str(i + 1), curses.color_pair(i + 1))
+    for i in range(curses.COLORS):
+        stdscr.addstr(str(curses.COLORS + i + 1), curses.A_REVERSE ^ curses.color_pair(i + 1))
+
+    stdscr.refresh()
     stdscr.getch()
 
 curses.wrapper(main)

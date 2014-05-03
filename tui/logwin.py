@@ -1,5 +1,4 @@
 "Module containing logging window."""
-import curses
 from .win import Win
 import logging
 from logging import Handler
@@ -7,8 +6,9 @@ from logging import Handler
 
 class LogWin(Win, Handler):
 
-    def __init__(self, width, height, x, y, session):
+    def __init__(self, width, height, x, y, session, ui):
         Win.__init__(self, width, height, x, y, session)
+        self.ui = ui
 
         Handler.__init__(self)
         logger = logging.getLogger()
@@ -18,11 +18,12 @@ class LogWin(Win, Handler):
 
     def emit(self, record):
         self.records.append(record.getMessage())
+        #self.ui.refresh()
 
     def draw(self):
         """Draw log"""
         caption = 'Log'
-        content = '\n'.join(self.records)
+        content = '\n'.join(self.records[-self.height+1:-1])
 
-        self.draw_line(caption, curses.color_pair(17))
+        self.draw_line(caption, self.colorpair(0, 1))
         self.draw_line(content)
