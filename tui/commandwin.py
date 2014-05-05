@@ -1,7 +1,6 @@
 "Module containing StatusWin class."""
 from .win import Win
 from logging import debug
-import curses
 
 
 class CommandWin(Win):
@@ -25,14 +24,14 @@ class CommandWin(Win):
 
     def prompt(self):
         """Prompt the user for an input string."""
-        from fate import selectors, operators, actors, ui_actions
+        from fate import selectors, operators, actors, uiactions
 
         self.scope = vars(self.session)
         self.scope.update({'self': self.session})
         self.scope.update(vars(selectors))
         self.scope.update(vars(operators))
         self.scope.update(vars(actors))
-        self.scope.update(vars(ui_actions))
+        self.scope.update(vars(uiactions))
 
         self.completions = [('', '')]
         self.current_completion = 0
@@ -55,7 +54,7 @@ class CommandWin(Win):
 
             if result != None:
                 self.text = str(result)
-                self.ui.refresh()
+                self.ui.touch()
                 self.refresh()
                 self.ui.getchar()
 
@@ -92,5 +91,5 @@ class CommandWin(Win):
                             self.completions.append((name, repr(obj)))
                 self.height = max(self.min_height, len(self.completions))
 
-            self.ui.refresh()
+            self.ui.touch()
             self.refresh()

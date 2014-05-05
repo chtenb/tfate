@@ -3,9 +3,6 @@ from time import sleep
 from threading import Thread
 
 from fate.session import Session, session_list
-from fate import modes
-
-from logging import debug
 
 from .sessionwin import SessionWin
 from .textwin import TextWin
@@ -20,48 +17,24 @@ from . import utils
 
 class UserInterface:
 
-    """This class provides a user interface for interacting with a session object."""
+    """
+    This class provides a user interface for interacting with a session object.
+    """
 
     def __init__(self, stdscr, filename=''):
         self.stdscr = stdscr
         self.session = Session(filename)
         self.session.ui = self
-        self.session.OnQuit.add(self.exit)
+        self.session.OnQuit.add(self.quit)
 
         from . import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS
         self.has_colors = HAS_COLORS
         self.has_background_colors = HAS_BACKGROUND_COLORS
         self.color_pairs = COLOR_PAIRS
 
-        self.need_refresh = False
-        self.running = False
-        self.mode = modes.SELECT_MODE
-
-    def touch(self):
-        self.need_refresh = True
-
-    def activate(self):
-        """Activate the user interface."""
-
-        # TODO: use context managers to close threads automatically
-        # E.g. after a crash
-
+        self.active = False
+        self.touched = False
         self.create_windows()
-
-        def refresh_screen():
-            """Main loop that refreshes screen when touched."""
-            self.running = True
-            while self.running:
-                if self.need_refresh:
-                    self.need_refresh = False
-                    self.refresh()
-                sleep(0.1)
-        ui_thread = Thread(target=refresh_screen)
-        ui_thread.start()
-
-        while 1:
-            self.normal_mode()
-            self.touch()
 
     def create_windows(self):
         """Create all curses windows."""
@@ -75,10 +48,41 @@ class UserInterface:
         self.text_win = TextWin(xmax, ymax - 7 - 3 - 1 - 1 - 5, 0, 1, self.session)
         self.log_win = LogWin(xmax, 15, 0, ymax - 25, self.session)
 
-        self.stdscr.refresh()
-        self.refresh()
+    def __enter__(self):
+        """When activated, we start a screen refresh thread."""
+        self.screen_thread = Thread(target=self._refresh_screen_loop)
+        self.screen_thread.start()
 
-    def refresh(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.deactivate()
+
+    def touch(self):
+        """Tell the screen thread to update the screen."""
+        self.touched = True
+
+    def activate(self):
+        """Activate the user interface."""
+        self.active = True
+
+        with self:
+            while self.active:
+                self.touch()
+                self.normal_mode()
+
+    def deactivate(self):
+        """Deactivate the user interface."""
+        self.active = False
+        self.screen_thread.join()
+
+    def _refresh_screen_loop(self):
+        """Loop that refreshes screen when touched."""
+        while self.active:
+            if self.touched:
+                self.touched = False
+                self._refresh()
+            sleep(0.01)
+
+    def _refresh(self):
         """Refresh all subwindows."""
         self.text_win.refresh()
         self.clipboard_win.refresh()
@@ -87,7 +91,9 @@ class UserInterface:
         self.status_win.refresh()
         self.session_win.refresh()
 
-    def exit(self, session):
+        self.stdscr.refresh()
+
+    def quit(self, session):
         """Activate next session, if existent."""
         assert session is self.session
 
@@ -100,13 +106,14 @@ class UserInterface:
         else:
             next_session = session_list[index - 1]
 
-        self.running = False
+        self.deactivate()
         next_session.ui.activate()
 
     def getchar(self):
         char = utils.getchar(self.stdscr)
         if char == 'Resize':
             self.create_windows()
+            self.touch()
         return char
 
     def normal_mode(self):
