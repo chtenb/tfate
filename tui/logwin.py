@@ -12,34 +12,39 @@ class LogWin(Win):
         self.records = []
 
         self.where = 0
-        self.stopped = False
+        self.running = True
         session.OnQuit.add(self.stop)
         self.logchecker_thread = Thread(target=self.listen)
         self.logchecker_thread.start()
 
-    def stop(self, session):
-        self.stopped = True
-
     def listen(self):
         with open(LOGFILENAME, 'r') as self.f:
-            while not self.stopped:
+            while self.running:
                 self.check()
                 sleep(0.1)
 
+    def stop(self, session):
+        self.running = False
+
     def check(self):
+        assert self.running
+        assert self.f != None
+
         self.f.seek(self.where)
         while 1:
             line = self.f.readline()
             if not line:
                 break
             self.records.append(line)
+
+            # Make sure the UI thread will display incoming logs
+            #self.ui.touch()
         self.where = self.f.tell()
 
     def draw(self):
         """Draw log"""
-        self.check()
         caption = 'Log'
-        content = ''.join(self.records[-self.height + 3:])
+        content = ''.join(self.records[-self.height + 2:])
 
         self.draw_line(caption, self.create_attribute(alt_background=True))
         self.draw_line(content)

@@ -1,4 +1,5 @@
 SHORT TERM
+put UI refresh in seperate thread
 decide where curses main should go
 allow hide/show/placement of windows
     don't restrict this in any way
