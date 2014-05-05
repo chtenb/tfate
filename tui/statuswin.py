@@ -7,9 +7,8 @@ from curses.textpad import Textbox
 class StatusWin(Win):
     """Window containing the status."""
 
-    def __init__(self, width, height, x, y, session, ui):
+    def __init__(self, width, height, x, y, session):
         Win.__init__(self, width, height, x, y, session)
-        self.ui = ui
         self.set_default_status()
 
     def draw(self):

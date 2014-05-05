@@ -1,29 +1,45 @@
 "Module containing logging window."""
 from .win import Win
-import logging
-from logging import Handler
+from threading import Thread
+from time import sleep
+from fate import LOGFILENAME
 
 
-class LogWin(Win, Handler):
+class LogWin(Win):
 
-    def __init__(self, width, height, x, y, session, ui):
+    def __init__(self, width, height, x, y, session):
         Win.__init__(self, width, height, x, y, session)
-        self.ui = ui
-
-        Handler.__init__(self)
-        logger = logging.getLogger()
-        logger.addHandler(self)
-
         self.records = []
 
-    def emit(self, record):
-        self.records.append(record.getMessage())
-        #self.ui.refresh()
+        self.where = 0
+        self.stopped = False
+        session.OnQuit.add(self.stop)
+        self.logchecker_thread = Thread(target=self.listen)
+        self.logchecker_thread.start()
+
+    def stop(self, session):
+        self.stopped = True
+
+    def listen(self):
+        with open(LOGFILENAME, 'r') as self.f:
+            while not self.stopped:
+                self.check()
+                sleep(0.1)
+
+    def check(self):
+        self.f.seek(self.where)
+        while 1:
+            line = self.f.readline()
+            if not line:
+                break
+            self.records.append(line)
+        self.where = self.f.tell()
 
     def draw(self):
         """Draw log"""
+        self.check()
         caption = 'Log'
-        content = '\n'.join(self.records[-self.height+1:-1])
+        content = ''.join(self.records[-self.height + 3:])
 
         self.draw_line(caption, self.create_attribute(alt_background=True))
         self.draw_line(content)

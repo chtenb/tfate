@@ -6,9 +6,8 @@ class SessionWin(Win):
 
     """Window displaying the headers of all current sessions."""
 
-    def __init__(self, width, height, x, y, session, ui):
+    def __init__(self, width, height, x, y, session):
         Win.__init__(self, width, height, x, y, session)
-        self.ui = ui
 
     def draw(self):
         """Draw the current session headers."""

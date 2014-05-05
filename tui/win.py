@@ -4,7 +4,6 @@ The Win class is meant to hide some common interaction with curses.
 """
 import curses
 from logging import debug
-from . import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS
 
 
 class Win:
@@ -14,6 +13,7 @@ class Win:
     def __init__(self, width, height, x, y, session):
         self.win = curses.newwin(height, width, y, x)
         self.session = session
+        self.ui = session.ui
 
     def resize(self, width=None, height=None):
         self.win.resize(height, width)
@@ -46,8 +46,7 @@ class Win:
         y, _ = self.win.getbegyx()
         return y
 
-    @staticmethod
-    def create_attribute(reverse=False, underline=False, bold=False,
+    def create_attribute(self, reverse=False, underline=False, bold=False,
                          color=0, alt_background=False, highlight=False):
         """
         Return the attribute corresponding to the given properties.
@@ -61,23 +60,23 @@ class Win:
             result |= curses.A_REVERSE
 
 
-        if not HAS_COLORS:
+        if not self.ui.has_colors:
             if alt_background:
                 result ^= curses.A_REVERSE
             if highlight:
                 result ^= curses.A_REVERSE
         else:
-            colorpair = color % (COLOR_PAIRS + 1)
+            colorpair = color % (self.ui.color_pairs + 1)
 
             if alt_background:
-                if HAS_BACKGROUND_COLORS:
-                    colorpair = color + COLOR_PAIRS + 1
+                if self.ui.has_background_colors:
+                    colorpair = color + self.ui.color_pairs + 1
                 else:
                     result ^= curses.A_REVERSE
 
             if highlight:
-                if HAS_BACKGROUND_COLORS:
-                    colorpair = color + COLOR_PAIRS + COLOR_PAIRS + 1
+                if self.ui.has_background_colors:
+                    colorpair = color + self.ui.color_pairs + self.ui.color_pairs + 1
                 else:
                     result ^= curses.A_REVERSE
 

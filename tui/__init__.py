@@ -1,11 +1,8 @@
 import curses
+from .userinterface import UserInterface
 from logging import debug, info
 import os
 
-
-HAS_COLORS = False
-HAS_BACKGROUND_COLORS = False
-COLOR_PAIRS = 1
 
 # Lower the annoying delay for the escape character
 # VIM also uses 25 ms
@@ -61,7 +58,6 @@ def start(filenames):
         init_colors(stdscr)
 
         # Create all interfaces
-        from .userinterface import UserInterface
         for filename in filenames:
             ui = UserInterface(stdscr, filename)
 

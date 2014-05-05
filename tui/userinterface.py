@@ -25,6 +25,11 @@ class UserInterface:
         self.session.ui = self
         self.session.OnQuit.add(self.exit)
 
+        from . import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS
+        self.has_colors = HAS_COLORS
+        self.has_background_colors = HAS_BACKGROUND_COLORS
+        self.color_pairs = COLOR_PAIRS
+
         self.session.search_pattern = ""
         self.mode = modes.SELECT_MODE
 
@@ -58,14 +63,14 @@ class UserInterface:
     def create_windows(self):
         """Create all curses windows."""
         ymax, xmax = self.stdscr.getmaxyx()
-        self.session_win = SessionWin(xmax, 1, 0, 0, self.session, self)
+        self.session_win = SessionWin(xmax, 1, 0, 0, self.session)
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
         self.undo_win = UndoWin(xmax, 7, 0, ymax - 7, self.session)
-        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session, self)
+        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session)
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
                                       self.session, self)
         self.text_win = TextWin(xmax, ymax - 7 - 3 - 1 - 1 - 5, 0, 1, self.session)
-        self.log_win = LogWin(xmax, 5, 0, ymax - 15, self.session, self)
+        self.log_win = LogWin(xmax, 15, 0, ymax - 25, self.session)
 
         self.stdscr.refresh()
         self.refresh()
