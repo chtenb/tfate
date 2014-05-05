@@ -6,7 +6,6 @@ import os
 HAS_COLORS = False
 HAS_BACKGROUND_COLORS = False
 COLOR_PAIRS = 1
-STDSCR = None
 
 # Lower the annoying delay for the escape character
 # VIM also uses 25 ms
@@ -14,9 +13,6 @@ os.environ['ESCDELAY'] = '25'
 
 
 def init_colors(stdscr):
-    global STDSCR
-    STDSCR = stdscr
-
     # Initialize color pairs from the terminal color palette
     # Pair 0 is the default, pairs 1-16 are the palette colors,
     # pairs 17-32 are palette colors with a different background.
@@ -67,7 +63,7 @@ def start(filenames):
         # Create all interfaces
         from .userinterface import UserInterface
         for filename in filenames:
-            ui = UserInterface(filename)
+            ui = UserInterface(stdscr, filename)
 
         ui.activate()
     curses.wrapper(main)

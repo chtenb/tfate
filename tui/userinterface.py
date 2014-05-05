@@ -13,15 +13,14 @@ from .undowin import UndoWin
 from .statuswin import StatusWin
 from .commandwin import CommandWin
 from .logwin import LogWin
-from . import STDSCR
 
 
 class UserInterface:
 
     """This class provides a user interface for interacting with a session object."""
 
-    def __init__(self, filename=''):
-        self.stdscr = STDSCR
+    def __init__(self, stdscr, filename=''):
+        self.stdscr = stdscr
         self.session = Session(filename)
         self.session.ui = self
         self.session.OnQuit.add(self.exit)

@@ -12,10 +12,18 @@ class SessionWin(Win):
 
     def draw(self):
         """Draw the current session headers."""
+        background = self.create_attribute(alt_background=True)
+        highlight = self.create_attribute(highlight=True, alt_background=True)
+
         from fate.session import session_list
         for session in session_list:
             header = session.filename or '<nameless>'
-            highlight = True if session is self.ui.session else False
-            attributes = self.create_attribute(highlight=highlight, alt_background=True)
-            self.draw_string(header + ' ', attributes)
+            if session is self.ui.session:
+                self.draw_string(header, highlight)
+            else:
+                self.draw_string(header, background)
+            self.draw_string(' ', background)
+
+        # Fill the rest of the line with alt_background
+        self.draw_line('', self.create_attribute(alt_background=True))
 
