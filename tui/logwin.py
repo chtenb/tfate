@@ -38,7 +38,7 @@ class LogWin(Win):
             self.records.append(line)
 
             # Make sure the UI thread will display incoming logs
-            #self.ui.touch()
+            self.ui.touch()
         self.where = self.f.tell()
 
     def draw(self):

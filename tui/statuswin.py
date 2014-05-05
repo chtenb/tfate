@@ -5,6 +5,7 @@ from curses.textpad import Textbox
 
 
 class StatusWin(Win):
+
     """Window containing the status."""
 
     def __init__(self, width, height, x, y, session):
@@ -18,14 +19,24 @@ class StatusWin(Win):
 
     def set_default_status(self):
         """Set the status to the default value."""
-        self.status = (self.session.filename
-                       + ("*" if not self.session.saved else "")
-                       + " | " + str(self.session.filetype)
-                       + " | " + self.ui.mode
-                       + " | " + str(self.session.selection))
-        self.refresh()
+        session = self.session
 
-    def draw_status(self, string):
+        if not session.interactionstack.isempty:
+            mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
+                               else i.__class__.__name__
+                               for i in session.interactionstack.storage)
+        else:
+            mode = session.selection_mode
+
+        string = '{}{} | {} | {} | {}'.format(
+            session.filename,
+            ('*' if not self.session.saved else ''),
+            session.filetype,
+            mode,
+            session.selection)
+        self.set_status(string)
+
+    def set_status(self, string):
         """Set the status to the given string."""
         self.status = string
         self.refresh()
