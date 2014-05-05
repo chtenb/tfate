@@ -47,32 +47,42 @@ class Win:
         return y
 
     @staticmethod
-    def colorpair(pair, alt_background=0):
+    def create_attribute(reverse=False, underline=False, bold=False,
+                         color=0, alt_background=False, highlight=False):
         """
-        Return the attribute corresponding to the color pair number.
-        If alt_background is 1, an alternative background is applied.
+        Return the attribute corresponding to the given properties.
         """
+        result = 0
+        if bold:
+            result |= curses.A_BOLD
+        if underline:
+            result |= curses.A_UNDERLINE
+        if reverse:
+            result |= curses.A_REVERSE
+
+
         if not HAS_COLORS:
             if alt_background:
-                return curses.A_REVERSE
-            else:
-                return curses.A_NORMAL
+                result ^= curses.A_REVERSE
+            if highlight:
+                result ^= curses.A_REVERSE
         else:
-            result = curses.A_NORMAL
-            colorpair = pair % (COLOR_PAIRS + 1)
+            colorpair = color % (COLOR_PAIRS + 1)
 
-            if alt_background == 1:
+            if alt_background:
                 if HAS_BACKGROUND_COLORS:
-                    colorpair = pair + COLOR_PAIRS + 1
+                    colorpair = color + COLOR_PAIRS + 1
                 else:
-                    result |= curses.A_REVERSE
+                    result ^= curses.A_REVERSE
+
+            if highlight:
+                if HAS_BACKGROUND_COLORS:
+                    colorpair = color + COLOR_PAIRS + COLOR_PAIRS + 1
+                else:
+                    result ^= curses.A_REVERSE
 
             result |= curses.color_pair(colorpair)
-            return result
-
-    def set_background(self, attributes):
-        """Set the background attributes."""
-        self.win.bkgdset(' ', attributes)
+        return result
 
     def refresh(self):
         """Refresh the window."""

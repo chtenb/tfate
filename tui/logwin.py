@@ -25,5 +25,5 @@ class LogWin(Win, Handler):
         caption = 'Log'
         content = '\n'.join(self.records[-self.height+1:-1])
 
-        self.draw_line(caption, self.colorpair(0, 1))
+        self.draw_line(caption, self.create_attribute(alt_background=True))
         self.draw_line(content)

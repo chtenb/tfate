@@ -30,21 +30,22 @@ class TextWin(Win):
         while 1:
             try:
                 if position >= length and not empty_intervals:
-                    self.draw_line('EOF', attributes=curses.A_BOLD, silent=False)
+                    self.draw_line('EOF', self.create_attribute(bold=True), silent=False)
                     break
 
                 # Draw possible empty selected interval at position
                 if empty_intervals and empty_intervals[0] == position:
-                    self.draw_string('ε', attributes=curses.A_REVERSE, silent=False)
+                    self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
                     empty_intervals.remove(empty_intervals[0])
                     continue
 
-                attributes = curses.A_NORMAL
+                reverse = False
+                color = 0
                 char = text[position]
 
                 # Apply reverse attribute when char is selected
                 if selection.contains(position):
-                    attributes |= curses.A_REVERSE
+                    reverse = True
                     # display newline character explicitly when selected
                     if char == '\n':
                         char = '↵\n'
@@ -53,9 +54,11 @@ class TextWin(Win):
                 if position in labeling:
                     for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                         if labeling[position] == label:
-                            attributes |= self.colorpair(10 + i)
+                            color = 10 + i
 
-                self.draw_string(char, attributes=attributes, silent=False)
+                attribute = self.create_attribute(reverse=reverse, color=color)
+
+                self.draw_string(char, attribute, silent=False)
                 position += 1
             except curses.error:
                 # End of window reached

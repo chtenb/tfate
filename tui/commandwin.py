@@ -10,18 +10,18 @@ class CommandWin(Win):
 
     def __init__(self, width, height, x, y, session, ui):
         Win.__init__(self, width, height, x, y, session)
-        self.win.bkgd(' ', self.colorpair(0, 1))
         self.ui = ui
         self.min_height = height
 
     def draw(self):
         if self.text:
             self.height = max(self.min_height, int(len(self.text) / self.width))
-            self.draw_string(self.text, self.colorpair(0, 1))
+            self.draw_line(self.text, self.create_attribute(alt_background=True))
         else:
             for i, (name, descr) in enumerate(self.completions):
-                attributes = self.colorpair(14 if self.current_completion == i else 0, 1)
-                self.draw_line(name + '  ' + descr, attributes, wrapping=True)
+                highlight = True if self.current_completion == i else False
+                attribute = self.create_attribute(highlight=highlight, alt_background=True)
+                self.draw_line(name + '  ' + descr, attribute, wrapping=True)
 
     def prompt(self):
         """Prompt the user for an input string."""
@@ -55,9 +55,9 @@ class CommandWin(Win):
 
             if result != None:
                 self.text = str(result)
-                self.refresh()
                 self.ui.refresh()
-                self.win.getch()
+                self.refresh()
+                self.ui.getchar()
 
     def get_command(self):
         """Get the command from the user."""

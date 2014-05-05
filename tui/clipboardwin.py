@@ -15,6 +15,6 @@ class ClipboardWin(Win):
         stack = '-'.join('o' for x in self.session.clipboard.storage)
         stacktail = stack[1 - self.width:]
 
-        self.draw_line(caption, self.colorpair(0, 1))
+        self.draw_line(caption, self.create_attribute(alt_background=True))
         self.draw_line(content)
         self.draw_line(stacktail)
