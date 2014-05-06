@@ -12,22 +12,17 @@ class LogWin(Win):
         self.records = []
 
         self.where = 0
-        self.running = True
-        session.OnQuit.add(self.stop)
         self.logchecker_thread = Thread(target=self.listen)
         self.logchecker_thread.start()
 
     def listen(self):
         with open(LOGFILENAME, 'r') as self.f:
-            while self.running:
+            while self.ui.active and self.visible:
                 self.check()
                 sleep(0.1)
 
-    def stop(self, session):
-        self.running = False
-
     def check(self):
-        assert self.running
+        assert self.visible
         assert self.f != None
 
         self.f.seek(self.where)

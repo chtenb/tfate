@@ -48,14 +48,6 @@ class UserInterface:
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
                                       self.session, self)
 
-    def __enter__(self):
-        """When activated, we start a screen refresh thread."""
-        self.screen_thread = Thread(target=self._refresh_screen_loop)
-        self.screen_thread.start()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.deactivate()
-
     def touch(self):
         """Tell the screen thread to update the screen."""
         self.touched = True
@@ -64,10 +56,16 @@ class UserInterface:
         """Activate the user interface."""
         self.active = True
 
-        with self:
+        try:
+            self.screen_thread = Thread(target=self._refresh_screen_loop)
+            self.screen_thread.start()
             while self.active:
                 self.touch()
                 self.session.main()
+        except:
+            raise
+        finally:
+            self.deactivate()
 
     def deactivate(self):
         """Deactivate the user interface."""
@@ -85,7 +83,7 @@ class UserInterface:
             sleep(0.01)
 
     def _refresh(self):
-        """Refresh all subwindows."""
+        """Refresh all subwindows and stdscr."""
         self.text_win.refresh()
         self.clipboard_win.refresh()
         self.log_win.refresh()
@@ -114,6 +112,7 @@ class UserInterface:
 
     def getchar(self):
         char = utils.getchar(self.stdscr)
+        # Intercept resize events
         if char == 'Resize':
             self._create_windows()
             self.touch()

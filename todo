@@ -1,5 +1,4 @@
 SHORT TERM
-todo: make screen thread die on exit
 allow easy hide/show/placement of windows
     don't restrict this in any way
 line numbers
