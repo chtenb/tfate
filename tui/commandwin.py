@@ -11,19 +11,25 @@ class CommandWin(Win):
         Win.__init__(self, width, height, x, y, session)
         self.ui = ui
         self.min_height = height
+        self.reset()
+
+    def reset(self):
+        self.text = None
+        self.completions = None
+        self.hide()
 
     def draw(self):
         if self.text:
             self.height = max(self.min_height, int(len(self.text) / self.width))
             self.draw_line(self.text, self.create_attribute(alt_background=True))
-        else:
+        elif self.completions:
             for i, (name, descr) in enumerate(self.completions):
                 highlight = True if self.current_completion == i else False
                 attribute = self.create_attribute(highlight=highlight, alt_background=True)
                 self.draw_line(name + '  ' + descr, attribute, wrapping=True)
 
     def prompt(self):
-        """Prompt the user for an input string."""
+        """Prompt the user for a command."""
         from fate import selectors, operators, actors, uiactions
 
         self.scope = vars(self.session)
@@ -35,28 +41,27 @@ class CommandWin(Win):
 
         self.completions = [('', '')]
         self.current_completion = 0
-
         self.text = None
-        self.refresh()
+
+        self.show()
+        self.ui.touch()
         command = self.get_command()
-        if command == None:
-            return
+        if command != None:
+            try:
+                result = eval(command, self.scope)
+            except Exception as e:
+                self.text = command + ' : ' + str(e)
+                self.win.getch()
+            else:
+                while callable(result):
+                    result = result(self.session)
 
-        try:
-            result = eval(command, self.scope)
-        except Exception as e:
-            self.text = command + ' : ' + str(e)
-            self.refresh()
-            self.win.getch()
-        else:
-            while callable(result):
-                result = result(self.session)
+                if result != None:
+                    self.text = str(result)
+                    self.ui.touch()
+                    self.ui.getchar()
 
-            if result != None:
-                self.text = str(result)
-                self.ui.touch()
-                self.refresh()
-                self.ui.getchar()
+        self.reset()
 
     def get_command(self):
         """Get the command from the user."""
@@ -92,4 +97,3 @@ class CommandWin(Win):
                 self.height = max(self.min_height, len(self.completions))
 
             self.ui.touch()
-            self.refresh()

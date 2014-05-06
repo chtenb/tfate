@@ -36,13 +36,13 @@ def main(stdscr):
 
     # Init color pairs
     for i in range(curses.COLORS):
-        curses.init_pair(i + 1, i, 2)
+        curses.init_pair(i + 1, i, 0)
         curses.init_pair(i + 1 + curses.COLORS, i, 3)
         #stdscr.addstr(str(curses.color_pair(i)) + ', ')
 
     # Demonstrate color pairs
     stdscr.addstr('\ncolorpairs: ')
-    for i in range(16):#range(curses.COLORS):
+    for i in range(8):#range(curses.COLORS):
         attribute = curses.color_pair(i + 1)
         stdscr.addstr('color_pair: {}, attribute: {}\n'.format(i + 1, attribute), attribute)
 
@@ -67,7 +67,7 @@ def main(stdscr):
                  'A_RIGHT',
                  ]:
         attribute = curses.__dict__[name]
-        stdscr.addstr('name: {}, attribute: {}\n'.format(name, attribute), attribute)
+        #stdscr.addstr('name: {}, attribute: {}\n'.format(name, attribute), attribute)
 
     #stdscr.addstr('\nattributes by number: ')
     #for i in range(256*2):

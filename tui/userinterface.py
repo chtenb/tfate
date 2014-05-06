@@ -34,19 +34,19 @@ class UserInterface:
 
         self.active = False
         self.touched = False
-        self.create_windows()
+        self._create_windows()
 
-    def create_windows(self):
+    def _create_windows(self):
         """Create all curses windows."""
         ymax, xmax = self.stdscr.getmaxyx()
         self.session_win = SessionWin(xmax, 1, 0, 0, self.session)
-        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 10, self.session)
-        self.undo_win = UndoWin(xmax, 7, 0, ymax - 7, self.session)
+        self.text_win = TextWin(xmax, ymax - 1 - 3 - 3 - 7 - 1, 0, 1, self.session)
+        self.log_win = LogWin(xmax, 3, 0, ymax - 14, self.session)
+        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 11, self.session)
+        self.undo_win = UndoWin(xmax, 7, 0, ymax - 8, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session)
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
                                       self.session, self)
-        self.text_win = TextWin(xmax, ymax - 7 - 3 - 1 - 1 - 5, 0, 1, self.session)
-        self.log_win = LogWin(xmax, 15, 0, ymax - 25, self.session)
 
     def __enter__(self):
         """When activated, we start a screen refresh thread."""
@@ -67,11 +67,13 @@ class UserInterface:
         with self:
             while self.active:
                 self.touch()
-                self.normal_mode()
+                self.session.main()
 
     def deactivate(self):
         """Deactivate the user interface."""
         self.active = False
+        # Wait until screen thread is terminated,
+        # to avoid having multiple threads writing to the screen
         self.screen_thread.join()
 
     def _refresh_screen_loop(self):
@@ -90,6 +92,7 @@ class UserInterface:
         self.undo_win.refresh()
         self.status_win.refresh()
         self.session_win.refresh()
+        self.command_win.refresh()
 
         self.stdscr.refresh()
 
@@ -112,32 +115,10 @@ class UserInterface:
     def getchar(self):
         char = utils.getchar(self.stdscr)
         if char == 'Resize':
-            self.create_windows()
+            self._create_windows()
             self.touch()
         return char
 
-    def normal_mode(self):
-        """We are in normal mode."""
-        char = self.getchar()
-
-        if not self.session.interactionstack.isempty:
-            self.interactive_mode(char)
-        elif char == ':':
-            self.command_win.prompt()
-        elif char in self.session.keymap:
-            action = self.session.keymap[char]
-            while callable(action):
-                action = action(self.session)
-
-    def interactive_mode(self, char):
-        """We are in interactive mode."""
-        session = self.session
-        interaction = session.interactionstack.peek()
-
-        if char == 'Esc':
-            interaction.proceed(session)
-        else:
-            interaction.interact(session, char)
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""

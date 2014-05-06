@@ -1,12 +1,9 @@
 SHORT TERM
-put UI refresh in seperate thread
-decide where curses main should go
-allow hide/show/placement of windows
+todo: make screen thread die on exit
+allow easy hide/show/placement of windows
     don't restrict this in any way
-Challenge: implement ui as a plugin
-    maybe main loop will be moved to fate
 line numbers
-check if uiactions keymap can be merged
+move commandwin logic to fate
 Move prompt functionality from statuswin to commandwin
 Allow statements and multiple lines in commandwin
 Make sure fields also get completed in commandwindow

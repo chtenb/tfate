@@ -16,6 +16,7 @@ class StatusWin(Win):
         """Draw the current status."""
         attribute = self.create_attribute(alt_background=True)
         self.draw_line(self.status, attribute)
+        self.set_default_status()
 
     def set_default_status(self):
         """Set the status to the default value."""
@@ -34,19 +35,18 @@ class StatusWin(Win):
             session.filetype,
             mode,
             session.selection)
-        self.set_status(string)
+        self.status = string
 
     def set_status(self, string):
         """Set the status to the given string."""
         self.status = string
-        self.refresh()
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
         attribute = self.create_attribute(alt_background=True)
         self.win.erase()
         self.draw_string(prompt_string, attribute)
-        self.win.refresh()
+        self.ui.touch()
         prompt_len = len(prompt_string)
         text_box_win = curses.newwin(1, self.width - prompt_len,
                                      self.y, self.x + prompt_len)

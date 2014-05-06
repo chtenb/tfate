@@ -14,6 +14,7 @@ class Win:
         self.win = curses.newwin(height, width, y, x)
         self.session = session
         self.ui = session.ui
+        self.visible = True
 
     def resize(self, width=None, height=None):
         self.win.resize(height, width)
@@ -45,6 +46,14 @@ class Win:
         """Y coordinate of upper left corner."""
         y, _ = self.win.getbegyx()
         return y
+
+    def hide(self):
+        """Prevent self from being drawn."""
+        self.visible = False
+
+    def show(self):
+        """Don't prevent self from being drawn."""
+        self.visible = True
 
     def create_attribute(self, reverse=False, underline=False, bold=False,
                          color=0, alt_background=False, highlight=False):
@@ -85,10 +94,11 @@ class Win:
 
     def refresh(self):
         """Refresh the window."""
-        self.win.move(0, 0)
-        self.draw()
-        self.win.clrtobot()
-        self.win.refresh()
+        if self.visible:
+            self.win.move(0, 0)
+            self.draw()
+            self.win.clrtobot()
+            self.win.refresh()
 
     def draw(self):
         """This draw method needs to be overridden to draw the window content."""

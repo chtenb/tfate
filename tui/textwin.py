@@ -54,7 +54,7 @@ class TextWin(Win):
                 if position in labeling:
                     for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                         if labeling[position] == label:
-                            color = 10 + i
+                            color = 11 + i
 
                 attribute = self.create_attribute(reverse=reverse, color=color)
 
