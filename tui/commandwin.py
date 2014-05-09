@@ -1,6 +1,7 @@
 "Module containing StatusWin class."""
 from .win import Win
 from logging import debug
+from fate.command import get_completions, evaluate
 
 
 class CommandWin(Win):
@@ -30,15 +31,6 @@ class CommandWin(Win):
 
     def prompt(self):
         """Prompt the user for a command."""
-        from fate import selectors, operators, actors, uiactions
-
-        self.scope = vars(self.session)
-        self.scope.update({'self': self.session})
-        self.scope.update(vars(selectors))
-        self.scope.update(vars(operators))
-        self.scope.update(vars(actors))
-        self.scope.update(vars(uiactions))
-
         self.completions = [('', '')]
         self.current_completion = 0
         self.text = None
@@ -47,19 +39,12 @@ class CommandWin(Win):
         self.ui.touch()
         command = self.get_command()
         if command != None:
-            try:
-                result = eval(command, self.scope)
-            except Exception as e:
-                self.text = command + ' : ' + str(e)
-                self.win.getch()
-            else:
-                while callable(result):
-                    result = result(self.session)
+            result = evaluate(self.session, command)
 
-                if result != None:
-                    self.text = str(result)
-                    self.ui.touch()
-                    self.ui.getchar()
+            if result != None:
+                self.text = str(result)
+                self.ui.touch()
+                self.ui.getchar()
 
         self.reset()
 
@@ -89,11 +74,7 @@ class CommandWin(Win):
 
                 # Update completions
                 self.current_completion = 0
-                self.completions = [(command, '')]
-                if command:
-                    for name, obj in self.scope.items():
-                        if name.lower().startswith(command.lower()):
-                            self.completions.append((name, repr(obj)))
+                self.completions = list(get_completions(self.session, command))
                 self.height = max(self.min_height, len(self.completions))
 
             self.ui.touch()

@@ -44,7 +44,3 @@ def getchar(stdscr):
                         .format(str(type(char))))
     debug(result)
     return result
-
-def publics(obj):
-    """Return all object in __dir__ not starting with '_'"""
-    return (name for name in dir(obj) if not name.startswith('_'))
