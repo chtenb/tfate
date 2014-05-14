@@ -1,6 +1,7 @@
 "Module containing TextWin class."""
 import curses
 from .win import Win
+from logging import debug
 
 
 class TextWin(Win):
@@ -40,8 +41,18 @@ class TextWin(Win):
                     continue
 
                 reverse = False
+                bold = False
                 color = 0
+                debug(position)
                 char = text[position]
+
+                # Apply reverse attribute when char is selected
+                if (self.session.locked_selection != None
+                        and self.session.locked_selection.contains(position)):
+                    bold = True
+                    # display newline character explicitly when selected
+                    if char == '\n':
+                        char = '↵\n'
 
                 # Apply reverse attribute when char is selected
                 if selection.contains(position):
@@ -56,7 +67,7 @@ class TextWin(Win):
                         if labeling[position] == label:
                             color = 11 + i
 
-                attribute = self.create_attribute(reverse=reverse, color=color)
+                attribute = self.create_attribute(reverse=reverse, color=color, bold=bold)
 
                 self.draw_string(char, attribute, silent=False)
                 position += 1

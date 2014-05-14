@@ -3,6 +3,7 @@ from time import sleep
 from threading import Thread
 
 from fate.session import Session, session_list
+from fate.userinterface import UserInterface
 
 from .sessionwin import SessionWin
 from .textwin import TextWin
@@ -15,13 +16,14 @@ from .logwin import LogWin
 from . import utils
 
 
-class UserInterface:
+class TextUserInterface(UserInterface):
 
     """
     This class provides a user interface for interacting with a session object.
     """
 
     def __init__(self, stdscr, filename=''):
+        # TODO: make stdscr global
         self.stdscr = stdscr
         self.session = Session(filename)
         self.session.ui = self
@@ -54,6 +56,10 @@ class UserInterface:
 
     def activate(self):
         """Activate the user interface."""
+        # First deactivate all other userinterfaces
+        # When we allow splitscreens etc, this must be changed
+        for session in session_list:
+            session.ui.deactivate()
         self.active = True
 
         try:
@@ -69,10 +75,11 @@ class UserInterface:
 
     def deactivate(self):
         """Deactivate the user interface."""
-        self.active = False
-        # Wait until screen thread is terminated,
-        # to avoid having multiple threads writing to the screen
-        self.screen_thread.join()
+        if self.active:
+            self.active = False
+            # Wait until screen thread is terminated,
+            # to avoid having multiple threads writing to the screen
+            self.screen_thread.join()
 
     def _refresh_screen_loop(self):
         """Loop that refreshes screen when touched."""
@@ -118,7 +125,14 @@ class UserInterface:
             self.touch()
         return char
 
+    def command_mode(self):
+        self.command_win.prompt()
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
         return self.status_win.prompt(prompt_string)
+
+    def notify(self, message):
+        self.status_win.set_status(message)
+        self.getchar()
+        self.status_win.set_default_status()

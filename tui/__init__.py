@@ -1,5 +1,5 @@
 import curses
-from .userinterface import UserInterface
+from .textuserinterface import TextUserInterface
 from logging import debug, info
 import os
 
@@ -59,7 +59,7 @@ def start(filenames):
 
         # Create all interfaces
         for filename in filenames:
-            ui = UserInterface(stdscr, filename)
+            ui = TextUserInterface(stdscr, filename)
 
         ui.activate()
     curses.wrapper(main)
