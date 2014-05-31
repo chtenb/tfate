@@ -1,7 +1,6 @@
 """This module contains the UserInterface class."""
 from fate.session import Session, session_list
 from fate import modes
-import user
 import curses
 from .sessionwin import SessionWin
 from .textwin import TextWin
@@ -31,7 +30,10 @@ class UserInterface:
         self.session.key_mapping = {}
         self.session.key_mapping.update(key_mapping.action_keys)
         try:
+            import user
             self.session.key_mapping.update(user.action_keys)
+        except ImportError:
+            pass
         except AttributeError:
             pass
 

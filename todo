@@ -1,4 +1,5 @@
 SHORT TERM
+Use unicurses and try to make it a subrepository.
 Challenge: implement ui as a plugin
     main loop will be moved to fate
 make ui member of session, then scope split is not needed anymore
