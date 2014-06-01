@@ -1,4 +1,4 @@
-import curses
+import unicurses as curses
 from .textuserinterface import TextUserInterface
 from logging import debug, info
 import os
@@ -31,29 +31,37 @@ def init_colors(stdscr):
             info('Terminal does not support background colors.')
 
         global COLOR_PAIRS
-        COLOR_PAIRS = min(16, curses.COLORS)
+        #COLOR_PAIRS = min(16, curses.COLORS)
+        COLOR_PAIRS = 16
         info('Terminal supports {} colors. Using {} colorpairs.'
-             .format(curses.COLORS, COLOR_PAIRS))
+             .format(16, COLOR_PAIRS))
 
         for i in range(COLOR_PAIRS):
             curses.init_pair(i + 1, i, -1)
             try:
                 curses.init_pair(i + 1 + COLOR_PAIRS, i, 8)
                 curses.init_pair(i + 1 + COLOR_PAIRS + COLOR_PAIRS, i, 9)
-            except curses.error:
+            except curses.ERR:
                 HAS_BACKGROUND_COLORS = False
 
 
 def start(filenames):
     """Initialize curses and start application."""
-    def main(stdscr):
-        # No cursor
-        curses.curs_set(0)
+    curses.def_shell_mode()
+    stdscr = curses.initscr()
 
-        # Key input settings
-        curses.raw()
-        stdscr.keypad(1)
+    # Display settings
+    curses.cbreak()
+    curses.noecho()
 
+    # Key input settings
+    curses.raw()
+    stdscr.keypad(1)
+
+    # No cursor
+    curses.curs_set(0)
+
+    try:
         # Init colors
         init_colors(stdscr)
 
@@ -62,4 +70,10 @@ def start(filenames):
             ui = TextUserInterface(stdscr, filename)
 
         ui.activate()
-    curses.wrapper(main)
+    except:
+        raise
+    finally:
+        curses.reset_shell_mode()
+
+        # Restore cursor
+        curses.curs_set(1)

@@ -1,5 +1,5 @@
 "Module containing StatusWin class."""
-import curses
+import unicurses as curses
 from .win import Win
 from curses.textpad import Textbox
 

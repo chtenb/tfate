@@ -2,7 +2,7 @@
 Module containing Win class.
 The Win class is meant to hide some common interaction with curses.
 """
-import curses
+import unicurses as curses
 from logging import debug
 
 
@@ -111,7 +111,7 @@ class Win:
                 self.win.addnstr(string, self.width, attributes)
             else:
                 self.win.addstr(string, attributes)
-        except curses.error:
+        except curses.ERR:
             # End of window reached
             if not silent:
                 raise

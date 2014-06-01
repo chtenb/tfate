@@ -1,5 +1,5 @@
 """This module contains several utility functions."""
-import curses
+import unicurses as curses
 from logging import debug
 
 def getchar(stdscr):
@@ -8,7 +8,7 @@ def getchar(stdscr):
         try:
             char = stdscr.get_wch()
             break
-        except curses.error:
+        except curses.ERR:
             pass
 
     if isinstance(char, str):
