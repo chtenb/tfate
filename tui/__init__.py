@@ -47,7 +47,6 @@ def init_colors(stdscr):
 
 def start(filenames):
     """Initialize curses and start application."""
-    curses.def_shell_mode()
     stdscr = curses.initscr()
 
     # Display settings
@@ -73,7 +72,4 @@ def start(filenames):
     except:
         raise
     finally:
-        curses.reset_shell_mode()
-
-        # Restore cursor
-        curses.curs_set(1)
+        curses.endwin()
