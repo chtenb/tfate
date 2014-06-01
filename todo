@@ -1,5 +1,8 @@
 SHORT TERM
-Use unicurses and try to make it a subrepository.
+Patch unicurses pdcurses detection
+Make getchar robust and work with unicode
+Make wresize work with unicurses
+
 fix drawing bug with multiple intervals
 fix some bugs with multiple sessions
 allow easy hide/show/placement of windows

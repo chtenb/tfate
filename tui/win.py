@@ -17,7 +17,7 @@ class Win:
         self.visible = True
 
     def resize(self, width=None, height=None):
-        self.win.resize(height, width)
+        curses.wresize(self.win, height, width)
 
     @property
     def width(self):
