@@ -71,7 +71,7 @@ class TextWin(Win):
 
                 self.draw_string(char, attribute, silent=False)
                 position += 1
-            except curses.ERR:
+            except:
                 # End of window reached
                 break
 

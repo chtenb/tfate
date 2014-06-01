@@ -41,7 +41,7 @@ def init_colors(stdscr):
             try:
                 curses.init_pair(i + 1 + COLOR_PAIRS, i, 8)
                 curses.init_pair(i + 1 + COLOR_PAIRS + COLOR_PAIRS, i, 9)
-            except curses.ERR:
+            except:
                 HAS_BACKGROUND_COLORS = False
 
 

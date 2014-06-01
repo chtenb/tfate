@@ -108,10 +108,10 @@ class Win:
         """Try to draw a string with given attributes."""
         try:
             if wrapping:
-                self.win.addnstr(string, self.width, attributes)
+                success = self.win.addnstr(string, self.width, attributes)
             else:
-                self.win.addstr(string, attributes)
-        except curses.ERR:
+                success = self.win.addstr(string, attributes)
+        except:
             # End of window reached
             if not silent:
                 raise

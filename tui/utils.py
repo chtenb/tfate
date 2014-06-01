@@ -8,7 +8,7 @@ def getchar(stdscr):
         try:
             char = stdscr.get_wch()
             break
-        except curses.ERR:
+        except:
             pass
 
     if isinstance(char, str):
