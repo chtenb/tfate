@@ -6,7 +6,7 @@ setup(name='fate',
       author='Chiel ten Brinke',
       author_email='ctenbrinke@gmail.com',
       url='http://www.github.com/Chiel92/fate',
-      package_dir={'fate': 'lib_fate/fate'},
+      package_dir={'fate': 'libs/fate'},
       packages=[
           'tui',
           'fate',

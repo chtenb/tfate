@@ -1,5 +1,4 @@
 "Module containing SessionWin class."""
-import curses
 from .win import Win
 
 
@@ -7,16 +6,23 @@ class SessionWin(Win):
 
     """Window displaying the headers of all current sessions."""
 
-    def __init__(self, width, height, x, y, session, ui):
+    def __init__(self, width, height, x, y, session):
         Win.__init__(self, width, height, x, y, session)
-        self.ui = ui
-        self.set_background(curses.color_pair(17))
 
     def draw(self):
         """Draw the current session headers."""
+        background = self.create_attribute(alt_background=True)
+        highlight = self.create_attribute(highlight=True, alt_background=True)
+
         from fate.session import session_list
         for session in session_list:
             header = session.filename or '<nameless>'
-            color = 31 if session is self.ui.session else 17
-            self.draw_string(header + ' ', curses.color_pair(color))
+            if session is self.ui.session:
+                self.draw_string(header, highlight)
+            else:
+                self.draw_string(header, background)
+            self.draw_string(' ', background)
+
+        # Fill the rest of the line with alt_background
+        self.draw_line('', self.create_attribute(alt_background=True))
 

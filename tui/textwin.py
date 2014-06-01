@@ -1,6 +1,7 @@
 "Module containing TextWin class."""
 import curses
 from .win import Win
+from logging import debug
 
 
 class TextWin(Win):
@@ -28,34 +29,47 @@ class TextWin(Win):
 
         # Draw every character
         while 1:
-            if position >= length and not empty_intervals:
-                self.draw_line('EOF', curses.A_BOLD)
-                break
-
-            # Draw possible empty selected interval at position
-            if empty_intervals and empty_intervals[0] == position:
-                self.win.addstr('ε', curses.A_REVERSE)
-                empty_intervals.remove(empty_intervals[0])
-                continue
-
-            attribute = curses.A_NORMAL
-            char = text[position]
-
-            # Apply reverse attribute when char is selected
-            if selection.contains(position):
-                attribute |= curses.A_REVERSE
-                # display newline character explicitly when selected
-                if char == '\n':
-                    char = '↵\n'
-
-            # Apply color attribute if char is labeled
-            if position in labeling:
-                for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
-                    if labeling[position] == label:
-                        attribute |= curses.color_pair(10 + i)
-
             try:
-                self.win.addstr(char, attribute)
+                if position >= length and not empty_intervals:
+                    self.draw_line('EOF', self.create_attribute(bold=True), silent=False)
+                    break
+
+                # Draw possible empty selected interval at position
+                if empty_intervals and empty_intervals[0] == position:
+                    self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                    empty_intervals.remove(empty_intervals[0])
+                    continue
+
+                reverse = False
+                highlight = False
+                color = 0
+                #debug(position)
+                char = text[position]
+
+                # Apply reverse attribute when char is selected
+                if (self.session.locked_selection != None
+                        and self.session.locked_selection.contains(position)):
+                    highlight = True
+                    # display newline character explicitly when selected
+                    if char == '\n':
+                        char = '↵\n'
+
+                # Apply reverse attribute when char is selected
+                if selection.contains(position):
+                    reverse = True
+                    # display newline character explicitly when selected
+                    if char == '\n':
+                        char = '↵\n'
+
+                # Apply color attribute if char is labeled
+                if position in labeling:
+                    for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
+                        if labeling[position] == label:
+                            color = 11 + i
+
+                attribute = self.create_attribute(reverse=reverse, color=color, highlight=highlight)
+
+                self.draw_string(char, attribute, silent=False)
                 position += 1
             except curses.error:
                 # End of window reached

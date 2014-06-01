@@ -1,16 +1,11 @@
 SHORT TERM
 Use unicurses and try to make it a subrepository.
-Challenge: implement ui as a plugin
-    main loop will be moved to fate
-make ui member of session, then scope split is not needed anymore
-    i.e. ui_actions can receive a session
-first check for colors before colorpair init
+fix drawing bug with multiple intervals
+fix some bugs with multiple sessions
+allow easy hide/show/placement of windows
+    don't restrict this in any way
 line numbers
-check if uiactions keymap can be merged
-Add window displaying the logs
 Move prompt functionality from statuswin to commandwin
-Allow statements and multiple lines in commandwin
-Make sure fields also get completed in commandwindow
 Improve navigating through display of text, actiontree and clipboard
 Think about keymap
     Make keymap part of session,
