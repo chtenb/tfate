@@ -35,7 +35,8 @@ class TextWin(Win):
 
                 # Draw possible empty selected interval at position
                 if empty_intervals and empty_intervals[0] == position:
-                    self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                    #self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                    self.draw_string('E', self.create_attribute(reverse=True, bold=True), silent=False)
                     empty_intervals.remove(empty_intervals[0])
                     continue
 
@@ -51,14 +52,16 @@ class TextWin(Win):
                     highlight = True
                     # display newline character explicitly when selected
                     if char == '\n':
-                        char = '↵\n'
+                        #char = '↵\n'
+                        char = ' \n'
 
                 # Apply reverse attribute when char is selected
                 if selection.contains(position):
                     reverse = True
                     # display newline character explicitly when selected
                     if char == '\n':
-                        char = '↵\n'
+                        #char = '↵\n'
+                        char = ' \n'
 
                 # Apply color attribute if char is labeled
                 if position in labeling:
