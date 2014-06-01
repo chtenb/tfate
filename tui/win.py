@@ -95,7 +95,7 @@ class Win:
     def refresh(self):
         """Refresh the window."""
         if self.visible:
-            curses.mvwin(self.win, 0, 0)
+            curses.wmove(self.win, 0, 0)
             self.draw()
             curses.wclrtobot(self.win)
             curses.wrefresh(self.win)
@@ -108,9 +108,9 @@ class Win:
         """Try to draw a string with given attributes."""
         try:
             if wrapping:
-                success = curses.waddnstr(self.win, string, self.width, attributes)
+                curses.waddnstr(self.win, string, self.width, attributes)
             else:
-                success = curses.waddstr(self.win, string, attributes)
+                curses.waddstr(self.win, string, attributes)
         except:
             # End of window reached
             if not silent:

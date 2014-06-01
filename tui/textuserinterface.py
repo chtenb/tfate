@@ -100,9 +100,6 @@ class TextUserInterface(UserInterface):
         self.session_win.refresh()
         self.command_win.refresh()
 
-        curses.refresh()
-        #self.stdscr.refresh()
-
     def quit(self, session):
         """Activate next session, if existent."""
         assert session is self.session
