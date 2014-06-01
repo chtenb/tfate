@@ -1,6 +1,7 @@
 """This module contains the UserInterface class."""
 from time import sleep
 from threading import Thread
+import unicurses as curses
 
 from fate.session import Session, session_list
 from fate.userinterface import UserInterface
@@ -40,7 +41,7 @@ class TextUserInterface(UserInterface):
 
     def _create_windows(self):
         """Create all curses windows."""
-        ymax, xmax = self.stdscr.getmaxyx()
+        ymax, xmax = curses.getmaxyx(self.stdscr)
         self.session_win = SessionWin(xmax, 1, 0, 0, self.session)
         self.text_win = TextWin(xmax, ymax - 1 - 3 - 4 - 7 - 1, 0, 1, self.session)
         self.log_win = LogWin(xmax, 4, 0, ymax - 14, self.session)
@@ -99,7 +100,8 @@ class TextUserInterface(UserInterface):
         self.session_win.refresh()
         self.command_win.refresh()
 
-        self.stdscr.refresh()
+        curses.refresh()
+        #self.stdscr.refresh()
 
     def quit(self, session):
         """Activate next session, if existent."""

@@ -49,10 +49,13 @@ except ImportError:
         print("Fatal error: this platform is not supported by UniCurses (either you're running a very old Python distribution below v2.6, or you're using an exotic operating system that's neither Win nor *nix).\n")
         raise ImportError("UniCurses initialization error - unsupported platform.")
     else:
-        if not os.access("pdcurses.dll",os.F_OK):
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        path_to_pdcurses = current_dir + "/pdc34dllu/pdcurses.dll"
+        print(path_to_pdcurses)
+        if not os.access(path_to_pdcurses, os.F_OK):
             print("Fatal error: can't find pdcurses.dll for linking, make sure PDCurses v3.4+ is in the same folder as UniCurses if you want to use UniCurses on a "+sys.platform+" platform.\n")
             raise ImportError("UniCurses initialization error - pdcurses.dll not found.")
-        pdlib = ctypes.CDLL("pdcurses.dll")   # we're on winXX, use pdcurses instead of native ncurses
+        pdlib = ctypes.CDLL(path_to_pdcurses)   # we're on winXX, use pdcurses instead of native ncurses
 
 
 

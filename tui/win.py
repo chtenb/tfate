@@ -22,13 +22,13 @@ class Win:
     @property
     def width(self):
         """Width of the window."""
-        _, width = self.win.getmaxyx()
+        _, width = curses.getmaxyx(self.win)
         return width
 
     @property
     def height(self):
         """Height of the window."""
-        height, _ = self.win.getmaxyx()
+        height, _ = curses.getmaxyx(self.win)
         return height
 
     @height.setter
@@ -38,13 +38,13 @@ class Win:
     @property
     def x(self):
         """X coordinate of upper left corner."""
-        _, x = self.win.getbegyx()
+        _, x = curses.getbegyx(self.win)
         return x
 
     @property
     def y(self):
         """Y coordinate of upper left corner."""
-        y, _ = self.win.getbegyx()
+        y, _ = curses.getbegyx(self.win)
         return y
 
     def hide(self):
@@ -95,10 +95,10 @@ class Win:
     def refresh(self):
         """Refresh the window."""
         if self.visible:
-            self.win.move(0, 0)
+            curses.mvwin(self.win, 0, 0)
             self.draw()
-            self.win.clrtobot()
-            self.win.refresh()
+            curses.wclrtobot(self.win)
+            curses.wrefresh(self.win)
 
     def draw(self):
         """This draw method needs to be overridden to draw the window content."""
@@ -108,9 +108,9 @@ class Win:
         """Try to draw a string with given attributes."""
         try:
             if wrapping:
-                success = self.win.addnstr(string, self.width, attributes)
+                success = curses.waddnstr(self.win, string, self.width, attributes)
             else:
-                success = self.win.addstr(string, attributes)
+                success = curses.waddstr(self.win, string, attributes)
         except:
             # End of window reached
             if not silent:

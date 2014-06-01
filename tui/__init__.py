@@ -55,7 +55,7 @@ def start(filenames):
 
     # Key input settings
     curses.raw()
-    stdscr.keypad(1)
+    curses.keypad(stdscr, 1)
 
     # No cursor
     curses.curs_set(0)

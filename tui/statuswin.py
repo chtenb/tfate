@@ -1,7 +1,6 @@
 "Module containing StatusWin class."""
 import unicurses as curses
 from .win import Win
-from curses.textpad import Textbox
 
 
 class StatusWin(Win):
@@ -43,6 +42,7 @@ class StatusWin(Win):
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
+        from curses.textpad import Textbox
         attribute = self.create_attribute(alt_background=True)
         self.win.erase()
         self.draw_string(prompt_string, attribute)
