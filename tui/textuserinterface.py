@@ -43,11 +43,12 @@ class TextUserInterface(UserInterface):
         """Create all curses windows."""
         ymax, xmax = curses.getmaxyx(self.stdscr)
         self.session_win = SessionWin(xmax, 1, 0, 0, self.session)
-        self.text_win = TextWin(xmax, ymax - 1 - 3 - 4 - 7 - 1, 0, 1, self.session)
-        self.log_win = LogWin(xmax, 4, 0, ymax - 14, self.session)
-        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 11, self.session)
-        self.undo_win = UndoWin(xmax, 7, 0, ymax - 8, self.session)
+        self.text_win = TextWin(xmax, ymax - 1 - 10 - 3 - 3 - 1, 0, 1, self.session)
+        self.log_win = LogWin(xmax, 10, 0, ymax - 10 - 3 - 3 - 1, self.session)
+        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 3 - 3 - 1, self.session)
+        self.undo_win = UndoWin(xmax, 3, 0, ymax - 3 - 1, self.session)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session)
+
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
                                       self.session, self)
 

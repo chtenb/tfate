@@ -5,6 +5,7 @@ from logging import debug
 def getchar(stdscr):
     """Retrieve input character from user as a readable string."""
     char = curses.getch()
+    debug(char)
 
     # Replace special characters with a readable string
     if char == 27:
@@ -13,7 +14,7 @@ def getchar(stdscr):
         result = '\n'
     elif char == 9:
         result = '\t'
-    elif char == curses.KEY_BACKSPACE:
+    elif char == 8 or char == curses.KEY_BACKSPACE:
         result = '\b'
     elif char < 32:
         result = curses.unctrl(char)
