@@ -1,6 +1,5 @@
 "Module containing TextWin class."""
-import unicurses as curses
-from .win import Win
+from .win import Win, EndOfWin
 from logging import debug
 
 
@@ -71,8 +70,7 @@ class TextWin(Win):
 
                 self.draw_string(char, attribute, silent=False)
                 position += 1
-            except:
-                # End of window reached
+            except EndOfWin:
                 break
 
 

@@ -4,12 +4,7 @@ from logging import debug
 
 def getchar(stdscr):
     """Retrieve input character from user as a readable string."""
-    while 1:
-        try:
-            char = curses.getch()
-            break
-        except:
-            pass
+    char = curses.getch()
 
     # Replace special characters with a readable string
     if char == 27:

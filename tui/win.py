@@ -106,15 +106,14 @@ class Win:
 
     def draw_string(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw a string with given attributes."""
-        try:
-            if wrapping:
-                curses.waddnstr(self.win, string, self.width, attributes)
-            else:
-                curses.waddstr(self.win, string, attributes)
-        except:
-            # End of window reached
-            if not silent:
-                raise
+        if wrapping:
+            ret = curses.waddnstr(self.win, string, self.width, attributes)
+        else:
+            ret = curses.waddstr(self.win, string, attributes)
+
+        # End of window reached
+        if ret == curses.ERR and not silent:
+            raise EndOfWin()
 
     def draw_line(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw string ending with an eol."""
@@ -157,3 +156,6 @@ class Win:
         lines = [line[xoffset:xoffset + self.width - 1] for line in lines]
 
         return '\n'.join(lines)
+
+class EndOfWin(BaseException):
+    pass
