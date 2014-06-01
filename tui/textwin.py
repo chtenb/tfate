@@ -41,15 +41,15 @@ class TextWin(Win):
                     continue
 
                 reverse = False
-                bold = False
+                highlight = False
                 color = 0
-                debug(position)
+                #debug(position)
                 char = text[position]
 
                 # Apply reverse attribute when char is selected
                 if (self.session.locked_selection != None
                         and self.session.locked_selection.contains(position)):
-                    bold = True
+                    highlight = True
                     # display newline character explicitly when selected
                     if char == '\n':
                         char = '↵\n'
@@ -67,7 +67,7 @@ class TextWin(Win):
                         if labeling[position] == label:
                             color = 11 + i
 
-                attribute = self.create_attribute(reverse=reverse, color=color, bold=bold)
+                attribute = self.create_attribute(reverse=reverse, color=color, highlight=highlight)
 
                 self.draw_string(char, attribute, silent=False)
                 position += 1
