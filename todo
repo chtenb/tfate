@@ -1,4 +1,5 @@
 SHORT TERM
+rewrite statuswin.prompt not to use textpad
 Patch unicurses pdcurses detection
 Make getchar robust and work with unicode
 Make wresize work with unicurses
