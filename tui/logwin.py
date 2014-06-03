@@ -13,11 +13,11 @@ class LogWin(Win):
 
         self.refresh_rate = 10
         self.where = 0
-        self.logchecker_thread = Thread(target=self._listen)
 
     def activate(self):
-        Win.activate(self)
-        if not self.logchecker_thread.is_alive():
+        if not self.active:
+            Win.activate(self)
+            self.logchecker_thread = Thread(target=self._listen)
             self.logchecker_thread.start()
 
     def _listen(self):
@@ -37,8 +37,8 @@ class LogWin(Win):
                 break
             self.records.append(line)
 
-        # Make sure the UI thread will display incoming logs
-        self.ui.touch()
+            # Make sure the UI thread will display incoming logs
+            self.ui.touch()
 
         # Remember where we are in the file
         self.where = self.f.tell()

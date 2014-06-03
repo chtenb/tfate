@@ -15,6 +15,9 @@ from .commandwin import CommandWin
 from .logwin import LogWin
 
 from . import utils
+from logging import debug
+
+# TODO: fix quitting and switching with multiple sessions
 
 
 class TextUserInterface(UserInterface):
@@ -36,7 +39,6 @@ class TextUserInterface(UserInterface):
         self.color_pairs = COLOR_PAIRS
 
         self.refresh_rate = 30
-        self.screen_thread = Thread(target=self._screen_loop)
         self.active = False
         self.touched = False
 
@@ -63,19 +65,8 @@ class TextUserInterface(UserInterface):
         """Tell the screen thread to update the screen."""
         self.touched = True
 
-    def activate(self):
-        """Activate the user interface."""
-        # First deactivate all other userinterfaces
-        # When we allow splitscreens etc, this must be changed
-        for session in session_list:
-            session.ui.deactivate()
-        self.active = True
-
-        for win in self.windows:
-            win.activate()
-
-        self.screen_thread.start()
-
+    def main(self):
+        """The main loop of the userinterface."""
         try:
             while self.active:
                 self.session.main()
@@ -83,6 +74,20 @@ class TextUserInterface(UserInterface):
             raise
         finally:
             self.deactivate()
+
+    def activate(self):
+        """Activate the user interface."""
+        # First deactivate all other userinterfaces
+        # When we allow splitscreens etc, this must be changed
+        #for session in session_list:
+            #session.ui.deactivate()
+        self.active = True
+
+        for win in self.windows:
+            win.activate()
+
+        self.screen_thread = Thread(target=self._screen_loop)
+        self.screen_thread.start()
 
     def deactivate(self):
         """Deactivate the user interface."""
@@ -113,6 +118,10 @@ class TextUserInterface(UserInterface):
     def quit(self, session):
         """Activate next session, if existent."""
         assert session is self.session
+
+        debug(str(session_list))
+        debug(str(self.session))
+        self.getchar()
 
         index = session_list.index(session)
         if len(session_list) == 1:
