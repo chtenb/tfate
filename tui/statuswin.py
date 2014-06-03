@@ -21,12 +21,12 @@ class StatusWin(Win):
         """Set the status to the default value."""
         session = self.session
 
-        if not session.interactionstack.isempty:
-            mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
-                               else i.__class__.__name__
-                               for i in session.interactionstack.storage)
-        else:
-            mode = session.selection_mode
+        #if not session.interactionstack.isempty:
+            #mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
+                               #else i.__class__.__name__
+                               #for i in session.interactionstack.storage)
+        #else:
+        mode = session.selection_mode
 
         string = '{}{} | {} | {} | {}'.format(
             session.filename,

@@ -17,7 +17,7 @@ class CommandWin(Win):
     def reset(self):
         self.text = None
         self.completions = None
-        self.deactivate()
+        self.disable()
 
     def draw(self):
         if self.text:
@@ -35,7 +35,7 @@ class CommandWin(Win):
         self.current_completion = 0
         self.text = None
 
-        self.activate()
+        self.enable()
         self.ui.touch()
         command = self.get_command()
         if command != None:

@@ -36,8 +36,10 @@ class TextUserInterface(UserInterface):
         self.color_pairs = COLOR_PAIRS
 
         self.refresh_rate = 30
+        self.screen_thread = Thread(target=self._screen_loop)
         self.active = False
         self.touched = False
+
         self._create_windows()
 
     def _create_windows(self):
@@ -53,6 +55,10 @@ class TextUserInterface(UserInterface):
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
                                       self.session, self)
 
+        self.windows = [self.session_win, self.text_win, self.log_win,
+                        self.clipboard_win, self.undo_win, self.status_win,
+                        self.command_win]
+
     def touch(self):
         """Tell the screen thread to update the screen."""
         self.touched = True
@@ -65,18 +71,13 @@ class TextUserInterface(UserInterface):
             session.ui.deactivate()
         self.active = True
 
-        self.session_win.activate()
-        self.text_win.activate()
-        self.log_win.activate()
-        self.clipboard_win.activate()
-        self.undo_win.activate()
-        self.status_win.activate()
+        for win in self.windows:
+            win.activate()
+
+        self.screen_thread.start()
 
         try:
-            self.screen_thread = Thread(target=self._screen_loop)
-            self.screen_thread.start()
             while self.active:
-                self.touch()
                 self.session.main()
         except:
             raise
@@ -88,17 +89,13 @@ class TextUserInterface(UserInterface):
         if self.active:
             self.active = False
 
-            self.session_win.deactivate()
-            self.text_win.deactivate()
-            self.log_win.deactivate()
-            self.clipboard_win.deactivate()
-            self.undo_win.deactivate()
-            self.status_win.deactivate()
+            for win in self.windows:
+                win.deactivate()
 
             # Wait until screen thread is terminated,
             # to avoid having multiple threads writing to the screen
-            #self.screen_thread.join()
-            #self.log_win.logchecker_thread.join()
+            # self.screen_thread.join()
+            # self.log_win.logchecker_thread.join()
 
     def _screen_loop(self):
         """Loop that refreshes screen when touched."""
@@ -109,14 +106,9 @@ class TextUserInterface(UserInterface):
             sleep(1 / self.refresh_rate)
 
     def _refresh(self):
-        """Refresh all subwindows and stdscr."""
-        self.text_win.refresh()
-        self.clipboard_win.refresh()
-        self.log_win.refresh()
-        self.undo_win.refresh()
-        self.status_win.refresh()
-        self.session_win.refresh()
-        self.command_win.refresh()
+        """Refresh all windows."""
+        for win in self.windows:
+            win.refresh()
 
     def quit(self, session):
         """Activate next session, if existent."""
