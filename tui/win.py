@@ -14,9 +14,30 @@ class Win:
         self.win = curses.newwin(height, width, y, x)
         self.session = session
         self.ui = session.ui
-        self.visible = True
+        self.active = False
+        self.enabled = True
+
+    def enable(self):
+        """Enable this window."""
+        self.enabled = True
+        self.active = True
+
+    def disable(self):
+        """Disable this window."""
+        self.enabled = False
+        self.active = False
+
+    def activate(self):
+        """Make this window active, if enabled."""
+        if self.enabled:
+            self.active = True
+
+    def deactivate(self):
+        """Make this window inactive."""
+        self.active = False
 
     def resize(self, width=None, height=None):
+        """Resize window."""
         curses.wresize(self.win, height, width)
 
     @property
@@ -46,14 +67,6 @@ class Win:
         """Y coordinate of upper left corner."""
         y, _ = curses.getbegyx(self.win)
         return y
-
-    def hide(self):
-        """Prevent self from being drawn."""
-        self.visible = False
-
-    def show(self):
-        """Don't prevent self from being drawn."""
-        self.visible = True
 
     def create_attribute(self, reverse=False, underline=False, bold=False,
                          color=0, alt_background=False, highlight=False):
@@ -94,7 +107,7 @@ class Win:
 
     def refresh(self):
         """Refresh the window."""
-        if self.visible:
+        if self.active:
             curses.wmove(self.win, 0, 0)
             self.draw()
             curses.wclrtobot(self.win)

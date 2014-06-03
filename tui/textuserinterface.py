@@ -35,6 +35,7 @@ class TextUserInterface(UserInterface):
         self.has_background_colors = HAS_BACKGROUND_COLORS
         self.color_pairs = COLOR_PAIRS
 
+        self.refresh_rate = 30
         self.active = False
         self.touched = False
         self._create_windows()
@@ -64,8 +65,15 @@ class TextUserInterface(UserInterface):
             session.ui.deactivate()
         self.active = True
 
+        self.session_win.activate()
+        self.text_win.activate()
+        self.log_win.activate()
+        self.clipboard_win.activate()
+        self.undo_win.activate()
+        self.status_win.activate()
+
         try:
-            self.screen_thread = Thread(target=self._refresh_screen_loop)
+            self.screen_thread = Thread(target=self._screen_loop)
             self.screen_thread.start()
             while self.active:
                 self.touch()
@@ -79,17 +87,26 @@ class TextUserInterface(UserInterface):
         """Deactivate the user interface."""
         if self.active:
             self.active = False
+
+            self.session_win.deactivate()
+            self.text_win.deactivate()
+            self.log_win.deactivate()
+            self.clipboard_win.deactivate()
+            self.undo_win.deactivate()
+            self.status_win.deactivate()
+
             # Wait until screen thread is terminated,
             # to avoid having multiple threads writing to the screen
-            self.screen_thread.join()
+            #self.screen_thread.join()
+            #self.log_win.logchecker_thread.join()
 
-    def _refresh_screen_loop(self):
+    def _screen_loop(self):
         """Loop that refreshes screen when touched."""
         while self.active:
             if self.touched:
                 self.touched = False
                 self._refresh()
-            sleep(0.01)
+            sleep(1 / self.refresh_rate)
 
     def _refresh(self):
         """Refresh all subwindows and stdscr."""

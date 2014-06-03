@@ -11,18 +11,23 @@ class LogWin(Win):
         Win.__init__(self, width, height, x, y, session)
         self.records = []
 
+        self.refresh_rate = 10
         self.where = 0
-        self.logchecker_thread = Thread(target=self.listen)
-        self.logchecker_thread.start()
+        self.logchecker_thread = Thread(target=self._listen)
 
-    def listen(self):
+    def activate(self):
+        Win.activate(self)
+        if not self.logchecker_thread.is_alive():
+            self.logchecker_thread.start()
+
+    def _listen(self):
         with open(LOGFILENAME, 'r') as self.f:
-            while self.ui.active and self.visible:
-                self.check()
-                sleep(0.1)
+            while self.active:
+                self._check()
+                sleep(1 / self.refresh_rate)
 
-    def check(self):
-        assert self.visible
+    def _check(self):
+        assert self.active
         assert self.f != None
 
         self.f.seek(self.where)
@@ -32,13 +37,17 @@ class LogWin(Win):
                 break
             self.records.append(line)
 
-            # Make sure the UI thread will display incoming logs
-            self.ui.touch()
+        # Make sure the UI thread will display incoming logs
+        self.ui.touch()
+
+        # Remember where we are in the file
         self.where = self.f.tell()
 
     def draw(self):
         """Draw log"""
-        caption = 'Log'
+        assert self.active
+
+        caption = 'Log: ' + str('alive' if self.logchecker_thread.is_alive() else 'dead')
         content = ''.join(self.records[-self.height + 2:])
 
         self.draw_line(caption, self.create_attribute(alt_background=True))
