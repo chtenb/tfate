@@ -1,6 +1,4 @@
 """This module contains the UserInterface class."""
-from time import sleep
-from threading import Thread
 import unicurses as curses
 
 from fate.session import Session, session_list
@@ -13,11 +11,10 @@ from .undowin import UndoWin
 from .statuswin import StatusWin
 from .commandwin import CommandWin
 from .logwin import LogWin
+from . import screen
 
 from . import utils
 from logging import debug
-
-# TODO: fix quitting and switching with multiple sessions
 
 
 class TextUserInterface(UserInterface):
@@ -27,7 +24,7 @@ class TextUserInterface(UserInterface):
     """
 
     def __init__(self, stdscr, filename=''):
-        # TODO: make stdscr global
+        # TODO: maybe remove stdscr as a member
         self.stdscr = stdscr
         self.session = Session(filename)
         self.session.ui = self
@@ -38,7 +35,6 @@ class TextUserInterface(UserInterface):
         self.has_background_colors = HAS_BACKGROUND_COLORS
         self.color_pairs = COLOR_PAIRS
 
-        self.refresh_rate = 30
         self.active = False
         self.touched = False
 
@@ -65,52 +61,27 @@ class TextUserInterface(UserInterface):
         """Tell the screen thread to update the screen."""
         self.touched = True
 
-    def main(self):
-        """The main loop of the userinterface."""
-        try:
-            while self.active:
-                self.session.main()
-        except:
-            raise
-        finally:
-            self.deactivate()
-
     def activate(self):
         """Activate the user interface."""
         # First deactivate all other userinterfaces
         # When we allow splitscreens etc, this must be changed
         #for session in session_list:
             #session.ui.deactivate()
-        self.active = True
-
-        for win in self.windows:
-            win.activate()
-
-        self.screen_thread = Thread(target=self._screen_loop)
-        self.screen_thread.start()
+        screen.active_ui = self
+        self.touch()
 
     def deactivate(self):
         """Deactivate the user interface."""
-        if self.active:
-            self.active = False
-
-            for win in self.windows:
-                win.deactivate()
+        pass
+        #if self.active:
+            #self.active = False
 
             # Wait until screen thread is terminated,
             # to avoid having multiple threads writing to the screen
             # self.screen_thread.join()
             # self.log_win.logchecker_thread.join()
 
-    def _screen_loop(self):
-        """Loop that refreshes screen when touched."""
-        while self.active:
-            if self.touched:
-                self.touched = False
-                self._refresh()
-            sleep(1 / self.refresh_rate)
-
-    def _refresh(self):
+    def refresh(self):
         """Refresh all windows."""
         for win in self.windows:
             win.refresh()
@@ -121,7 +92,7 @@ class TextUserInterface(UserInterface):
 
         debug(str(session_list))
         debug(str(self.session))
-        self.getchar()
+        #self.getchar()
 
         index = session_list.index(session)
         if len(session_list) == 1:
@@ -132,16 +103,17 @@ class TextUserInterface(UserInterface):
         else:
             next_session = session_list[index - 1]
 
-        self.deactivate()
         next_session.ui.activate()
 
     def getchar(self):
-        char = utils.getchar(self.stdscr)
-        # Intercept resize events
-        if char == 'Resize':
-            self._create_windows()
-            self.touch()
-        return char
+        while 1:
+            char = utils.getchar(self.stdscr)
+            # Intercept resize events
+            if char == 'Resize':
+                self._create_windows()
+                self.touch()
+            else:
+                return char
 
     def command_mode(self):
         self.command_win.prompt()

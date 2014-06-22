@@ -14,20 +14,19 @@ class LogWin(Win):
         self.refresh_rate = 10
         self.where = 0
 
+        # TODO: revise this
+        #self.activate()
+
     def activate(self):
-        if not self.active:
-            Win.activate(self)
-            self.logchecker_thread = Thread(target=self._listen)
-            self.logchecker_thread.start()
+        self.logchecker_thread = Thread(target=self._listen)
+        self.logchecker_thread.start()
 
     def _listen(self):
         with open(LOGFILENAME, 'r') as self.f:
-            while self.active:
-                self._check()
-                sleep(1 / self.refresh_rate)
+            self._check()
+            sleep(1 / self.refresh_rate)
 
     def _check(self):
-        assert self.active
         assert self.f != None
 
         self.f.seek(self.where)
@@ -45,9 +44,8 @@ class LogWin(Win):
 
     def draw(self):
         """Draw log"""
-        assert self.active
-
-        caption = 'Log: ' + str('alive' if self.logchecker_thread.is_alive() else 'dead')
+        #caption = 'Log: ' + str('alive' if self.logchecker_thread.is_alive() else 'dead')
+        caption = 'Log: ' + 'dead'
         content = ''.join(self.records[-self.height + 2:])
 
         self.draw_line(caption, self.create_attribute(alt_background=True))

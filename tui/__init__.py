@@ -1,5 +1,6 @@
 import unicurses as curses
 from .textuserinterface import TextUserInterface
+from . import screen
 from fate import session
 from logging import debug, info
 import os
@@ -8,6 +9,7 @@ import os
 # Lower the annoying delay for the escape character
 # VIM also uses 25 ms
 os.environ['ESCDELAY'] = '25'
+
 
 
 def init_colors(stdscr):
@@ -67,13 +69,18 @@ def start(filenames):
 
         # Create all interfaces
         for filename in filenames:
-            ui = TextUserInterface(stdscr, filename)
+            TextUserInterface(stdscr, filename)
         session.session_list[0].ui.activate()
+        debug(str(session.session_list))
+        debug(session.session_list[0].filename)
 
-        while 1:
-            ui = next(s.ui for s in session.session_list if s.ui.active)
-            ui.main()
+        debug(screen.active_ui)
+        screen.main()
+        #while 1:
+            #ui = next(s.ui for s in session.session_list if s.ui.active)
     except:
-        raise
-    finally:
         curses.endwin()
+        raise
+    else:
+        curses.endwin()
+

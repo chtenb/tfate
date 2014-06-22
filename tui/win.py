@@ -14,27 +14,15 @@ class Win:
         self.win = curses.newwin(height, width, y, x)
         self.session = session
         self.ui = session.ui
-        self.active = False
         self.enabled = True
 
     def enable(self):
         """Enable this window."""
         self.enabled = True
-        self.active = True
 
     def disable(self):
         """Disable this window."""
         self.enabled = False
-        self.active = False
-
-    def activate(self):
-        """Make this window active, if enabled."""
-        if self.enabled:
-            self.active = True
-
-    def deactivate(self):
-        """Make this window inactive."""
-        self.active = False
 
     def resize(self, width=None, height=None):
         """Resize window."""
@@ -107,7 +95,7 @@ class Win:
 
     def refresh(self):
         """Refresh the window."""
-        if self.active:
+        if self.enabled:
             curses.wmove(self.win, 0, 0)
             self.draw()
             curses.wclrtobot(self.win)
