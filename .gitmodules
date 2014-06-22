@@ -4,6 +4,6 @@
 [submodule "tui/fate"]
 	path = tui/fate
 	url = git@github.com:Chiel92/fate.git
-[submodule "lib_fate/fate"]
-	path = lib_fate/fate
-	url = git@github.com:Chiel92/fate.git
+[submodule "libs/fate"]
+	path = libs/fate
+	url = https://github.com/Chiel92/fate

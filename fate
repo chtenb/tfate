@@ -8,8 +8,8 @@ import sys
 # - run fate without having it installed
 # - and thus easily test development source
 # - have multiple fate packages, in case we would use multiple user interfaces.
-path_to_fate = os.path.dirname(os.path.abspath(__file__)) + '/lib_fate/'
-sys.path.insert(0, path_to_fate)
+libs_path = os.path.dirname(os.path.abspath(__file__)) + '/libs/'
+sys.path.insert(0, libs_path)
 
 from tui.userinterface import UserInterface
 import curses
