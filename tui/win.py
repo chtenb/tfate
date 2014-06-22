@@ -14,21 +14,42 @@ class Win:
         self.win = curses.newwin(height, width, y, x)
         self.session = session
         self.ui = session.ui
-        self.visible = True
+        self.active = False
+        self.enabled = True
+
+    def enable(self):
+        """Enable this window."""
+        self.enabled = True
+        self.active = True
+
+    def disable(self):
+        """Disable this window."""
+        self.enabled = False
+        self.active = False
+
+    def activate(self):
+        """Make this window active, if enabled."""
+        if self.enabled:
+            self.active = True
+
+    def deactivate(self):
+        """Make this window inactive."""
+        self.active = False
 
     def resize(self, width=None, height=None):
-        self.win.resize(height, width)
+        """Resize window."""
+        curses.wresize(self.win, height, width)
 
     @property
     def width(self):
         """Width of the window."""
-        _, width = self.win.getmaxyx()
+        _, width = curses.getmaxyx(self.win)
         return width
 
     @property
     def height(self):
         """Height of the window."""
-        height, _ = self.win.getmaxyx()
+        height, _ = curses.getmaxyx(self.win)
         return height
 
     @height.setter
@@ -38,22 +59,14 @@ class Win:
     @property
     def x(self):
         """X coordinate of upper left corner."""
-        _, x = self.win.getbegyx()
+        _, x = curses.getbegyx(self.win)
         return x
 
     @property
     def y(self):
         """Y coordinate of upper left corner."""
-        y, _ = self.win.getbegyx()
+        y, _ = curses.getbegyx(self.win)
         return y
-
-    def hide(self):
-        """Prevent self from being drawn."""
-        self.visible = False
-
-    def show(self):
-        """Don't prevent self from being drawn."""
-        self.visible = True
 
     def create_attribute(self, reverse=False, underline=False, bold=False,
                          color=0, alt_background=False, highlight=False):
@@ -94,11 +107,11 @@ class Win:
 
     def refresh(self):
         """Refresh the window."""
-        if self.visible:
-            self.win.move(0, 0)
+        if self.active:
+            curses.wmove(self.win, 0, 0)
             self.draw()
-            self.win.clrtobot()
-            self.win.refresh()
+            curses.wclrtobot(self.win)
+            curses.wrefresh(self.win)
 
     def draw(self):
         """This draw method needs to be overridden to draw the window content."""
@@ -106,15 +119,14 @@ class Win:
 
     def draw_string(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw a string with given attributes."""
-        try:
-            if wrapping:
-                success = self.win.addnstr(string, self.width, attributes)
-            else:
-                success = self.win.addstr(string, attributes)
-        except:
-            # End of window reached
-            if not silent:
-                raise
+        if wrapping:
+            ret = curses.waddnstr(self.win, string, self.width, attributes)
+        else:
+            ret = curses.waddstr(self.win, string, attributes)
+
+        # End of window reached
+        if ret == curses.ERR and not silent:
+            raise EndOfWin()
 
     def draw_line(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw string ending with an eol."""
@@ -157,3 +169,6 @@ class Win:
         lines = [line[xoffset:xoffset + self.width - 1] for line in lines]
 
         return '\n'.join(lines)
+
+class EndOfWin(BaseException):
+    pass

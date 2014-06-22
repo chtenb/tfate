@@ -1,5 +1,6 @@
 import unicurses as curses
 from .textuserinterface import TextUserInterface
+from fate import session
 from logging import debug, info
 import os
 
@@ -55,7 +56,7 @@ def start(filenames):
 
     # Key input settings
     curses.raw()
-    stdscr.keypad(1)
+    curses.keypad(stdscr, 1)
 
     # No cursor
     curses.curs_set(0)
@@ -67,8 +68,11 @@ def start(filenames):
         # Create all interfaces
         for filename in filenames:
             ui = TextUserInterface(stdscr, filename)
+        session.session_list[0].ui.activate()
 
-        ui.activate()
+        while 1:
+            ui = next(s.ui for s in session.session_list if s.ui.active)
+            ui.main()
     except:
         raise
     finally:

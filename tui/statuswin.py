@@ -1,7 +1,6 @@
 "Module containing StatusWin class."""
 import unicurses as curses
 from .win import Win
-from curses.textpad import Textbox
 
 
 class StatusWin(Win):
@@ -21,6 +20,12 @@ class StatusWin(Win):
     def set_default_status(self):
         """Set the status to the default value."""
         session = self.session
+
+        #if not session.interactionstack.isempty:
+            #mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
+                               #else i.__class__.__name__
+                               #for i in session.interactionstack.storage)
+        #else:
         mode = session.selection_mode
 
         string = '{}{} | {} | {} | {}'.format(
@@ -38,13 +43,23 @@ class StatusWin(Win):
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
         attribute = self.create_attribute(alt_background=True)
-        self.win.erase()
+        curses.werase(self.win)
         self.draw_string(prompt_string, attribute)
         self.ui.touch()
-        prompt_len = len(prompt_string)
-        text_box_win = curses.newwin(1, self.width - prompt_len,
-                                     self.y, self.x + prompt_len)
-        text_box_win.bkgd(' ', attribute)
-        text_box = Textbox(text_box_win)
-        text_box.edit()
-        return text_box.gather()[:-1]
+
+        string = ''
+        while 1:
+            char = self.ui.getchar()
+            if char == 'Esc':
+                self.set_default_status()
+                return None
+            elif char == '\n':
+                self.set_default_status()
+                return string
+            elif char == '\b':
+                if len(string) > 0:
+                    string = string[:-1]
+            else:
+                string += char
+            self.status = prompt_string + string
+            self.ui.touch()

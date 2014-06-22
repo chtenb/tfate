@@ -11,6 +11,9 @@ import sys
 path_to_fate = os.path.dirname(os.path.abspath(__file__)) + '/libs/'
 sys.path.insert(0, path_to_fate)
 
+path_to_unicurses = os.path.dirname(os.path.abspath(__file__)) + '/libs/unicurses/'
+sys.path.insert(0, path_to_unicurses)
+
 from tui import start
 
 filenames = sys.argv[1:] or ['']
