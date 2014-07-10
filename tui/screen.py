@@ -20,8 +20,6 @@ def screen_loop():
     info('Shutting down screen thread.')
 
 
-
-
 def main():
     """The main loop of the userinterface."""
     global active_ui
@@ -29,6 +27,7 @@ def main():
     try:
         screen_thread = Thread(target=screen_loop)
         screen_thread.start()
+        active_ui.touch()
 
         while active_ui != None:
             char = active_ui.getchar()

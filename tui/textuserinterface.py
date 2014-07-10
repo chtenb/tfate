@@ -91,18 +91,20 @@ class TextUserInterface(UserInterface):
         assert session is self.session
 
         debug(str(session_list))
-        debug(str(self.session))
+        debug("self: " + str(self.session))
         #self.getchar()
 
         index = session_list.index(session)
+        debug("index: " + str(index))
         if len(session_list) == 1:
             return
 
         if index < len(session_list) - 1:
-            next_session = session_list[index]
+            next_session = session_list[index + 1]
         else:
             next_session = session_list[index - 1]
 
+        debug("next: " + str(next_session))
         next_session.ui.activate()
 
     def getchar(self):
