@@ -2,31 +2,42 @@
 Module containing Win class.
 The Win class is meant to hide some common interaction with curses.
 """
-import curses
+import unicurses as curses
+from logging import debug
 
 
 class Win:
+
     """Abstract window class"""
 
     def __init__(self, width, height, x, y, session):
         self.win = curses.newwin(height, width, y, x)
-        self.win.keypad(1)
         self.session = session
+        self.ui = session.ui
+        self.enabled = True
+
+    def enable(self):
+        """Enable this window."""
+        self.enabled = True
+
+    def disable(self):
+        """Disable this window."""
+        self.enabled = False
 
     def resize(self, width=None, height=None):
-        self.win.resize(height, width)
-
+        """Resize window."""
+        curses.wresize(self.win, height, width)
 
     @property
     def width(self):
         """Width of the window."""
-        _, width = self.win.getmaxyx()
+        _, width = curses.getmaxyx(self.win)
         return width
 
     @property
     def height(self):
         """Height of the window."""
-        height, _ = self.win.getmaxyx()
+        height, _ = curses.getmaxyx(self.win)
         return height
 
     @height.setter
@@ -36,45 +47,80 @@ class Win:
     @property
     def x(self):
         """X coordinate of upper left corner."""
-        _, x = self.win.getbegyx()
+        _, x = curses.getbegyx(self.win)
         return x
 
     @property
     def y(self):
         """Y coordinate of upper left corner."""
-        y, _ = self.win.getbegyx()
+        y, _ = curses.getbegyx(self.win)
         return y
 
-    def set_background(self, attributes):
-        """Set the background attributes."""
-        self.win.bkgdset(' ', attributes)
+    def create_attribute(self, reverse=False, underline=False, bold=False,
+                         color=0, alt_background=False, highlight=False):
+        """
+        Return the attribute corresponding to the given properties.
+        """
+        result = 0
+        if bold:
+            result |= curses.A_BOLD
+        if underline:
+            result |= curses.A_UNDERLINE
+        if reverse:
+            result |= curses.A_REVERSE
+
+
+        if not self.ui.has_colors:
+            if alt_background:
+                result ^= curses.A_REVERSE
+            if highlight:
+                result ^= curses.A_REVERSE
+        else:
+            colorpair = color % (self.ui.color_pairs + 1)
+
+            if alt_background:
+                if self.ui.has_background_colors:
+                    colorpair = color + self.ui.color_pairs + 1
+                else:
+                    result ^= curses.A_REVERSE
+
+            if highlight:
+                if self.ui.has_background_colors:
+                    colorpair = color + self.ui.color_pairs + self.ui.color_pairs + 1
+                else:
+                    result ^= curses.A_REVERSE
+
+            result |= curses.color_pair(colorpair)
+        return result
 
     def refresh(self):
         """Refresh the window."""
-        self.win.move(0, 0)
-        self.draw()
-        self.win.clrtobot()
-        self.win.refresh()
+        if self.enabled:
+            curses.wmove(self.win, 0, 0)
+            self.draw()
+            curses.wclrtobot(self.win)
+            curses.wrefresh(self.win)
 
     def draw(self):
         """This draw method needs to be overridden to draw the window content."""
         pass
 
-    def draw_string(self, string, attributes=0, wrapping=False):
+    def draw_string(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw a string with given attributes."""
-        try:
-            if wrapping:
-                self.win.addnstr(string, self.width, attributes)
-            else:
-                self.win.addstr(string, attributes)
-        except curses.error:
-            # End of window reached
-            pass
+        if wrapping:
+            ret = curses.waddnstr(self.win, string, self.width, attributes)
+        else:
+            ret = curses.waddstr(self.win, string, attributes)
 
-    def draw_line(self, string, attributes=0, wrapping=False):
+        # End of window reached
+        if ret == curses.ERR and not silent:
+            raise EndOfWin()
+
+    def draw_line(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw string ending with an eol."""
-        self.draw_string(string, attributes, wrapping)
-        self.draw_string(''.join([' ' for _ in range(self.width - len(string))]), attributes)
+        self.draw_string(string, attributes, wrapping, silent)
+        self.draw_string(
+            ''.join([' ' for _ in range(self.width - len(string))]), attributes)
 
     @staticmethod
     def get_coords(lines, pos):
@@ -112,3 +158,5 @@ class Win:
 
         return '\n'.join(lines)
 
+class EndOfWin(BaseException):
+    pass

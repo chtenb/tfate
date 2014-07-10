@@ -1,45 +1,65 @@
 "Module containing StatusWin class."""
-import curses
+import unicurses as curses
 from .win import Win
-from curses.textpad import Textbox
 
 
 class StatusWin(Win):
+
     """Window containing the status."""
 
-    def __init__(self, width, height, x, y, session, ui):
+    def __init__(self, width, height, x, y, session):
         Win.__init__(self, width, height, x, y, session)
-        self.ui = ui
-        self.set_background(curses.color_pair(17))
         self.set_default_status()
 
     def draw(self):
         """Draw the current status."""
-        self.draw_string(self.status)
+        attribute = self.create_attribute(alt_background=True)
+        self.draw_line(self.status, attribute)
+        self.set_default_status()
 
     def set_default_status(self):
         """Set the status to the default value."""
-        self.status = (self.session.filename
-                       + ("*" if not self.session.saved else "")
-                       + " | " + str(self.session.filetype)
-                       + " | " + self.ui.mode
-                       + " | " + str(self.session.selection))
-        self.refresh()
+        session = self.session
 
-    def draw_status(self, string):
+        #if not session.interactionstack.isempty:
+            #mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
+                               #else i.__class__.__name__
+                               #for i in session.interactionstack.storage)
+        #else:
+        mode = session.selection_mode
+
+        string = '{}{} | {} | {} | {}'.format(
+            session.filename,
+            ('*' if not self.session.saved else ''),
+            session.filetype,
+            mode,
+            session.selection)
+        self.status = string
+
+    def set_status(self, string):
         """Set the status to the given string."""
         self.status = string
-        self.refresh()
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
-        self.win.erase()
-        self.draw_string(prompt_string, curses.color_pair(17))
-        self.win.refresh()
-        prompt_len = len(prompt_string)
-        text_box_win = curses.newwin(1, self.width - prompt_len,
-                                     self.y, self.x + prompt_len)
-        text_box_win.bkgd(' ', curses.color_pair(17))
-        text_box = Textbox(text_box_win)
-        text_box.edit()
-        return text_box.gather()[:-1]
+        attribute = self.create_attribute(alt_background=True)
+        curses.werase(self.win)
+        self.draw_string(prompt_string, attribute)
+        self.ui.touch()
+
+        string = ''
+        while 1:
+            char = self.ui.getchar()
+            if char == 'Esc':
+                self.set_default_status()
+                return None
+            elif char == '\n':
+                self.set_default_status()
+                return string
+            elif char == '\b':
+                if len(string) > 0:
+                    string = string[:-1]
+            else:
+                string += char
+            self.status = prompt_string + string
+            self.ui.touch()
