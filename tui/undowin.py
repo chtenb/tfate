@@ -70,7 +70,8 @@ def dump(node, current_node, height, width):
         else:
             for j, line in enumerate(child_dump):
                 if j == 0:
-                    child_dump[j] = '↳ ' + line
+                    #child_dump[j] = '↳ ' + line
+                    child_dump[j] = '->' + line
                 else:
                     child_dump[j] = last_child + ' ' + line
 
