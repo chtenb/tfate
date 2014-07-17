@@ -72,7 +72,7 @@ class TextUserInterface(UserInterface):
 
     def deactivate(self):
         """Deactivate the user interface."""
-        pass
+        screen.active_ui = None
         #if self.active:
             #self.active = False
 
@@ -97,6 +97,7 @@ class TextUserInterface(UserInterface):
         index = session_list.index(session)
         debug("index: " + str(index))
         if len(session_list) == 1:
+            self.deactivate()
             return
 
         if index < len(session_list) - 1:

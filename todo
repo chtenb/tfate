@@ -2,7 +2,7 @@ SHORT TERM
 rewrite statuswin.prompt not to use textpad
 Patch unicurses pdcurses detection
 Make getchar robust and work with unicode
-fix logging system
+fix issue that logwin doesn't get all logging records
 
 fix drawing bug with multiple intervals
 fix some bugs with multiple sessions

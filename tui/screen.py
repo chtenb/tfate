@@ -27,17 +27,15 @@ def main():
     try:
         screen_thread = Thread(target=screen_loop)
         screen_thread.start()
-        active_ui.touch()
 
         while active_ui != None:
+            active_ui.touch()
             char = active_ui.getchar()
 
             if char in active_ui.session.keymap:
                 action = active_ui.session.keymap[char]
                 while callable(action):
                     action = action(active_ui.session)
-
-            active_ui.touch()
     except:
         raise
     finally:
