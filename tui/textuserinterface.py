@@ -11,9 +11,9 @@ from .undowin import UndoWin
 from .statuswin import StatusWin
 from .commandwin import CommandWin
 from .logwin import LogWin
-from . import screen
+from . import utils, screen
+from .terminal import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS
 
-from . import utils
 from logging import debug
 
 
@@ -30,7 +30,6 @@ class TextUserInterface(UserInterface):
         self.session.ui = self
         self.session.OnQuit.add(self.quit)
 
-        from . import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS
         self.has_colors = HAS_COLORS
         self.has_background_colors = HAS_BACKGROUND_COLORS
         self.color_pairs = COLOR_PAIRS
@@ -92,9 +91,9 @@ class TextUserInterface(UserInterface):
 
         index = session_list.index(session)
 
-        debug(str(session_list))
-        debug("self: " + str(self.session))
-        debug("index: " + str(index))
+        #debug(str(session_list))
+        #debug("self: " + str(self.session))
+        #debug("index: " + str(index))
         #self.getchar()
 
         if len(session_list) == 1:
@@ -106,7 +105,7 @@ class TextUserInterface(UserInterface):
         else:
             next_session = session_list[index - 1]
 
-        debug("next: " + str(next_session))
+        #debug("next: " + str(next_session))
         next_session.ui.activate()
 
     def getchar(self):
