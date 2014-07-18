@@ -1,25 +1,13 @@
 SHORT TERM
-rewrite statuswin.prompt not to use textpad
 Patch unicurses pdcurses detection
 Make getchar robust and work with unicode
-fix issue that logwin doesn't get all logging records
-
 fix drawing bug with multiple intervals
 fix some bugs with multiple sessions
-allow easy hide/show/placement of windows
-    don't restrict this in any way
-line numbers
-Move prompt functionality from statuswin to commandwin
-Improve navigating through display of text, actiontree and clipboard
-Think about keymap
-    Make keymap part of session,
-    Make interaction keymap part of interaction
-    Maybe a certain part of the key mapping has to be moved to fatecore
-    We want dvorak user to be able to easily transform
-    We want the key capture to be left to the user interface
-    An intermediate key representation may be suitable as long as it is general enough to be able to represent any key on any platform. That way, customizing keymap is done in fate itself, which makes it portable. That is good.
-
 
 LONG TERM
-Unicode art and colors!
+Move prompt functionality from statuswin to commandwin?
+Improve navigating through display of text, actiontree and clipboard
+allow easy hide/show/placement of windows
+    don't restrict this in any way
 Easier file opening
+Unicode art and colors!

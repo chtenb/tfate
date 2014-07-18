@@ -90,12 +90,13 @@ class TextUserInterface(UserInterface):
         """Activate next session, if existent."""
         assert session is self.session
 
+        index = session_list.index(session)
+
         debug(str(session_list))
         debug("self: " + str(self.session))
+        debug("index: " + str(index))
         #self.getchar()
 
-        index = session_list.index(session)
-        debug("index: " + str(index))
         if len(session_list) == 1:
             self.deactivate()
             return

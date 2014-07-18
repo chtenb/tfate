@@ -22,9 +22,17 @@ class TextWin(Win):
                                            max(0, selection[0][0]),
                                            int(self.height / 2))
 
+
         # Find the places of all empty selected intervals
         empty_intervals = [beg for beg, end in reversed(selection)
                            if end - beg == 0]
+
+        # Compute the line number of the first line
+        number_of_lines = text.count('\n', 0)
+        number_width = len(str(number_of_lines))
+        linenumber = text.count('\n', 0, position)
+        numbercolor = self.create_attribute(color=2)
+        self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ', numbercolor)
 
         # Draw every character
         while 1:
@@ -45,15 +53,10 @@ class TextWin(Win):
                 color = 0
                 #debug(position)
                 char = text[position]
+                drawchar = char
 
-                # Apply reverse attribute when char is selected
-                if (self.session.locked_selection != None
-                        and self.session.locked_selection.contains(position)):
-                    highlight = True
-                    # display newline character explicitly when selected
-                    if char == '\n':
-                        #char = '↵\n'
-                        char = ' \n'
+                if char == '\t':
+                    drawchar = self.session.tabwidth * ' '
 
                 # Apply reverse attribute when char is selected
                 if selection.contains(position):
@@ -61,7 +64,16 @@ class TextWin(Win):
                     # display newline character explicitly when selected
                     if char == '\n':
                         #char = '↵\n'
-                        char = ' \n'
+                        drawchar = ' \n'
+
+                # Apply highlight attribute when char is locked
+                if (self.session.locked_selection != None
+                        and self.session.locked_selection.contains(position)):
+                    highlight = True
+                    # display newline character explicitly when locked
+                    if char == '\n':
+                        #char = '↵\n'
+                        drawchar = ' \n'
 
                 # Apply color attribute if char is labeled
                 if position in labeling:
@@ -71,8 +83,13 @@ class TextWin(Win):
 
                 attribute = self.create_attribute(reverse=reverse, color=color, highlight=highlight)
 
-                self.draw_string(char, attribute, silent=False)
+                self.draw_string(drawchar, attribute, silent=False)
                 position += 1
+
+                if char == '\n':
+                    linenumber += 1
+                    self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ', numbercolor)
+
             except EndOfWin:
                 break
 

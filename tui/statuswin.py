@@ -34,7 +34,7 @@ class StatusWin(Win):
             session.filetype,
             mode,
             session.selection)
-        self.status = string
+        self.set_status(string)
 
     def set_status(self, string):
         """Set the status to the given string."""
@@ -42,9 +42,7 @@ class StatusWin(Win):
 
     def prompt(self, prompt_string='>'):
         """Prompt the user for an input string."""
-        attribute = self.create_attribute(alt_background=True)
-        curses.werase(self.win)
-        self.draw_string(prompt_string, attribute)
+        self.set_status(prompt_string)
         self.ui.touch()
 
         string = ''
@@ -61,5 +59,5 @@ class StatusWin(Win):
                     string = string[:-1]
             else:
                 string += char
-            self.status = prompt_string + string
+            self.set_status(prompt_string + string)
             self.ui.touch()
