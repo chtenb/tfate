@@ -5,6 +5,9 @@ from fate import session
 from logging import debug, info
 import os
 
+import locale
+locale.setlocale(locale.LC_ALL, '')
+ENCODING = locale.getpreferredencoding()
 
 # Lower the annoying delay for the escape character
 # VIM also uses 25 ms

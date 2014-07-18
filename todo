@@ -1,6 +1,7 @@
 SHORT TERM
 Patch unicurses pdcurses detection
 Make getchar robust and work with unicode
+    possible solution: use preferred encoding before drawing to screen
 fix drawing bug with multiple intervals
 fix some bugs with multiple sessions
 
