@@ -1,4 +1,6 @@
 SHORT TERM
+fix status win default status vs other status refresh
+    maybe introduce infowin to simplify things
 Patch unicurses pdcurses detection
 Make getchar robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
@@ -12,3 +14,5 @@ allow easy hide/show/placement of windows
     don't restrict this in any way
 Easier file opening
 Unicode art and colors!
+Conceal text
+Hide/show text liek folds (i.e. regions and assert statements)

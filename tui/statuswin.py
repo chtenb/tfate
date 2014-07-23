@@ -7,18 +7,27 @@ class StatusWin(Win):
 
     """Window containing the status."""
 
+    default_status = True
+
     def __init__(self, width, height, x, y, session):
         Win.__init__(self, width, height, x, y, session)
         self.set_default_status()
 
     def draw(self):
         """Draw the current status."""
+        # If we were displaying default status anyway, keep it up to date
+        # Make sure alternative messages last only one touch
+        if self.default_status:
+            self.set_default_status()
+        else:
+            self.default_status = True
+
         attribute = self.create_attribute(alt_background=True)
         self.draw_line(self.status, attribute)
-        self.set_default_status()
 
     def set_default_status(self):
         """Set the status to the default value."""
+        self.default_status = True
         session = self.session
 
         #if not session.interactionstack.isempty:
@@ -26,18 +35,18 @@ class StatusWin(Win):
                                #else i.__class__.__name__
                                #for i in session.interactionstack.storage)
         #else:
-        mode = session.selection_mode
 
         string = '{}{} | {} | {} | {}'.format(
             session.filename,
             ('*' if not self.session.saved else ''),
             session.filetype,
-            mode,
+            session.mode,
             session.selection)
         self.set_status(string)
 
     def set_status(self, string):
         """Set the status to the given string."""
+        self.default_status = False
         self.status = string
 
     def prompt(self, prompt_string='>'):

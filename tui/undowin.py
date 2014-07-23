@@ -30,7 +30,11 @@ class UndoWin(Win):
         string = '\n'.join(dump(upperbound, undotree.current_node,
                                 self.height, self.width))
 
-        self.draw_line('History', self.create_attribute(alt_background=True))
+        if self.session.mode == 'UNDO':
+            self.draw_line('Undo tree', self.create_attribute(reverse=True))
+        else:
+            self.draw_line('Undo tree', self.create_attribute(alt_background=True))
+
         center = string.find('X')
         string = self.crop(string, center)
         self.draw_string(string)
