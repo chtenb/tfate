@@ -1,4 +1,4 @@
-from fate import session
+from fate.session import sessionlist, Session
 from logging import debug, info
 from . import terminal
 
@@ -6,16 +6,18 @@ import unicurses as curses
 
 def start(filenames):
     """Initialize curses and start application."""
-    stdscr = terminal.init()
+    terminal.init()
 
     try:
         from .textuserinterface import TextUserInterface
         from . import screen
 
+        Session.UserInterfaceClass = TextUserInterface
         # Create all interfaces
         for filename in filenames:
-            TextUserInterface(stdscr, filename)
-        session.session_list[0].ui.activate()
+            Session(filename)
+        # Activate first session
+        sessionlist[0].ui.activate()
 
         #debug(str(session.session_list))
         #debug(session.session_list[0].filename)

@@ -4,16 +4,17 @@ The Win class is meant to hide some common interaction with curses.
 """
 import unicurses as curses
 from logging import debug
+from . import terminal
 
 
 class Win:
 
     """Abstract window class"""
 
-    def __init__(self, width, height, x, y, session):
+    def __init__(self, width, height, x, y, ui):
         self.win = curses.newwin(height, width, y, x)
-        self.session = session
-        self.ui = session.ui
+        self.ui = ui
+        self.session = ui.session
         self.enabled = True
 
     def enable(self):
@@ -70,23 +71,23 @@ class Win:
             result |= curses.A_REVERSE
 
 
-        if not self.ui.has_colors:
+        if not terminal.HAS_COLORS:
             if alt_background:
                 result ^= curses.A_REVERSE
             if highlight:
                 result ^= curses.A_REVERSE
         else:
-            colorpair = color % (self.ui.color_pairs + 1)
+            colorpair = color % (terminal.COLOR_PAIRS + 1)
 
             if alt_background:
-                if self.ui.has_background_colors:
-                    colorpair = color + self.ui.color_pairs + 1
+                if terminal.HAS_BACKGROUND_COLORS:
+                    colorpair = color + terminal.COLOR_PAIRS + 1
                 else:
                     result ^= curses.A_REVERSE
 
             if highlight:
-                if self.ui.has_background_colors:
-                    colorpair = color + self.ui.color_pairs + self.ui.color_pairs + 1
+                if terminal.HAS_BACKGROUND_COLORS:
+                    colorpair = color + terminal.COLOR_PAIRS + terminal.COLOR_PAIRS + 1
                 else:
                     result ^= curses.A_REVERSE
 

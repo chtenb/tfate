@@ -9,9 +9,8 @@ class StatusWin(Win):
 
     default_status = True
 
-    def __init__(self, width, height, x, y, session):
-        Win.__init__(self, width, height, x, y, session)
-        self.set_default_status()
+    def __init__(self, width, height, x, y, ui):
+        Win.__init__(self, width, height, x, y, ui)
 
     def draw(self):
         """Draw the current status."""

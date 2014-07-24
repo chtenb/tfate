@@ -1,7 +1,7 @@
 """This module contains the UserInterface class."""
 import unicurses as curses
 
-from fate.session import Session, session_list
+from fate.session import Session, sessionlist
 from fate.userinterface import UserInterface
 
 from .sessionwin import SessionWin
@@ -12,7 +12,7 @@ from .statuswin import StatusWin
 from .commandwin import CommandWin
 from .logwin import LogWin
 from . import utils, screen
-from .terminal import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS
+from .terminal import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS, stdscr
 
 from logging import debug
 
@@ -23,17 +23,8 @@ class TextUserInterface(UserInterface):
     This class provides a user interface for interacting with a session object.
     """
 
-    def __init__(self, stdscr, filename=''):
-        # TODO: maybe remove stdscr as a member
-        self.stdscr = stdscr
-        self.session = Session(filename)
-        self.session.ui = self
-        self.session.OnQuit.add(self.quit)
-
-        self.has_colors = HAS_COLORS
-        self.has_background_colors = HAS_BACKGROUND_COLORS
-        self.color_pairs = COLOR_PAIRS
-
+    def __init__(self, session):
+        self.session = session
         self.active = False
         self.touched = False
 
@@ -41,16 +32,15 @@ class TextUserInterface(UserInterface):
 
     def _create_windows(self):
         """Create all curses windows."""
-        ymax, xmax = curses.getmaxyx(self.stdscr)
-        self.session_win = SessionWin(xmax, 1, 0, 0, self.session)
-        self.text_win = TextWin(xmax, ymax - 1 - 10 - 5 - 3 - 1, 0, 1, self.session)
-        self.log_win = LogWin(xmax, 10, 0, ymax - 10 - 5 - 3 - 1, self.session)
-        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 5 - 3 - 1, self.session)
-        self.undo_win = UndoWin(xmax, 5, 0, ymax - 5 - 1, self.session)
-        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self.session)
+        ymax, xmax = curses.getmaxyx(stdscr)
+        self.session_win = SessionWin(xmax, 1, 0, 0, self)
+        self.text_win = TextWin(xmax, ymax - 1 - 10 - 5 - 3 - 1, 0, 1, self)
+        self.log_win = LogWin(xmax, 10, 0, ymax - 10 - 5 - 3 - 1, self)
+        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 5 - 3 - 1, self)
+        self.undo_win = UndoWin(xmax, 5, 0, ymax - 5 - 1, self)
+        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self)
 
-        self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4,
-                                      self.session, self)
+        self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4, self)
 
         self.windows = [self.session_win, self.text_win, self.log_win,
                         self.clipboard_win, self.undo_win, self.status_win,
@@ -64,7 +54,7 @@ class TextUserInterface(UserInterface):
         """Activate the user interface."""
         # First deactivate all other userinterfaces
         # When we allow splitscreens etc, this must be changed
-        #for session in session_list:
+        #for session in sessionlist:
             #session.ui.deactivate()
         screen.active_ui = self
         self.touch()
@@ -89,28 +79,28 @@ class TextUserInterface(UserInterface):
         """Activate next session, if existent."""
         assert session is self.session
 
-        index = session_list.index(session)
+        index = sessionlist.index(session)
 
-        #debug(str(session_list))
+        #debug(str(sessionlist))
         #debug("self: " + str(self.session))
         #debug("index: " + str(index))
         #self.getchar()
 
-        if len(session_list) == 1:
+        if len(sessionlist) == 1:
             self.deactivate()
             return
 
-        if index < len(session_list) - 1:
-            next_session = session_list[index + 1]
+        if index < len(sessionlist) - 1:
+            next_session = sessionlist[index + 1]
         else:
-            next_session = session_list[index - 1]
+            next_session = sessionlist[index - 1]
 
         #debug("next: " + str(next_session))
         next_session.ui.activate()
 
     def getchar(self):
         while 1:
-            char = utils.getchar(self.stdscr)
+            char = utils.getchar(stdscr)
             # Intercept resize events
             if char == 'Resize':
                 self._create_windows()
@@ -129,3 +119,5 @@ class TextUserInterface(UserInterface):
         self.status_win.set_status(message)
         self.getchar()
         self.status_win.set_default_status()
+
+Session.default_userinterface = TextUserInterface

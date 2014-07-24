@@ -16,6 +16,7 @@ os.environ['ESCDELAY'] = '25'
 
 def init():
     """Initialize curses and start application."""
+    global stdscr
     stdscr = curses.initscr()
 
     # Display settings
@@ -41,12 +42,10 @@ def init():
     TERMATTRS = curses.termattrs()
     info('Terminal attributes: ' + str(TERMATTRS))
 
-    init_colors(stdscr)
-
-    return stdscr
+    init_colors()
 
 
-def init_colors(stdscr):
+def init_colors():
     """
     Initialize color pairs from the terminal color palette.
     Pair 0 is the default, pairs 1-16 are the palette colors,

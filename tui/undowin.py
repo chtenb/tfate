@@ -5,8 +5,8 @@ from .win import Win
 class UndoWin(Win):
     """Window containing the undotree."""
 
-    def __init__(self, width, height, x, y, session):
-        Win.__init__(self, width, height, x, y, session)
+    def __init__(self, width, height, x, y, ui):
+        Win.__init__(self, width, height, x, y, ui)
 
     def draw(self):
         """Draw the current actiontree.

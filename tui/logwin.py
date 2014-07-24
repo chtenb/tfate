@@ -10,8 +10,8 @@ class LogWin(Win, Handler):
     which is printed on the screen in the draw method of this window.
     """
 
-    def __init__(self, width, height, x, y, session):
-        Win.__init__(self, width, height, x, y, session)
+    def __init__(self, width, height, x, y, ui):
+        Win.__init__(self, width, height, x, y, ui)
         Handler.__init__(self)
         self.records = []
         self.listener = QueueListener(LOG_QUEUE, self)
