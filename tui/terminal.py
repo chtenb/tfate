@@ -32,11 +32,11 @@ def init():
 
     global TERMNAME
     TERMNAME = curses.termname()
-    info('Terminal name: ' + TERMNAME.decode())
+    info('Terminal name: ' + TERMNAME)
 
     global LONGNAME
     LONGNAME = curses.longname()
-    info('Long terminal name: ' + LONGNAME.decode())
+    info('Long terminal name: ' + LONGNAME)
 
     global TERMATTRS
     TERMATTRS = curses.termattrs()
