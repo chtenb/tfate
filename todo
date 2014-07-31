@@ -1,8 +1,7 @@
 SHORT TERM
 fix status win default status vs other status refresh
     maybe introduce infowin to simplify things
-Patch unicurses pdcurses detection
-Make getchar robust and work with unicode
+Make drawing chars robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
 fix drawing bug with multiple intervals
 fix some bugs with multiple sessions
@@ -15,4 +14,4 @@ allow easy hide/show/placement of windows
 Easier file opening
 Unicode art and colors!
 Conceal text
-Hide/show text liek folds (i.e. regions and assert statements)
+Hide/show text like folds (i.e. regions and assert statements)

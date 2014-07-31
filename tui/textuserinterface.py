@@ -12,7 +12,7 @@ from .statuswin import StatusWin
 from .commandwin import CommandWin
 from .logwin import LogWin
 from . import utils, screen
-from .terminal import HAS_COLORS, HAS_BACKGROUND_COLORS, COLOR_PAIRS, stdscr
+from .terminal import stdscr
 
 from logging import debug
 
@@ -52,23 +52,12 @@ class TextUserInterface(UserInterface):
 
     def activate(self):
         """Activate the user interface."""
-        # First deactivate all other userinterfaces
-        # When we allow splitscreens etc, this must be changed
-        #for session in sessionlist:
-            #session.ui.deactivate()
         screen.active_ui = self
         self.touch()
 
     def deactivate(self):
         """Deactivate the user interface."""
         screen.active_ui = None
-        #if self.active:
-            #self.active = False
-
-            # Wait until screen thread is terminated,
-            # to avoid having multiple threads writing to the screen
-            # self.screen_thread.join()
-            # self.log_win.logchecker_thread.join()
 
     def refresh(self):
         """Refresh all windows."""
