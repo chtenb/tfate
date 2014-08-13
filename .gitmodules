@@ -1,6 +1,6 @@
 [submodule "libs/fate"]
 	path = libs/fate
-	url = git@github.com:Chiel92/fate.git
+	url = https://github.com/Chiel92/fate.git
 [submodule "libs/unicurses"]
 	path = libs/unicurses
-	url = git@github.com:Chiel92/unicurses.git
+	url = https://github.com/Chiel92/unicurses.git

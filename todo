@@ -3,6 +3,7 @@ fix status win default status vs other status refresh
     maybe introduce infowin to simplify things
 Make drawing chars robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
+fix drawing undotree
 fix drawing bug with multiple intervals
 fix some bugs with multiple sessions
 
