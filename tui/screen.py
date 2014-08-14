@@ -5,38 +5,28 @@ NOTE: first set active_ui, then call main.
 from time import sleep
 from threading import Thread
 from logging import info
+from fate import document, run
 
-active_ui = None
 refresh_rate = 20
 
 
 def screen_loop():
     """Loop that refreshes screen when touched."""
-    while active_ui != None:
-        if active_ui.touched:
-            active_ui.touched = False
-            active_ui.refresh()
+    while document.activedocument != None:
+        if document.activedocument.ui.touched:
+            document.activedocument.ui.touched = False
+            document.activedocument.ui.refresh()
         sleep(1 / refresh_rate)
     info('Shutting down screen thread.')
 
 
 def main():
     """The main loop of the userinterface."""
-    global active_ui
-
     try:
         screen_thread = Thread(target=screen_loop)
         screen_thread.start()
-
-        while active_ui != None:
-            active_ui.touch()
-            char = active_ui.getchar()
-
-            if char in active_ui.document.keymap:
-                action = active_ui.document.keymap[char]
-                while callable(action):
-                    action = action(active_ui.document)
+        run()
     except:
         raise
     finally:
-        active_ui = None
+        document.activedocument = None

@@ -1,8 +1,9 @@
 """This module contains the UserInterface class."""
 import unicurses as curses
 
-from fate.document import Document, documentlist
-from fate.userinterface import UserInterface
+#from fate.document import Document, documentlist
+#from fate.userinterface import UserInterface
+from fate import document, userinterface
 
 from .documentwin import DocumentWin
 from .textwin import TextWin
@@ -17,7 +18,7 @@ from .terminal import stdscr
 from logging import debug
 
 
-class TextUserInterface(UserInterface):
+class TextUserInterface(userinterface.UserInterface):
 
     """
     This class provides a user interface for interacting with a document object.
@@ -52,37 +53,37 @@ class TextUserInterface(UserInterface):
 
     def activate(self):
         """Activate the user interface."""
-        screen.active_ui = self
+        document.activedocument = self.document
         self.touch()
 
     def deactivate(self):
         """Deactivate the user interface."""
-        screen.active_ui = None
+        document.activedocument = None
 
     def refresh(self):
         """Refresh all windows."""
         for win in self.windows:
             win.refresh()
 
-    def quit(self, document):
+    def quit(self, document_arg):
         """Activate next document, if existent."""
-        assert document is self.document
+        assert document_arg is self.document
 
-        index = documentlist.index(document)
+        index = document.documentlist.index(self.document)
 
         #debug(str(documentlist))
         #debug("self: " + str(self.document))
         #debug("index: " + str(index))
         #self.getchar()
 
-        if len(documentlist) == 1:
+        if len(document.documentlist) == 1:
             self.deactivate()
             return
 
-        if index < len(documentlist) - 1:
-            next_document = documentlist[index + 1]
+        if index < len(document.documentlist) - 1:
+            next_document = document.documentlist[index + 1]
         else:
-            next_document = documentlist[index - 1]
+            next_document = document.documentlist[index - 1]
 
         #debug("next: " + str(next_document))
         next_document.ui.activate()
@@ -115,4 +116,4 @@ class TextUserInterface(UserInterface):
         self.getchar()
         self.status_win.set_default_status()
 
-Document.default_userinterface = TextUserInterface
+document.Document.default_userinterface = TextUserInterface
