@@ -14,7 +14,7 @@ class Win:
     def __init__(self, width, height, x, y, ui):
         self.win = curses.newwin(height, width, y, x)
         self.ui = ui
-        self.session = ui.session
+        self.document = ui.document
         self.enabled = True
 
     def enable(self):

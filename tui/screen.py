@@ -32,10 +32,10 @@ def main():
             active_ui.touch()
             char = active_ui.getchar()
 
-            if char in active_ui.session.keymap:
-                action = active_ui.session.keymap[char]
+            if char in active_ui.document.keymap:
+                action = active_ui.document.keymap[char]
                 while callable(action):
-                    action = action(active_ui.session)
+                    action = action(active_ui.document)
     except:
         raise
     finally:

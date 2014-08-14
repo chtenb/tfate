@@ -1,23 +1,23 @@
-"Module containing SessionWin class."""
+"Module containing DocumentWin class."""
 from .win import Win
 
 
-class SessionWin(Win):
+class DocumentWin(Win):
 
-    """Window displaying the headers of all current sessions."""
+    """Window displaying the headers of all current documents."""
 
     def __init__(self, width, height, x, y, ui):
         Win.__init__(self, width, height, x, y, ui)
 
     def draw(self):
-        """Draw the current session headers."""
+        """Draw the current document headers."""
         background = self.create_attribute(alt_background=True)
         highlight = self.create_attribute(highlight=True, alt_background=True)
 
-        from fate.session import sessionlist
-        for session in sessionlist:
-            header = session.filename or '<nameless>'
-            if session is self.ui.session:
+        from fate.document import documentlist
+        for document in documentlist:
+            header = document.filename or '<nameless>'
+            if document is self.ui.document:
                 self.draw_string(header, highlight)
             else:
                 self.draw_string(header, background)

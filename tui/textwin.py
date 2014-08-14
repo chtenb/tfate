@@ -12,9 +12,9 @@ class TextWin(Win):
 
     def draw(self):
         """Draw the visible text in the text window."""
-        selection = self.session.selection
-        text = self.session.text
-        labeling = self.session.labeling
+        selection = self.document.selection
+        text = self.document.text
+        labeling = self.document.labeling
 
         # Find a suitable starting position
         length = len(text)
@@ -56,7 +56,7 @@ class TextWin(Win):
                 drawchar = char
 
                 if char == '\t':
-                    drawchar = self.session.tabwidth * ' '
+                    drawchar = self.document.tabwidth * ' '
 
                 # Apply reverse attribute when char is selected
                 if selection.contains(position):
@@ -67,8 +67,8 @@ class TextWin(Win):
                         drawchar = ' \n'
 
                 # Apply highlight attribute when char is locked
-                if (self.session.locked_selection != None
-                        and self.session.locked_selection.contains(position)):
+                if (self.document.locked_selection != None
+                        and self.document.locked_selection.contains(position)):
                     highlight = True
                     # display newline character explicitly when locked
                     if char == '\n':

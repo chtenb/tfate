@@ -38,7 +38,7 @@ class CommandWin(Win):
         self.ui.touch()
         command = self.get_command()
         if command != None:
-            result = evaluate(self.session, command)
+            result = evaluate(self.document, command)
 
             if result != None:
                 self.text = str(result)
@@ -73,7 +73,7 @@ class CommandWin(Win):
 
                 # Update completions
                 self.current_completion = 0
-                self.completions = list(get_completions(self.session, command))
+                self.completions = list(get_completions(self.document, command))
                 self.height = max(self.min_height, len(self.completions))
 
             self.ui.touch()

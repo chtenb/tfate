@@ -27,20 +27,20 @@ class StatusWin(Win):
     def set_default_status(self):
         """Set the status to the default value."""
         self.default_status = True
-        session = self.session
+        document = self.document
 
-        #if not session.interactionstack.isempty:
+        #if not document.interactionstack.isempty:
             #mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
                                #else i.__class__.__name__
-                               #for i in session.interactionstack.storage)
+                               #for i in document.interactionstack.storage)
         #else:
 
         string = '{}{} | {} | {} | {}'.format(
-            session.filename,
-            ('*' if not self.session.saved else ''),
-            session.filetype,
-            session.mode,
-            session.selection)
+            document.filename,
+            ('*' if not self.document.saved else ''),
+            document.filetype,
+            document.mode,
+            document.selection)
         self.set_status(string)
 
     def set_status(self, string):

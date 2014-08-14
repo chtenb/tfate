@@ -1,10 +1,10 @@
 """This module contains the UserInterface class."""
 import unicurses as curses
 
-from fate.session import Session, sessionlist
+from fate.document import Document, documentlist
 from fate.userinterface import UserInterface
 
-from .sessionwin import SessionWin
+from .documentwin import DocumentWin
 from .textwin import TextWin
 from .clipboardwin import ClipboardWin
 from .undowin import UndoWin
@@ -20,11 +20,11 @@ from logging import debug
 class TextUserInterface(UserInterface):
 
     """
-    This class provides a user interface for interacting with a session object.
+    This class provides a user interface for interacting with a document object.
     """
 
-    def __init__(self, session):
-        self.session = session
+    def __init__(self, document):
+        self.document = document
         self.active = False
         self.touched = False
 
@@ -33,7 +33,7 @@ class TextUserInterface(UserInterface):
     def _create_windows(self):
         """Create all curses windows."""
         ymax, xmax = curses.getmaxyx(stdscr)
-        self.session_win = SessionWin(xmax, 1, 0, 0, self)
+        self.document_win = DocumentWin(xmax, 1, 0, 0, self)
         self.text_win = TextWin(xmax, ymax - 1 - 10 - 5 - 3 - 1, 0, 1, self)
         self.log_win = LogWin(xmax, 10, 0, ymax - 10 - 5 - 3 - 1, self)
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 5 - 3 - 1, self)
@@ -42,7 +42,7 @@ class TextUserInterface(UserInterface):
 
         self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4, self)
 
-        self.windows = [self.session_win, self.text_win, self.log_win,
+        self.windows = [self.document_win, self.text_win, self.log_win,
                         self.clipboard_win, self.undo_win, self.status_win,
                         self.command_win]
 
@@ -64,28 +64,28 @@ class TextUserInterface(UserInterface):
         for win in self.windows:
             win.refresh()
 
-    def quit(self, session):
-        """Activate next session, if existent."""
-        assert session is self.session
+    def quit(self, document):
+        """Activate next document, if existent."""
+        assert document is self.document
 
-        index = sessionlist.index(session)
+        index = documentlist.index(document)
 
-        #debug(str(sessionlist))
-        #debug("self: " + str(self.session))
+        #debug(str(documentlist))
+        #debug("self: " + str(self.document))
         #debug("index: " + str(index))
         #self.getchar()
 
-        if len(sessionlist) == 1:
+        if len(documentlist) == 1:
             self.deactivate()
             return
 
-        if index < len(sessionlist) - 1:
-            next_session = sessionlist[index + 1]
+        if index < len(documentlist) - 1:
+            next_document = documentlist[index + 1]
         else:
-            next_session = sessionlist[index - 1]
+            next_document = documentlist[index - 1]
 
-        #debug("next: " + str(next_session))
-        next_session.ui.activate()
+        #debug("next: " + str(next_document))
+        next_document.ui.activate()
 
     def getchar(self):
         while 1:
@@ -109,4 +109,4 @@ class TextUserInterface(UserInterface):
         self.getchar()
         self.status_win.set_default_status()
 
-Session.default_userinterface = TextUserInterface
+Document.default_userinterface = TextUserInterface

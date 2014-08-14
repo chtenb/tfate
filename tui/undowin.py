@@ -17,7 +17,7 @@ class UndoWin(Win):
             ↳ o-o-o
                 ↳ o-o-o
         """
-        undotree = self.session.undotree
+        undotree = self.document.undotree
         # We only have to print height/2 children branches
         # and parents branches, and width/2 children and parents
 
@@ -30,7 +30,7 @@ class UndoWin(Win):
         string = '\n'.join(dump(upperbound, undotree.current_node,
                                 self.height, self.width))
 
-        if self.session.mode == 'UNDO':
+        if self.document.mode == 'UNDO':
             self.draw_line('Undo tree', self.create_attribute(reverse=True))
         else:
             self.draw_line('Undo tree', self.create_attribute(alt_background=True))
