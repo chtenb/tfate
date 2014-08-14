@@ -2,12 +2,21 @@
 import unicurses as curses
 from logging import debug
 
-def getchar(stdscr):
+def getchar():
     """Retrieve input character from user as a readable string."""
     char = curses.getch()
     #debug(char)
+    return char_to_string(char)
 
-    # Replace special characters with a readable string
+def peekchar():
+    char = curses.getch()
+    curses.ungetch(char)
+    #debug(char)
+    return char_to_string(char)
+
+
+def char_to_string(char):
+    """Replace special characters with a readable string"""
     if char == 27:
         result = 'Esc'
     elif char == 10 or char == 13:

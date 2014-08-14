@@ -87,11 +87,17 @@ class TextUserInterface(UserInterface):
         #debug("next: " + str(next_document))
         next_document.ui.activate()
 
-    def getchar(self):
+    def getinput(self):
+        char = self.peekinput()
+        utils.getchar()
+        return char
+
+    def peekinput(self):
         while 1:
-            char = utils.getchar(stdscr)
+            char = utils.peekchar()
             # Intercept resize events
             if char == 'Resize':
+                utils.getchar()
                 self._create_windows()
                 self.touch()
             else:
