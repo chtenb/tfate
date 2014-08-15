@@ -43,7 +43,7 @@ class CommandWin(Win):
             if result != None:
                 self.text = str(result)
                 self.ui.touch()
-                self.ui.getchar()
+                self.ui.getkey()
 
         self.reset()
 
@@ -51,25 +51,25 @@ class CommandWin(Win):
         """Get the command from the user."""
         command = ''
         while 1:
-            char = self.ui.getchar()
+            key = self.ui.getkey()
 
-            if char == 'Esc':
+            if key == 'Esc':
                 return
-            elif char == '\n':
+            elif key == '\n':
                 # Return command
                 return command
-            elif char == '\t' or char == 'Btab':
+            elif key == '\t' or key == 'Btab':
                 # Select completion
-                d = 1 if char == '\t' else -1
+                d = 1 if key == '\t' else -1
                 self.current_completion = ((self.current_completion + d)
                                            % len(self.completions))
                 command = self.completions[self.current_completion][0]
             else:
                 # Update input
-                if char == '\b':
+                if key == '\b':
                     command = command[:-1]
                 else:
-                    command += char
+                    command += key
 
                 # Update completions
                 self.current_completion = 0

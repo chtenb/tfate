@@ -3,26 +3,26 @@
 import curses
 
 
-def key_info(char):
+def key_info(key):
     try:
-        _ord = ord(char)
+        _ord = ord(key)
     except:
         _ord = -1
     try:
-        _chr = chr(char)
+        _chr = chr(key)
     except:
         _chr = -1
     try:
-        unctrl = curses.unctrl(char)
+        unctrl = curses.unctrl(key)
     except:
         unctrl = 'no unctrl'
     try:
-        name = curses.keyname(char)
+        name = curses.keyname(key)
     except:
         name = 'no name'
 
     return ('repr: {}, type: {}, ord: {}, chr: {}, unctrl: {}, name: {}\n'
-            .format(repr(char), type(char), _ord, _chr, unctrl, name))
+            .format(repr(key), type(key), _ord, _chr, unctrl, name))
 
 
 def getchar(stdscr):

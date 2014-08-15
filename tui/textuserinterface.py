@@ -74,7 +74,7 @@ class TextUserInterface(userinterface.UserInterface):
         #debug(str(documentlist))
         #debug("self: " + str(self.document))
         #debug("index: " + str(index))
-        #self.getchar()
+        #self.getkey()
 
         if len(document.documentlist) == 1:
             self.deactivate()
@@ -89,20 +89,20 @@ class TextUserInterface(userinterface.UserInterface):
         next_document.ui.activate()
 
     def getinput(self):
-        char = self.peekinput()
-        utils.getchar()
-        return char
+        key = self.peekinput()
+        utils.getkey()
+        return key
 
     def peekinput(self):
         while 1:
-            char = utils.peekchar()
+            key = utils.peekkey()
             # Intercept resize events
-            if char == 'Resize':
-                utils.getchar()
+            if key == 'Resize':
+                utils.getkey()
                 self._create_windows()
                 self.touch()
             else:
-                return char
+                return key
 
     def command_mode(self):
         self.command_win.prompt()
@@ -113,7 +113,7 @@ class TextUserInterface(userinterface.UserInterface):
 
     def notify(self, message):
         self.status_win.set_status(message)
-        self.getchar()
+        self.getkey()
         self.status_win.set_default_status()
 
 document.Document.default_userinterface = TextUserInterface

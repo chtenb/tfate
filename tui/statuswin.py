@@ -55,17 +55,17 @@ class StatusWin(Win):
 
         string = ''
         while 1:
-            char = self.ui.getchar()
-            if char == 'Esc':
+            key = self.ui.getkey()
+            if key == 'Esc':
                 self.set_default_status()
                 return None
-            elif char == '\n':
+            elif key == '\n':
                 self.set_default_status()
                 return string
-            elif char == '\b':
+            elif key == '\b':
                 if len(string) > 0:
                     string = string[:-1]
             else:
-                string += char
+                string += key
             self.set_status(prompt_string + string)
             self.ui.touch()

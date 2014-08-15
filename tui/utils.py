@@ -2,42 +2,42 @@
 import unicurses as curses
 from logging import debug
 
-def getchar():
+def getkey():
     """Retrieve input character from user as a readable string."""
-    char = curses.getch()
-    #debug(char)
-    return char_to_string(char)
+    key = curses.getch()
+    #debug(key)
+    return key_to_string(key)
 
-def peekchar():
-    char = curses.getch()
-    curses.ungetch(char)
-    #debug(char)
-    return char_to_string(char)
+def peekkey():
+    key = curses.getch()
+    curses.ungetch(key)
+    #debug(key)
+    return key_to_string(key)
 
 
-def char_to_string(char):
+def key_to_string(key):
     """Replace special characters with a readable string"""
-    if char == 27:
+    if key == 27:
         result = 'Esc'
-    elif char == 10 or char == 13:
+    elif key == 10 or key == 13:
         result = '\n'
-    elif char == 9:
+    elif key == 9:
         result = '\t'
-    elif char == 8 or char == curses.KEY_BACKSPACE:
+    elif key == 8 or key == curses.KEY_BACKSPACE:
         result = '\b'
-    elif char < 32:
-        result = curses.unctrl(char)
+    elif key < 32:
+        result = curses.unctrl(key)
         result = result.decode()
         result = 'Ctrl-' + result[1]
-    elif char < 256:
-        result = chr(char)
+    elif key < 256:
+        result = chr(key)
     else:
-        # char must be some kind of function key
+        # key must be some kind of function key
         try:
-            result = curses.keyname(char)
+            result = curses.keyname(key)
         except:
             raise IOError('Can\'t handle input character type: {}.'
-                            .format(str(type(char))))
+                            .format(str(type(key))))
         else:
             try:
                 result = result.decode()
