@@ -1,6 +1,6 @@
 """
 Module containing Win class.
-The Win class is meant to hide some common interaction with curses.
+The Win class is meant to hide some common intercommand with curses.
 """
 import unicurses as curses
 from logging import debug

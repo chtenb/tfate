@@ -12,7 +12,7 @@ def start(filenames):
         from .textuserinterface import TextUserInterface
         from . import screen
 
-        Document.UserInterfaceClass = TextUserInterface
+        Document.create_userinterface = TextUserInterface
         # Create all interfaces
         for filename in filenames:
             Document(filename)

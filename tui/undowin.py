@@ -9,7 +9,7 @@ class UndoWin(Win):
         Win.__init__(self, width, height, x, y, ui)
 
     def draw(self):
-        """Draw the current actiontree.
+        """Draw the current commandtree.
         It should look like this, where X is the current position:
         o-o-o-o-o-X-o-o-o
             |     | ↳ o-o-o-o-o
