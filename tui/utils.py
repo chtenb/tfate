@@ -28,7 +28,7 @@ def key_to_string(key):
     elif key < 32:
         result = curses.unctrl(key)
         result = result.decode()
-        result = 'Ctrl-' + result[1]
+        result = 'Ctrl-' + result[1].lower()
     elif key < 256:
         result = chr(key)
     else:
@@ -47,5 +47,5 @@ def key_to_string(key):
             # Remove parenthesis for function keys
             result.replace('(', '')
             result.replace(')', '')
-    debug(result)
+    #debug(result)
     return result

@@ -3,6 +3,7 @@ from .win import Win
 
 
 class UndoWin(Win):
+
     """Window containing the undotree."""
 
     def __init__(self, width, height, x, y, ui):
@@ -23,14 +24,14 @@ class UndoWin(Win):
 
         # So first traverse upwards until exceed height or width
         upperbound = traverse_up(undotree.current_node,
-                                int(self.height / 2) + 1,
-                                int(self.width / 2) + 1)
-                                #self.height, self.width)
+                                 int(self.height / 2) + 1,
+                                 int(self.width / 2) + 1)
+        # self.height, self.width)
         # Then print tree downwards until exceed height or width
         string = '\n'.join(dump(upperbound, undotree.current_node,
                                 self.height, self.width))
 
-        if self.document.mode == 'UNDO':
+        if str(self.document.mode) == 'UNDO':
             self.draw_line('Undo tree', self.create_attribute(reverse=True))
         else:
             self.draw_line('Undo tree', self.create_attribute(alt_background=True))

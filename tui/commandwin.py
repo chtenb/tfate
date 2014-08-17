@@ -1,7 +1,7 @@
 "Module containing StatusWin class."""
 from .win import Win
 from logging import debug
-from fate.command import get_completions, evaluate
+from fate.commandmode import get_completions, evaluate
 
 
 class CommandWin(Win):
