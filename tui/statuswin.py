@@ -29,17 +29,15 @@ class StatusWin(Win):
         self.default_status = True
         document = self.document
 
-        #if not document.intercommandstack.isempty:
-            #mode = ' -> '.join(i.__name__ if hasattr(i, '__name__')
-                               #else i.__class__.__name__
-                               #for i in document.intercommandstack.storage)
-        #else:
+        mode = str(document.mode)
+        selectmode = document.selectmode
 
-        string = '{}{} | {} | {} | {}'.format(
+        string = '{}{} | {} | {} | {} | {}'.format(
             document.filename,
             ('*' if not self.document.saved else ''),
             document.filetype,
-            document.mode,
+            mode,
+            selectmode,
             document.selection)
         self.set_status(string)
 
