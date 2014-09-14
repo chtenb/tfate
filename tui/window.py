@@ -7,7 +7,7 @@ from logging import debug
 from . import terminal
 
 
-class Win:
+class Window:
 
     """Abstract window class"""
 

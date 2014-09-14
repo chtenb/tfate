@@ -1,13 +1,13 @@
 "Module containing DocumentWin class."""
-from .win import Win
+from .window import Window
 
 
-class DocumentWin(Win):
+class DocumentWin(Window):
 
     """Window displaying the headers of all current documents."""
 
     def __init__(self, width, height, x, y, ui):
-        Win.__init__(self, width, height, x, y, ui)
+        Window.__init__(self, width, height, x, y, ui)
 
     def draw(self):
         """Draw the current document headers."""

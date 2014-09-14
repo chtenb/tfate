@@ -1,15 +1,15 @@
 "Module containing StatusWin class."""
-from .win import Win
+from .window import Window
 from logging import debug
 from fate.commandmode import get_completions, evaluate
 
 
-class CommandWin(Win):
+class CommandWin(Window):
 
     """Window for the command interface."""
 
     def __init__(self, width, height, x, y, ui):
-        Win.__init__(self, width, height, x, y, ui)
+        Window.__init__(self, width, height, x, y, ui)
         self.min_height = height
         self.reset()
 

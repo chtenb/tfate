@@ -1,26 +1,17 @@
 "Module containing StatusWin class."""
-import unicurses as curses
-from .win import Win
+from .window import Window
 
 
-class StatusWin(Win):
+class StatusWin(Window):
 
     """Window containing the status."""
 
-    default_status = True
-
     def __init__(self, width, height, x, y, ui):
-        Win.__init__(self, width, height, x, y, ui)
+        Window.__init__(self, width, height, x, y, ui)
 
     def draw(self):
         """Draw the current status."""
-        # If we were displaying default status anyway, keep it up to date
-        # Make sure alternative messages last only one touch
-        if self.default_status:
-            self.set_default_status()
-        else:
-            self.default_status = True
-
+        self.set_default_status()
         attribute = self.create_attribute(alt_background=True)
         self.draw_line(self.status, attribute)
 

@@ -10,9 +10,10 @@ from .textwin import TextWin
 from .clipboardwin import ClipboardWin
 from .undowin import UndoWin
 from .statuswin import StatusWin
-from .commandwin import CommandWin
+from .promptwin import PromptWin
 from .logwin import LogWin
-from . import utils, screen
+from .infowin import InfoWin
+from . import utils
 from .terminal import stdscr
 
 from logging import debug
@@ -24,8 +25,8 @@ class TextUserInterface(userinterface.UserInterface):
     This class provides a user interface for interacting with a document object.
     """
 
-    def __init__(self, document):
-        self.document = document
+    def __init__(self, doc):
+        userinterface.UserInterface.__init__(self, doc)
         self.active = False
         self.touched = False
 
@@ -35,17 +36,19 @@ class TextUserInterface(userinterface.UserInterface):
         """Create all curses windows."""
         ymax, xmax = curses.getmaxyx(stdscr)
         self.document_win = DocumentWin(xmax, 1, 0, 0, self)
-        self.text_win = TextWin(xmax, ymax - 1 - 10 - 5 - 3 - 1, 0, 1, self)
+        self.text_win = TextWin(xmax, ymax - 1 - 10 - 5 - 3 - 1 - 1, 0, 1, self)
         self.log_win = LogWin(xmax, 10, 0, ymax - 10 - 5 - 3 - 1, self)
         self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 5 - 3 - 1, self)
         self.undo_win = UndoWin(xmax, 5, 0, ymax - 5 - 1, self)
+
+        self.info_win = InfoWin(xmax, 1, 0, ymax - 2, self)
         self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self)
 
-        self.command_win = CommandWin(int(xmax / 2), 2, int(xmax / 2), 4, self)
+        self.prompt_win = PromptWin(int(xmax / 2), 2, int(xmax / 2), 4, self)
 
         self.windows = [self.document_win, self.text_win, self.log_win,
                         self.clipboard_win, self.undo_win, self.status_win,
-                        self.command_win]
+                        self.prompt_win]
 
     def touch(self):
         """Tell the screen thread to update the screen."""
@@ -104,16 +107,10 @@ class TextUserInterface(userinterface.UserInterface):
             else:
                 return key
 
-    def command_mode(self):
-        self.command_win.prompt()
-
-    def prompt(self, prompt_string='>'):
-        """Prompt the user for an input string."""
-        return self.status_win.prompt(prompt_string)
-
     def notify(self, message):
-        self.status_win.set_status(message)
+        self.info_win.set_message(message)
+        self.touch()
         self.getkey()
-        self.status_win.set_default_status()
+        self.info_win.del_message()
 
 document.Document.default_userinterface = TextUserInterface

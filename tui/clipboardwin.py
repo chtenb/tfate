@@ -1,12 +1,12 @@
 "Module containing ClipboardWin class."""
-from .win import Win
+from .window import Window
 
 
-class ClipboardWin(Win):
+class ClipboardWin(Window):
     """Window containing the clipboard"""
 
     def __init__(self, width, height, x, y, ui):
-        Win.__init__(self, width, height, x, y, ui)
+        Window.__init__(self, width, height, x, y, ui)
 
     def draw(self):
         """Draw clipboard"""

@@ -1,14 +1,14 @@
 "Module containing TextWin class."""
-from .win import Win, EndOfWin
+from .window import Window, EndOfWin
 from logging import debug
 
 
-class TextWin(Win):
+class TextWin(Window):
 
     """Window containing the text"""
 
     def __init__(self, width, height, x, y, ui):
-        Win.__init__(self, width, height, x, y, ui)
+        Window.__init__(self, width, height, x, y, ui)
 
     def draw(self):
         """Draw the visible text in the text window."""

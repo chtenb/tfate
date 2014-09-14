@@ -1,13 +1,13 @@
 "Module containing ActionWin class."""
-from .win import Win
+from .window import Window
 
 
-class UndoWin(Win):
+class UndoWin(Window):
 
     """Window containing the undotree."""
 
     def __init__(self, width, height, x, y, ui):
-        Win.__init__(self, width, height, x, y, ui)
+        Window.__init__(self, width, height, x, y, ui)
 
     def draw(self):
         """Draw the current commandtree.
