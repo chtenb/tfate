@@ -1,4 +1,5 @@
 SHORT TERM
+fix logwin bug that not all things are displayed when more docs are open
 fix status win default status vs other status refresh
     maybe introduce infowin to simplify things
 Make drawing chars robust and work with unicode

@@ -72,36 +72,35 @@ class TextUserInterface(userinterface.UserInterface):
         """Activate next document, if existent."""
         assert document_arg is self.document
 
-        index = document.documentlist.index(self.document)
+        #index = document.documentlist.index(self.document)
 
         #debug(str(documentlist))
         #debug("self: " + str(self.document))
         #debug("index: " + str(index))
         #self.getkey()
 
-        if len(document.documentlist) == 1:
-            self.deactivate()
-            return
+        #if len(document.documentlist) == 1:
+            #self.deactivate()
+            #return
 
-        if index < len(document.documentlist) - 1:
-            next_document = document.documentlist[index + 1]
-        else:
-            next_document = document.documentlist[index - 1]
+        #if index < len(document.documentlist) - 1:
+            #next_document = document.documentlist[index + 1]
+        #else:
+            #next_document = document.documentlist[index - 1]
 
-        #debug("next: " + str(next_document))
-        next_document.ui.activate()
+        ##debug("next: " + str(next_document))
+        #next_document.ui.activate()
 
-    def getinput(self):
-        key = self.peekinput()
-        utils.getkey()
-        return key
+    #def getinput(self):
+        #key = self.peekinput()
+        #utils.getkey()
+        #return key
 
-    def peekinput(self):
+    def _getuserinput(self):
         while 1:
-            key = utils.peekkey()
+            key = utils.getkey()
             # Intercept resize events
             if key == 'Resize':
-                utils.getkey()
                 self._create_windows()
                 self.touch()
             else:
