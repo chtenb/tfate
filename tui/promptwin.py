@@ -15,8 +15,9 @@ class PromptWin(Window):
         self.min_height = height
 
     def draw(self):
-        if self.document.mode and isinstance(self.document.mode.peek(), Prompt):
-            text = self.document.mode.peek().inputstring
+        mode = self.document.mode
+        if mode and isinstance(mode, Prompt):
+            text = mode.promptstring + mode.inputstring
             self.height = max(self.min_height, int(len(text) / self.width))
             self.draw_line(text, self.create_attribute(alt_background=True))
 
