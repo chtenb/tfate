@@ -12,7 +12,6 @@ from .undowin import UndoWin
 from .statuswin import StatusWin
 from .promptwin import PromptWin
 from .logwin import LogWin
-from .infowin import InfoWin
 from . import utils
 from .terminal import stdscr
 
@@ -30,25 +29,52 @@ class TextUserInterface(userinterface.UserInterface):
         self.active = False
         self.touched = False
 
-        self._create_windows()
+        self.document_win = DocumentWin(self)
+        self.text_win = TextWin(self)
+        self.log_win = LogWin(self)
+        self.status_win = StatusWin(self)
 
-    def _create_windows(self):
-        """Create all curses windows."""
-        ymax, xmax = curses.getmaxyx(stdscr)
-        self.document_win = DocumentWin(xmax, 1, 0, 0, self)
-        self.text_win = TextWin(xmax, ymax - 1 - 10 - 5 - 3 - 1 - 1, 0, 1, self)
-        self.log_win = LogWin(xmax, 10, 0, ymax - 10 - 5 - 3 - 1, self)
-        self.clipboard_win = ClipboardWin(xmax, 3, 0, ymax - 5 - 3 - 1, self)
-        self.undo_win = UndoWin(xmax, 5, 0, ymax - 5 - 1, self)
-
-        self.info_win = InfoWin(xmax, 1, 0, ymax - 2, self)
-        self.status_win = StatusWin(xmax, 1, 0, ymax - 1, self)
-
-        self.prompt_win = PromptWin(int(xmax / 2), 2, int(xmax / 2), 4, self)
+        self.prompt_win = PromptWin(self)
+        self.undo_win = UndoWin(self)
+        self.clipboard_win = ClipboardWin(self)
 
         self.windows = [self.document_win, self.text_win, self.log_win,
                         self.clipboard_win, self.undo_win, self.status_win,
                         self.prompt_win]
+
+        self.clipboard_win.enabled = False
+        self.prompt_win.enabled = False
+        self.undo_win.enabled = False
+
+        self.update_windows()
+
+    def update_windows(self):
+        """Give all windows correct sizes and positions."""
+        ymax, xmax = curses.getmaxyx(stdscr)
+
+        # We draw the windows bottom up
+        linenumber = ymax - 1
+        self.status_win.reset(xmax, 1, 0, linenumber)
+        linenumber -= 1
+
+        self.log_win.reset(xmax, 1, 0, linenumber)
+        linenumber -= 1
+
+        if self.undo_win.enabled:
+            undo_win_height = 4
+            self.undo_win.reset(xmax, undo_win_height, 0, linenumber)
+            linenumber -= undo_win_height
+
+        if self.clipboard_win.enabled:
+            clipboard_win_height = 3
+            self.clipboard_win.reset(xmax, clipboard_win_height, 0, linenumber)
+            linenumber -= clipboard_win_height
+
+        self.text_win.reset(xmax, linenumber - 1, 0, 1)
+        self.document_win.reset(xmax, 1, 0, 0)
+
+        self.prompt_win.reset(int(xmax / 2), 2, int(xmax / 2), 4)
+        self.touch()
 
     def touch(self):
         """Tell the screen thread to update the screen."""
@@ -101,15 +127,9 @@ class TextUserInterface(userinterface.UserInterface):
             key = utils.getkey()
             # Intercept resize events
             if key == 'Resize':
-                self._create_windows()
+                self.update_windows()
                 self.touch()
             else:
                 return key
-
-    def notify(self, message):
-        self.info_win.set_message(message)
-        self.touch()
-        self.getkey()
-        self.info_win.del_message()
 
 document.Document.default_userinterface = TextUserInterface

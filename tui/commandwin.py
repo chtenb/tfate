@@ -8,8 +8,8 @@ class CommandWin(Window):
 
     """Window for the command interface."""
 
-    def __init__(self, width, height, x, y, ui):
-        Window.__init__(self, width, height, x, y, ui)
+    def __init__(self, ui):
+        Window.__init__(self, ui)
         self.min_height = height
         self.reset()
 

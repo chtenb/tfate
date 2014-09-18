@@ -1,13 +1,15 @@
 "Module containing ActionWin class."""
 from .window import Window
+from fate.undotree import UndoMode
+from logging import debug
 
 
 class UndoWin(Window):
 
     """Window containing the undotree."""
 
-    def __init__(self, width, height, x, y, ui):
-        Window.__init__(self, width, height, x, y, ui)
+    def __init__(self, ui):
+        Window.__init__(self, ui)
 
     def draw(self):
         """Draw the current commandtree.
@@ -18,27 +20,25 @@ class UndoWin(Window):
             ↳ o-o-o
                 ↳ o-o-o
         """
-        undotree = self.document.undotree
-        # We only have to print height/2 children branches
-        # and parents branches, and width/2 children and parents
+        if isinstance(self.document.mode, UndoMode):
+            undotree = self.document.undotree
+            # We only have to print height/2 children branches
+            # and parents branches, and width/2 children and parents
 
-        # So first traverse upwards until exceed height or width
-        upperbound = traverse_up(undotree.current_node,
-                                 int(self.height / 2) + 1,
-                                 int(self.width / 2) + 1)
-        # self.height, self.width)
-        # Then print tree downwards until exceed height or width
-        string = '\n'.join(dump(upperbound, undotree.current_node,
-                                self.height, self.width))
+            # So first traverse upwards until exceed height or width
+            upperbound = traverse_up(undotree.current_node,
+                                     int(self.height / 2) + 1,
+                                     int(self.width / 2) + 1)
+            # self.height, self.width)
+            # Then print tree downwards until exceed height or width
+            string = '\n'.join(dump(upperbound, undotree.current_node,
+                                    self.height, self.width))
 
-        if str(self.document.mode) == 'UNDO':
             self.draw_line('Undo tree', self.create_attribute(reverse=True))
-        else:
-            self.draw_line('Undo tree', self.create_attribute(alt_background=True))
 
-        center = string.find('X')
-        string = self.crop(string, center)
-        self.draw_string(string)
+            center = string.find('X')
+            string = self.crop(string, center)
+            self.draw_string(string)
 
 
 def traverse_up(node, height, width):

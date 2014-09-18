@@ -10,9 +10,9 @@ class PromptWin(Window):
     Window for drawing the user input prompt when in prompt mode.
     """
 
-    def __init__(self, width, height, x, y, ui):
-        Window.__init__(self, width, height, x, y, ui)
-        self.min_height = height
+    def __init__(self, ui):
+        Window.__init__(self, ui)
+        self.min_height = 3
 
     def draw(self):
         mode = self.document.mode

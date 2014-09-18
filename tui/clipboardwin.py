@@ -5,8 +5,8 @@ from .window import Window
 class ClipboardWin(Window):
     """Window containing the clipboard"""
 
-    def __init__(self, width, height, x, y, ui):
-        Window.__init__(self, width, height, x, y, ui)
+    def __init__(self, ui):
+        Window.__init__(self, ui)
 
     def draw(self):
         """Draw clipboard"""

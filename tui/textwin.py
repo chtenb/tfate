@@ -7,8 +7,8 @@ class TextWin(Window):
 
     """Window containing the text"""
 
-    def __init__(self, width, height, x, y, ui):
-        Window.__init__(self, width, height, x, y, ui)
+    def __init__(self, ui):
+        Window.__init__(self, ui)
 
     def draw(self):
         """Draw the visible text in the text window."""

@@ -3,7 +3,6 @@ Module containing Win class.
 The Win class is meant to hide some common intercommand with curses.
 """
 import unicurses as curses
-from logging import debug
 from . import terminal
 
 
@@ -11,8 +10,8 @@ class Window:
 
     """Abstract window class"""
 
-    def __init__(self, width, height, x, y, ui):
-        self.win = curses.newwin(height, width, y, x)
+    def __init__(self, ui):
+        self.win = curses.newwin(0, 0, 0, 0)
         self.ui = ui
         self.document = ui.document
         self.enabled = True
@@ -20,14 +19,22 @@ class Window:
     def enable(self):
         """Enable this window."""
         self.enabled = True
+        self.ui.update_windows()
 
     def disable(self):
         """Disable this window."""
         self.enabled = False
+        self.ui.update_windows()
 
-    def resize(self, width=None, height=None):
+    def reset(self, width=None, height=None, x=None, y=None):
         """Resize window."""
         curses.wresize(self.win, height, width)
+        curses.mvwin(self.win, y, x)
+
+        assert self.height == height
+        assert self.width == width
+        assert self.x == x
+        assert self.y == y
 
     @property
     def width(self):
@@ -43,7 +50,7 @@ class Window:
 
     @height.setter
     def height(self, value):
-        self.resize(self.width, value)
+        self.reset(height=value)
 
     @property
     def x(self):

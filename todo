@@ -1,19 +1,22 @@
 SHORT TERM
-fix logwin bug that not all things are displayed when more docs are open
-fix status win default status vs other status refresh
+Make sure tfate doesn't crash with extremely small screensize
+rename touch to refresh
+merge commandwin and promptwin
+Fix logwin bug that not all things are displayed when more docs are open
+Fix status win default status vs other status refresh
     maybe introduce infowin to simplify things
+    or use logwin as info win
+    make it height 1 by default, right up or under the statusbar
+    make it higher height in debug mode
+Make clipboard height 1
 Make drawing chars robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
-fix drawing undotree
-fix drawing bug with multiple intervals
-fix some bugs with multiple sessions
+Fix drawing undotree
+Fix drawing bug with multiple intervals
+Fix some bugs with multiple sessions
 
 LONG TERM
-Move prompt functionality from statuswin to commandwin?
 Improve navigating through display of text, actiontree and clipboard
-allow easy hide/show/placement of windows
+Allow easy hide/show/placement of windows
     don't restrict this in any way
-Easier file opening
 Unicode art and colors!
-Conceal text
-Hide/show text like folds (i.e. regions and assert statements)
