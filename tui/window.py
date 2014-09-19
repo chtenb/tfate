@@ -4,6 +4,7 @@ The Win class is meant to hide some common intercommand with curses.
 """
 import unicurses as curses
 from . import terminal
+from logging import debug
 
 
 class Window:
@@ -28,8 +29,20 @@ class Window:
 
     def reset(self, width=None, height=None, x=None, y=None):
         """Resize window."""
+        if height == None:
+            height = self.height
+        if width == None:
+            width = self.width
+        if x == None:
+            x = self.x
+        if y == None:
+            y = self.y
+
         curses.wresize(self.win, height, width)
         curses.mvwin(self.win, y, x)
+
+        #debug(height)
+        #debug(self.height)
 
         assert self.height == height
         assert self.width == width
@@ -43,6 +56,7 @@ class Window:
         if self.enabled:
             curses.wmove(self.win, 0, 0)
             self.draw()
+            # TODO: this causes the last character to be blank
             curses.wclrtobot(self.win)
             curses.wrefresh(self.win)
 
@@ -65,10 +79,6 @@ class Window:
         """Height of the window."""
         height, _ = curses.getmaxyx(self.win)
         return height
-
-    @height.setter
-    def height(self, value):
-        self.reset(height=value)
 
     @property
     def x(self):

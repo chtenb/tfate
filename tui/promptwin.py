@@ -12,12 +12,16 @@ class PromptWin(Window):
 
     def __init__(self, ui):
         Window.__init__(self, ui)
-        self.min_height = 3
+
+    def update(self):
+        """We only want to be enabled if undomode is active."""
+        if isinstance(self.document.mode, Prompt) and not self.enabled:
+            self.enable()
+        if not isinstance(self.document.mode, Prompt) and self.enabled:
+            self.disable()
 
     def draw(self):
-        mode = self.document.mode
-        if mode and isinstance(mode, Prompt):
-            text = mode.promptstring + mode.inputstring
-            self.height = max(self.min_height, int(len(text) / self.width))
-            self.draw_line(text, self.create_attribute(alt_background=True))
-
+        text = self.document.mode.promptstring + self.document.mode.inputstring
+        height = int(min(1, len(text)) / min(1, self.width))
+        self.reset(height=height)
+        self.draw_line(text, self.create_attribute(alt_background=True))

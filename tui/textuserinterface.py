@@ -55,11 +55,13 @@ class TextUserInterface(userinterface.UserInterface):
         # We draw the windows bottom up
         linenumber = ymax
 
-        linenumber -= 1
-        self.status_win.reset(xmax, 1, 0, linenumber)
+        status_win_height = 1
+        linenumber -= status_win_height
+        self.status_win.reset(xmax, status_win_height, 0, linenumber)
 
-        linenumber -= 1
-        self.log_win.reset(xmax, 1, 0, linenumber)
+        log_win_height = 1
+        linenumber -= log_win_height
+        self.log_win.reset(xmax, log_win_height, 0, linenumber)
 
         if self.undo_win.enabled:
             undo_win_height = 4

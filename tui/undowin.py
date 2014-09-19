@@ -27,25 +27,24 @@ class UndoWin(Window):
             ↳ o-o-o
                 ↳ o-o-o
         """
-        if self.enabled:
-            undotree = self.document.undotree
-            # We only have to print height/2 children branches
-            # and parents branches, and width/2 children and parents
+        undotree = self.document.undotree
+        # We only have to print height/2 children branches
+        # and parents branches, and width/2 children and parents
 
-            # So first traverse upwards until exceed height or width
-            upperbound = traverse_up(undotree.current_node,
-                                     int(self.height / 2) + 1,
-                                     int(self.width / 2) + 1)
-            # self.height, self.width)
-            # Then print tree downwards until exceed height or width
-            string = '\n'.join(dump(upperbound, undotree.current_node,
-                                    self.height, self.width))
+        # So first traverse upwards until exceed height or width
+        upperbound = traverse_up(undotree.current_node,
+                                 int(self.height / 2) + 1,
+                                 int(self.width / 2) + 1)
+        # self.height, self.width)
+        # Then print tree downwards until exceed height or width
+        string = '\n'.join(dump(upperbound, undotree.current_node,
+                                self.height, self.width))
 
-            self.draw_line('Undo tree', self.create_attribute(reverse=True))
+        self.draw_line('Undo tree', self.create_attribute(reverse=True))
 
-            center = string.find('X')
-            string = self.crop(string, center)
-            self.draw_string(string)
+        center = string.find('X')
+        string = self.crop(string, center)
+        self.draw_string(string)
 
 
 def traverse_up(node, height, width):

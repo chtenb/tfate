@@ -1,6 +1,6 @@
 SHORT TERM
 Make sure tfate doesn't crash with extremely small screensize
-rename touch to refresh
+rename touch to refresh?
 merge commandwin and promptwin
 Fix logwin bug that not all things are displayed when more docs are open
 Fix status win default status vs other status refresh
@@ -8,7 +8,6 @@ Fix status win default status vs other status refresh
     or use logwin as info win
     make it height 1 by default, right up or under the statusbar
     make it higher height in debug mode
-Make clipboard height 1
 Make drawing chars robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
 Fix drawing undotree
