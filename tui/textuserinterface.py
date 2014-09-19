@@ -57,26 +57,26 @@ class TextUserInterface(userinterface.UserInterface):
 
         status_win_height = 1
         linenumber -= status_win_height
-        self.status_win.reset(xmax, status_win_height, 0, linenumber)
+        self.status_win.setdimensions(xmax, status_win_height, 0, linenumber)
 
         log_win_height = 1
         linenumber -= log_win_height
-        self.log_win.reset(xmax, log_win_height, 0, linenumber)
+        self.log_win.setdimensions(xmax, log_win_height, 0, linenumber)
 
         if self.undo_win.enabled:
             undo_win_height = 4
             linenumber -= undo_win_height
-            self.undo_win.reset(xmax, undo_win_height, 0, linenumber)
+            self.undo_win.setdimensions(xmax, undo_win_height, 0, linenumber)
 
         if self.clipboard_win.enabled:
             clipboard_win_height = 3
             linenumber -= clipboard_win_height
-            self.clipboard_win.reset(xmax, clipboard_win_height, 0, linenumber)
+            self.clipboard_win.setdimensions(xmax, clipboard_win_height, 0, linenumber)
 
-        self.text_win.reset(xmax, linenumber - 1, 0, 1)
-        self.document_win.reset(xmax, 1, 0, 0)
+        self.text_win.setdimensions(xmax, linenumber - 1, 0, 1)
+        self.document_win.setdimensions(xmax, 1, 0, 0)
 
-        self.prompt_win.reset(int(xmax / 2), 2, int(xmax / 2), 4)
+        self.prompt_win.setdimensions(int(xmax / 2), 2, int(xmax / 2), 4)
         self.touch()
 
     def touch(self):

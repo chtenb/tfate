@@ -23,5 +23,5 @@ class PromptWin(Window):
     def draw(self):
         text = self.document.mode.promptstring + self.document.mode.inputstring
         height = int(min(1, len(text)) / min(1, self.width))
-        self.reset(height=height)
+        self.setdimensions(height=height)
         self.draw_line(text, self.create_attribute(alt_background=True))

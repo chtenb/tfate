@@ -27,8 +27,8 @@ class Window:
         self.enabled = False
         self.ui.update_windows()
 
-    def reset(self, width=None, height=None, x=None, y=None):
-        """Resize window."""
+    def setdimensions(self, width=None, height=None, x=None, y=None):
+        """Try to resize and reposition window to given dimensions."""
         if height == None:
             height = self.height
         if width == None:
@@ -40,14 +40,6 @@ class Window:
 
         curses.wresize(self.win, height, width)
         curses.mvwin(self.win, y, x)
-
-        #debug(height)
-        #debug(self.height)
-
-        assert self.height == height
-        assert self.width == width
-        assert self.x == x
-        assert self.y == y
 
     def refresh(self):
         """Refresh the window."""
@@ -134,12 +126,12 @@ class Window:
     def draw_string(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw a string with given attributes."""
         if wrapping:
-            ret = curses.waddnstr(self.win, string, self.width, attributes)
+            returncode = curses.waddnstr(self.win, string, self.width, attributes)
         else:
-            ret = curses.waddstr(self.win, string, attributes)
+            returncode = curses.waddstr(self.win, string, attributes)
 
         # End of window reached
-        if ret == curses.ERR and not silent:
+        if returncode == curses.ERR and not silent:
             raise EndOfWin()
 
     def draw_line(self, string, attributes=0, wrapping=False, silent=True):
