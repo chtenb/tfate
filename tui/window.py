@@ -56,8 +56,10 @@ class Window:
         if self.enabled:
             curses.wmove(self.win, 0, 0)
             self.draw()
-            # TODO: this causes the last character to be blank
-            curses.wclrtobot(self.win)
+            # Explicitly check wether clearing to bottom is necessary
+            # Otherwise the most bottom-right character will be blanked
+            if curses.getyx(self.win) != (self.height - 1, self.width - 1):
+                curses.wclrtobot(self.win)
             curses.wrefresh(self.win)
 
     def update(self):
