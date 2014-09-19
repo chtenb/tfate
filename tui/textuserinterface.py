@@ -53,22 +53,23 @@ class TextUserInterface(userinterface.UserInterface):
         ymax, xmax = curses.getmaxyx(stdscr)
 
         # We draw the windows bottom up
-        linenumber = ymax - 1
-        self.status_win.reset(xmax, 1, 0, linenumber)
-        linenumber -= 1
+        linenumber = ymax
 
-        self.log_win.reset(xmax, 1, 0, linenumber)
         linenumber -= 1
+        self.status_win.reset(xmax, 1, 0, linenumber)
+
+        linenumber -= 1
+        self.log_win.reset(xmax, 1, 0, linenumber)
 
         if self.undo_win.enabled:
             undo_win_height = 4
-            self.undo_win.reset(xmax, undo_win_height, 0, linenumber)
             linenumber -= undo_win_height
+            self.undo_win.reset(xmax, undo_win_height, 0, linenumber)
 
         if self.clipboard_win.enabled:
             clipboard_win_height = 3
-            self.clipboard_win.reset(xmax, clipboard_win_height, 0, linenumber)
             linenumber -= clipboard_win_height
+            self.clipboard_win.reset(xmax, clipboard_win_height, 0, linenumber)
 
         self.text_win.reset(xmax, linenumber - 1, 0, 1)
         self.document_win.reset(xmax, 1, 0, 0)

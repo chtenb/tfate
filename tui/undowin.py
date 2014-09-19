@@ -11,6 +11,13 @@ class UndoWin(Window):
     def __init__(self, ui):
         Window.__init__(self, ui)
 
+    def update(self):
+        """We only want to be enabled if undomode is active."""
+        if isinstance(self.document.mode, UndoMode) and not self.enabled:
+            self.enable()
+        if not isinstance(self.document.mode, UndoMode) and self.enabled:
+            self.disable()
+
     def draw(self):
         """Draw the current commandtree.
         It should look like this, where X is the current position:
@@ -20,7 +27,7 @@ class UndoWin(Window):
             ↳ o-o-o
                 ↳ o-o-o
         """
-        if isinstance(self.document.mode, UndoMode):
+        if self.enabled:
             undotree = self.document.undotree
             # We only have to print height/2 children branches
             # and parents branches, and width/2 children and parents

@@ -36,6 +36,24 @@ class Window:
         assert self.x == x
         assert self.y == y
 
+    def refresh(self):
+        """Refresh the window."""
+        self.update()
+
+        if self.enabled:
+            curses.wmove(self.win, 0, 0)
+            self.draw()
+            curses.wclrtobot(self.win)
+            curses.wrefresh(self.win)
+
+    def update(self):
+        """This draw method may be overridden to keep internals in sync with the document."""
+        pass
+
+    def draw(self):
+        """This draw method needs to be overridden to draw the window content."""
+        pass
+
     @property
     def width(self):
         """Width of the window."""
@@ -100,18 +118,6 @@ class Window:
 
             result |= curses.color_pair(colorpair)
         return result
-
-    def refresh(self):
-        """Refresh the window."""
-        if self.enabled:
-            curses.wmove(self.win, 0, 0)
-            self.draw()
-            curses.wclrtobot(self.win)
-            curses.wrefresh(self.win)
-
-    def draw(self):
-        """This draw method needs to be overridden to draw the window content."""
-        pass
 
     def draw_string(self, string, attributes=0, wrapping=False, silent=True):
         """Try to draw a string with given attributes."""
