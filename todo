@@ -4,7 +4,6 @@ Fix logwin bug that not all things are displayed when more docs are open
 Make drawing chars robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
 Fix drawing undotree
-Fix drawing bug with multiple intervals
 Fix some bugs with multiple sessions
 
 LONG TERM

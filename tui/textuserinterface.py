@@ -80,7 +80,7 @@ class TextUserInterface(userinterface.UserInterface):
         self.touch()
 
     def touch(self):
-        """Tell the screen thread to update the screen."""
+        """Tell the screen thread to update the windows and redraw the screen."""
         self.touched = True
 
     def activate(self):

@@ -24,8 +24,7 @@ class TextWin(Window):
 
 
         # Find the places of all empty selected intervals
-        empty_intervals = [beg for beg, end in reversed(selection)
-                           if end - beg == 0]
+        empty_interval_positions = [beg for beg, end in selection if end - beg == 0]
 
         # Compute the line number of the first line
         number_of_lines = text.count('\n', 0)
@@ -37,21 +36,24 @@ class TextWin(Window):
         # Draw every character
         while 1:
             try:
-                if position >= length and not empty_intervals:
+                if position >= length and not empty_interval_positions:
                     self.draw_line('EOF', self.create_attribute(bold=True), silent=False)
                     break
 
                 # Draw possible empty selected interval at position
-                if empty_intervals and empty_intervals[0] == position:
+                if empty_interval_positions and empty_interval_positions[0] == position:
                     #self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
                     self.draw_string('E', self.create_attribute(reverse=True, bold=True), silent=False)
-                    empty_intervals.remove(empty_intervals[0])
+                    del empty_interval_positions[0]
                     continue
+
+                assert position < length
+                #debug(position)
+                #debug(empty_interval_positions)
 
                 reverse = False
                 highlight = False
                 color = 0
-                #debug(position)
                 char = text[position]
                 drawchar = char
 
@@ -86,6 +88,7 @@ class TextWin(Window):
                 self.draw_string(drawchar, attribute, silent=False)
                 position += 1
 
+                # Draw line numbers
                 if char == '\n':
                     linenumber += 1
                     self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ', numbercolor)
