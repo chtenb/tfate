@@ -12,7 +12,26 @@ libs_path = os.path.dirname(os.path.abspath(__file__)) + '/libs/'
 sys.path.insert(0, libs_path)
 
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--debug', help='run in debug mode',
+                    action='store_true')
+parser.add_argument('filenames', help='filenames to be openened at startup',
+                    nargs='*')
+args = parser.parse_args()
+
+
+# Import fate to make sure the logger is initialized
+import fate
+import logging
+
+if args.debug:
+    logging.getLogger().setLevel('DEBUG')
+else:
+    logging.getLogger().setLevel('INFO')
+
+
 from tui import start
 
-filenames = sys.argv[1:] or ['']
-start(filenames)
+start(args.filenames)

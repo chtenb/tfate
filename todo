@@ -3,7 +3,6 @@ merge commandwin and promptwin
 Make drawing chars robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
 Fix drawing undotree
-Fix some bugs with multiple sessions
 
 LONG TERM
 Improve navigating through display of text

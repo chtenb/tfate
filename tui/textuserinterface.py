@@ -59,7 +59,7 @@ class TextUserInterface(userinterface.UserInterface):
         linenumber -= status_win_height
         self.status_win.setdimensions(xmax, status_win_height, 0, linenumber)
 
-        log_win_height = 4
+        log_win_height = 1
         linenumber -= log_win_height
         self.log_win.setdimensions(xmax, log_win_height, 0, linenumber)
 
@@ -98,32 +98,8 @@ class TextUserInterface(userinterface.UserInterface):
             win.refresh()
 
     def quit(self, document_arg):
-        """Activate next document, if existent."""
+        """Quit this userinterface."""
         assert document_arg is self.document
-
-        #index = document.documentlist.index(self.document)
-
-        #debug(str(documentlist))
-        #debug("self: " + str(self.document))
-        #debug("index: " + str(index))
-        #self.getkey()
-
-        #if len(document.documentlist) == 1:
-            #self.deactivate()
-            #return
-
-        #if index < len(document.documentlist) - 1:
-            #next_document = document.documentlist[index + 1]
-        #else:
-            #next_document = document.documentlist[index - 1]
-
-        ##debug("next: " + str(next_document))
-        #next_document.ui.activate()
-
-    #def getinput(self):
-        #key = self.peekinput()
-        #utils.getkey()
-        #return key
 
     def _getuserinput(self):
         while 1:
