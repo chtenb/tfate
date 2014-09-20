@@ -59,7 +59,7 @@ class TextUserInterface(userinterface.UserInterface):
         linenumber -= status_win_height
         self.status_win.setdimensions(xmax, status_win_height, 0, linenumber)
 
-        log_win_height = 1
+        log_win_height = 4
         linenumber -= log_win_height
         self.log_win.setdimensions(xmax, log_win_height, 0, linenumber)
 

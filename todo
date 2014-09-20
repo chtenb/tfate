@@ -1,6 +1,5 @@
 SHORT TERM
 merge commandwin and promptwin
-Fix logwin bug that not all things are displayed when more docs are open
 Make drawing chars robust and work with unicode
     possible solution: use preferred encoding before drawing to screen
 Fix drawing undotree

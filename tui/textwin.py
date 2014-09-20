@@ -48,8 +48,6 @@ class TextWin(Window):
                     continue
 
                 assert position < length
-                #debug(position)
-                #debug(empty_interval_positions)
 
                 reverse = False
                 highlight = False
