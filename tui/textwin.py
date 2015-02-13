@@ -1,6 +1,6 @@
 "Module containing TextWin class."""
 from .window import Window, EndOfWin
-from logging import debug
+from logging import info
 
 
 class TextWin(Window):
@@ -9,6 +9,7 @@ class TextWin(Window):
 
     def __init__(self, ui):
         Window.__init__(self, ui)
+        self.offset = (0, 0)
 
     def draw(self):
         """Draw the visible text in the text window."""
@@ -18,20 +19,23 @@ class TextWin(Window):
 
         # Find a suitable starting position
         length = len(text)
-        position = move_n_wrapped_lines_up(text, self.width,
-                                           max(0, selection[0][0]),
-                                           int(self.height / 2))
+        #position = move_n_wrapped_lines_up(text, self.width,
+                                           #max(0, selection[0][0]),
+                                           #int(self.height / 2))
+        position = self.offset
 
 
         # Find the places of all empty selected intervals
-        empty_interval_positions = [beg for beg, end in selection if end - beg == 0]
+        empty_interval_positions = [beg for beg, end in selection if end - beg == 0 and
+                                    beg >= position]
 
         # Compute the line number of the first line
         number_of_lines = text.count('\n', 0)
         number_width = len(str(number_of_lines))
         linenumber = text.count('\n', 0, position)
         numbercolor = self.create_attribute(color=2)
-        self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ', numbercolor)
+        self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ',
+                         numbercolor)
 
         # Draw every character
         while 1:
@@ -43,7 +47,8 @@ class TextWin(Window):
                 # Draw possible empty selected interval at position
                 if empty_interval_positions and empty_interval_positions[0] == position:
                     #self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
-                    self.draw_string('E', self.create_attribute(reverse=True, bold=True), silent=False)
+                    self.draw_string('E', self.create_attribute(reverse=True, bold=True),
+                                     silent=False)
                     del empty_interval_positions[0]
                     continue
 
@@ -94,17 +99,3 @@ class TextWin(Window):
             except EndOfWin:
                 break
 
-
-def move_n_wrapped_lines_up(text, max_line_width, start, n):
-    """Return position that is n lines above start."""
-    position = text.rfind('\n', 0, start)
-    if position <= 0:
-        return 0
-    while 1:
-        previousline = text.rfind('\n', 0, position - 1)
-        if previousline <= 0:
-            return 0
-        n -= int((position - previousline) / max_line_width) + 1
-        if n <= 0:
-            return position + 1
-        position = previousline

@@ -15,8 +15,6 @@ from .logwin import LogWin
 from . import utils
 from .terminal import stdscr
 
-from logging import debug
-
 
 class TextUserInterface(userinterface.UserInterface):
 
@@ -79,6 +77,19 @@ class TextUserInterface(userinterface.UserInterface):
         self.prompt_win.setdimensions(int(xmax / 2), 2, int(xmax / 2), 4)
         self.touch()
 
+    @property
+    def viewport_size(self):
+        return (self.text_win.width, self.text_win.height)
+
+    @property
+    def viewport_offset(self):
+        return self.text_win.offset
+
+    @viewport_offset.setter
+    def viewport_offset(self, value):
+        self.text_win.offset = value
+        self.touch()
+
     def touch(self):
         """Tell the screen thread to update the windows and redraw the screen."""
         self.touched = True
@@ -110,5 +121,8 @@ class TextUserInterface(userinterface.UserInterface):
                 self.touch()
             else:
                 return key
+
+    def notify(self, message):
+        pass
 
 document.Document.default_userinterface = TextUserInterface
