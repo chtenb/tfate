@@ -8,8 +8,11 @@ import sys
 # - run fate without having it installed
 # - and thus easily test development source
 # - have multiple fate packages, in case we would use multiple user interfaces.
-libs_path = os.path.dirname(os.path.abspath(__file__)) + '/libs/'
-sys.path.insert(0, libs_path)
+fate_path = os.path.dirname(os.path.abspath(__file__)) + '/libs/fate'
+sys.path.insert(0, fate_path)
+
+unicurses_path = os.path.dirname(os.path.abspath(__file__)) + '/libs/unicurses'
+sys.path.insert(0, unicurses_path)
 
 
 import argparse
