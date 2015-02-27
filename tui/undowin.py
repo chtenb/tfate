@@ -1,7 +1,6 @@
-"Module containing ActionWin class."""
+"""Module containing UndoWin class."""
 from .window import Window
 from fate.undotree import UndoMode
-from logging import debug
 
 
 class UndoWin(Window):

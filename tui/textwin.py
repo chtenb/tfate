@@ -56,6 +56,7 @@ class TextWin(Window):
 
                 reverse = False
                 highlight = False
+                alt_background = False
                 color = 0
                 char = text[position]
                 drawchar = char
@@ -82,11 +83,17 @@ class TextWin(Window):
 
                 # Apply color attribute if char is labeled
                 if position in labeling:
+                    if labeling[position] == 'error':
+                        alt_background = True
+                    elif labeling[position] == 'warning':
+                        alt_background = True
+
                     for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
                         if labeling[position] == label:
                             color = 11 + i
 
-                attribute = self.create_attribute(reverse=reverse, color=color, highlight=highlight)
+                attribute = self.create_attribute(reverse=reverse, color=color,
+                        highlight=highlight, alt_background=alt_background)
 
                 self.draw_string(drawchar, attribute, silent=False)
                 position += 1
