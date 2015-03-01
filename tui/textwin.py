@@ -9,7 +9,7 @@ class TextWin(Window):
 
     def __init__(self, ui):
         Window.__init__(self, ui)
-        self.offset = (0, 0)
+        self.offset = 0
 
     def draw(self):
         """Draw the visible text in the text window."""
