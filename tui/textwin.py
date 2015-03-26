@@ -1,6 +1,7 @@
 "Module containing TextWin class."""
 from .window import Window, EndOfWin
 from logging import info
+from fate.navigation import position_to_coord
 
 
 class TextWin(Window):
@@ -30,9 +31,9 @@ class TextWin(Window):
                                     beg >= position]
 
         # Compute the line number of the first line
-        number_of_lines = text.count('\n', 0)
+        number_of_lines = text.count('\n', 0) + 1
         number_width = len(str(number_of_lines))
-        linenumber = text.count('\n', 0, position)
+        linenumber = text.count('\n', 0, position) + 1
         numbercolor = self.create_attribute(color=2)
         self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ',
                          numbercolor)
@@ -46,9 +47,9 @@ class TextWin(Window):
 
                 # Draw possible empty selected interval at position
                 if empty_interval_positions and empty_interval_positions[0] == position:
-                    #self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
-                    self.draw_string('E', self.create_attribute(reverse=True, bold=True),
-                                     silent=False)
+                    self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                    #self.draw_string('E', self.create_attribute(reverse=True, bold=True),
+                                     #silent=False)
                     del empty_interval_positions[0]
                     continue
 
@@ -69,8 +70,8 @@ class TextWin(Window):
                     reverse = True
                     # display newline character explicitly when selected
                     if char == '\n':
-                        #char = '↵\n'
-                        drawchar = ' \n'
+                        char = '↵\n'
+                        #drawchar = ' \n'
 
                 # Apply highlight attribute when char is locked
                 if (self.document.locked_selection != None
@@ -78,8 +79,8 @@ class TextWin(Window):
                     highlight = True
                     # display newline character explicitly when locked
                     if char == '\n':
-                        #char = '↵\n'
-                        drawchar = ' \n'
+                        char = '↵\n'
+                        #drawchar = ' \n'
 
                 # Apply color attribute if char is labeled
                 if position in labeling:

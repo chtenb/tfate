@@ -12,6 +12,7 @@ from .undowin import UndoWin
 from .errorwin import ErrorWin
 from .statuswin import StatusWin
 from .promptwin import PromptWin
+from .completionwin import CompletionWin
 from .logwin import LogWin
 from . import utils
 from .terminal import stdscr
@@ -36,16 +37,18 @@ class TextUserInterface(userinterface.UserInterface):
         self.prompt_win = PromptWin(self)
         self.undo_win = UndoWin(self)
         self.error_win = ErrorWin(self)
+        self.completion_win = CompletionWin(self)
         self.clipboard_win = ClipboardWin(self)
 
         self.windows = [self.document_win, self.text_win, self.log_win,
                         self.clipboard_win, self.undo_win, self.status_win,
-                        self.prompt_win, self.error_win]
+                        self.prompt_win, self.error_win, self.completion_win]
 
         self.clipboard_win.enabled = False
         self.prompt_win.enabled = False
         self.undo_win.enabled = False
         self.error_win.enabled = False
+        self.completion_win.enabled = False
 
         self.update_windows()
 
@@ -73,6 +76,11 @@ class TextUserInterface(userinterface.UserInterface):
             error_win_height = 6
             linenumber -= error_win_height
             self.error_win.setdimensions(xmax, error_win_height, 0, linenumber)
+
+        if self.completion_win.enabled:
+            completion_win_height = 6
+            linenumber -= completion_win_height
+            self.completion_win.setdimensions(xmax, completion_win_height, 0, linenumber)
 
         if self.clipboard_win.enabled:
             clipboard_win_height = 3

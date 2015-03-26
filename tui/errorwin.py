@@ -7,7 +7,7 @@ from logging import debug
 
 class ErrorWin(Window):
 
-    """Window containing the undotree."""
+    """Window containing the errors."""
 
     def __init__(self, ui):
         Window.__init__(self, ui)
