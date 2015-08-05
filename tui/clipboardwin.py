@@ -11,8 +11,8 @@ class ClipboardWin(Window):
     def draw(self):
         """Draw clipboard"""
         caption = 'Clipboard'
-        content = ', '.join(self.document.clipboard.peek() or ['Empty'])
-        stack = '-'.join('o' for x in self.document.clipboard.storage)
+        content = ', '.join(self.doc.clipboard.peek() or ['Empty'])
+        stack = '-'.join('o' for x in self.doc.clipboard.storage)
         stacktail = stack[1 - self.width:]
 
         self.draw_line(caption, self.create_attribute(alt_background=True))

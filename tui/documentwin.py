@@ -17,7 +17,7 @@ class DocumentWin(Window):
         from fate.document import documentlist
         for document in documentlist:
             header = document.filename or '<nameless>'
-            if document is self.ui.document:
+            if document is self.ui.doc:
                 self.draw_string(header, highlight)
             else:
                 self.draw_string(header, background)

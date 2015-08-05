@@ -18,14 +18,14 @@ from . import utils
 from .terminal import stdscr
 
 
-class TextUserInterface(userinterface.UserInterface):
+class TextUserInterface(userinterface.UserInterfaceAPI):
 
     """
     This class provides a user interface for interacting with a document object.
     """
 
     def __init__(self, doc):
-        userinterface.UserInterface.__init__(self, doc)
+        userinterface.UserInterfaceAPI.__init__(self, doc)
         self.active = False
         self.touched = False
 
@@ -91,7 +91,6 @@ class TextUserInterface(userinterface.UserInterface):
         self.document_win.setdimensions(xmax, 1, 0, 0)
 
         self.prompt_win.setdimensions(int(xmax / 2), 2, int(xmax / 2), 4)
-        self.touch()
 
     @property
     def viewport_size(self):
@@ -103,16 +102,18 @@ class TextUserInterface(userinterface.UserInterface):
 
     @viewport_offset.setter
     def viewport_offset(self, value):
+        assert isinstance(value, int)
         self.text_win.offset = value
         self.touch()
 
     def touch(self):
         """Tell the screen thread to update the windows and redraw the screen."""
+        self.doc.view.refresh()
         self.touched = True
 
     def activate(self):
         """Activate the user interface."""
-        document.activedocument = self.document
+        document.activedocument = self.doc
         self.touch()
 
     def deactivate(self):
@@ -126,7 +127,7 @@ class TextUserInterface(userinterface.UserInterface):
 
     def quit(self, document_arg):
         """Quit this userinterface."""
-        assert document_arg is self.document
+        assert document_arg is self.doc
 
     def _getuserinput(self):
         while 1:

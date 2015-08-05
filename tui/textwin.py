@@ -1,7 +1,6 @@
 "Module containing TextWin class."""
 from .window import Window, EndOfWin
 from logging import info
-from fate.navigation import position_to_coord
 
 
 class TextWin(Window):
@@ -14,29 +13,73 @@ class TextWin(Window):
 
     def draw(self):
         """Draw the visible text in the text window."""
-        selection = self.document.selection
-        text = self.document.text
-        labeling = self.document.labeling
+        # Compute the line number of the first line
+        #number_of_lines = text.count('\n', 0) + 1
+        #number_width = len(str(number_of_lines))
+        #linenumber = text.count('\n', 0, position) + 1
+        #numbercolor = self.create_attribute(color=2)
+        #self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ',
+                         #numbercolor)
 
-        # Find a suitable starting position
-        length = len(text)
-        #position = move_n_wrapped_lines_up(text, self.width,
-                                           #max(0, selection[0][0]),
-                                           #int(self.height / 2))
-        position = self.offset
+        textview = self.doc.view.text
+        length = len(textview)
+        highlightingview = self.doc.view.highlighting
+        selectionview = self.doc.view.selection
+        # Find the places of all empty selected intervals
+        empty_interval_positions = [beg for beg, end in selectionview if end - beg == 0]
 
+        try:
+            for pos, char in enumerate(textview):
+                # Draw possible empty selected interval at position
+                if empty_interval_positions and empty_interval_positions[0] == pos:
+                    self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                    del empty_interval_positions[0]
+
+                # Apply reverse attribute when char is selected
+                reverse = False
+                if selectionview.contains(pos):
+                    reverse = True
+                    # display newline character explicitly when selected
+                    if char == '\n':
+                        char = '↵\n'
+                        #drawchar = ' \n'
+
+                # Apply color attribute if char is labeled
+                alt_background = False
+                if highlightingview[pos] == 'error':
+                    alt_background = True
+                elif highlightingview[pos] == 'warning':
+                    alt_background = True
+
+                color = 0
+                for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
+                    if highlightingview[pos] == label:
+                        color = 11 + i
+
+                attribute = self.create_attribute(reverse=reverse, color=color,
+                            highlight=False, alt_background=alt_background)
+                self.draw_string(char, attribute, silent=False)
+
+            # If we come here, the entire textview fits on the screen
+            # Draw possible remaining empty interval
+            if empty_interval_positions:
+                self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+            # Draw EOF character
+            if not empty_interval_positions:
+                self.draw_line('EOF', self.create_attribute(bold=True), silent=False)
+        except EndOfWin:
+            pass
+
+
+        return
+
+        selection = self.doc.selection
+        text = self.doc.text
+        labeling = self.doc.labeling
 
         # Find the places of all empty selected intervals
         empty_interval_positions = [beg for beg, end in selection if end - beg == 0 and
                                     beg >= position]
-
-        # Compute the line number of the first line
-        number_of_lines = text.count('\n', 0) + 1
-        number_width = len(str(number_of_lines))
-        linenumber = text.count('\n', 0, position) + 1
-        numbercolor = self.create_attribute(color=2)
-        self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ',
-                         numbercolor)
 
         # Draw every character
         while 1:
@@ -63,7 +106,7 @@ class TextWin(Window):
                 drawchar = char
 
                 if char == '\t':
-                    drawchar = self.document.tabwidth * ' '
+                    drawchar = self.doc.tabwidth * ' '
 
                 # Apply reverse attribute when char is selected
                 if selection.contains(position):
@@ -74,8 +117,8 @@ class TextWin(Window):
                         #drawchar = ' \n'
 
                 # Apply highlight attribute when char is locked
-                if (self.document.locked_selection != None
-                        and self.document.locked_selection.contains(position)):
+                if (self.doc.locked_selection != None
+                        and self.doc.locked_selection.contains(position)):
                     highlight = True
                     # display newline character explicitly when locked
                     if char == '\n':

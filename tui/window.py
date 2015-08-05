@@ -14,7 +14,7 @@ class Window:
     def __init__(self, ui):
         self.win = curses.newwin(0, 0, 0, 0)
         self.ui = ui
-        self.document = ui.document
+        self.doc = ui.doc
         self.enabled = True
 
     def enable(self):

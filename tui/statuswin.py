@@ -18,18 +18,18 @@ class StatusWin(Window):
     def set_default_status(self):
         """Set the status to the default value."""
         self.default_status = True
-        document = self.document
+        doc = self.doc
 
-        mode = str(document.mode)
-        selectmode = document.selectmode
+        mode = str(doc.mode)
+        selectmode = doc.selectmode
 
         string = '{}{} | {} | {} | {} | {}'.format(
-            document.filename,
-            ('*' if not self.document.saved else ''),
-            document.filetype,
+            doc.filename,
+            ('*' if not doc.saved else ''),
+            doc.filetype,
             mode,
             selectmode,
-            document.selection)
+            doc.selection)
         self.set_status(string)
 
     def set_status(self, string):

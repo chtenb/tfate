@@ -12,9 +12,9 @@ class UndoWin(Window):
 
     def update(self):
         """We only want to be enabled if undomode is active."""
-        if isinstance(self.document.mode, UndoMode) and not self.enabled:
+        if isinstance(self.doc.mode, UndoMode) and not self.enabled:
             self.enable()
-        if not isinstance(self.document.mode, UndoMode) and self.enabled:
+        if not isinstance(self.doc.mode, UndoMode) and self.enabled:
             self.disable()
 
     def draw(self):
@@ -26,7 +26,7 @@ class UndoWin(Window):
             ↳ o-o-o
                 ↳ o-o-o
         """
-        undotree = self.document.undotree
+        undotree = self.doc.undotree
         # We only have to print height/2 children branches
         # and parents branches, and width/2 children and parents
 

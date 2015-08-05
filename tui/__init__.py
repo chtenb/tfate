@@ -13,9 +13,13 @@ def start(filenames):
         from . import screen
 
         Document.create_userinterface = TextUserInterface
+
         # Create all interfaces
+        if not filenames:
+            filenames = ['']
         for filename in filenames:
             Document(filename)
+
         # Activate first document
         documentlist[0].ui.activate()
 

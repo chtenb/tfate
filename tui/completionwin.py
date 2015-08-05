@@ -13,15 +13,15 @@ class CompletionWin(Window):
 
     def update(self):
         """We only want to be enabled if insertmode has completions."""
-        if (isinstance(self.document.mode, Completable) and self.document.mode.completions
+        if (isinstance(self.doc.mode, Completable) and self.doc.mode.completions
                 and not self.enabled):
             self.enable()
-        if not isinstance(self.document.mode, Completable) and self.enabled:
+        if not isinstance(self.doc.mode, Completable) and self.enabled:
             self.disable()
 
     def draw(self):
-        completions = self.document.mode.completions
-        selected_completion = self.document.mode.selected_completion
+        completions = self.doc.mode.completions
+        selected_completion = self.doc.mode.selected_completion
         nr_completions = len(completions)
 
         self.draw_line('Completions', self.create_attribute(alt_background=True))

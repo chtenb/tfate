@@ -1,5 +1,32 @@
 from distutils.core import setup
 
+# Glob can't go recursively, so we do it manually
+import os
+ycm_data_files = []
+for root, dirnames, filenames in os.walk('libs/fate/fate/ycm/ycmd/'):
+    # Exclude all git related files
+    if root.find('.git') == -1:
+        filenames = [f for f in filenames if f.find('.git') == -1]
+        filenames = [f for f in filenames if f.find('.sh') == -1]
+        filenames = [f for f in filenames if f.find('.txt') == -1]
+        filenames = [f for f in filenames if f.find('.md') == -1]
+        #filenames = [f for f in filenames if f not in ['COPYING.txt', 'style_format.sh']]
+        if filenames:
+            #print(filenames)
+            ycm_data_files.append((root, filenames))
+
+#for filename in ycm_data_files:
+    #try:
+        #os.remove('/usr/local/'+os.path.basename(filename))
+    #except Exception as e:
+        #print(e)
+#print(ycm_data_files)
+#exit()
+
+# This globally installs the packages fate, tui and unicurses and the start script fate
+# Maybe its better to just copy the entire sourcetree as data_files, except for the .git dirs
+# Idea 2: make tfate a package and all other stuff package_files
+# Then install main script globally, which imports tfate
 setup(
     name='tfate',
     version='0.1',
@@ -7,16 +34,23 @@ setup(
     author='Chiel ten Brinke',
     author_email='ctenbrinke@gmail.com',
     url='http://www.github.com/Chiel92/tfate',
-    package_dir={
-        'fate': 'libs/fate',
-        'unicurses': 'libs/unicurses'
-    },
     packages=[
         'fate',
         'tui',
         'unicurses',
-        'fate.labeling_system',
-        'fate.filetype_system'
+        'fate.filetype',
+        'fate.formatting',
+        'fate.highlighting',
+        'fate.errorchecking',
+        'fate.ycm',
+        'fate.view',
+        'fate.test',
     ],
+    package_dir={
+        'fate': 'libs/fate/fate',
+        'unicurses': 'libs/unicurses/unicurses'
+    },
+    data_files=ycm_data_files,
     scripts=['fate']
 )
+
