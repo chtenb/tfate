@@ -18,17 +18,19 @@ def peekkey():
 def key_to_string(key):
     """Replace special characters with a readable string"""
     if key == 27:
-        result = 'Esc'
+        result = 'esc'
     elif key == 10 or key == 13:
         result = '\n'
     elif key == 9:
         result = '\t'
     elif key == 8 or key == curses.KEY_BACKSPACE:
         result = '\b'
+    elif key == 330 or key == curses.KEY_DC:
+        result = 'del'
     elif key < 32:
         result = curses.unctrl(key)
         result = result.decode()
-        result = 'Ctrl-' + result[1].lower()
+        result = 'ctrl-' + result[1].lower()
     elif key < 256:
         result = chr(key)
     else:
@@ -43,7 +45,7 @@ def key_to_string(key):
                 result = result.decode()
             except AttributeError:
                 debug('Cant decode ' + repr(result))
-            result = result[4] + result[5:].lower()
+            result = result[4:].lower()
             # Remove parenthesis for function keys
             result.replace('(', '')
             result.replace(')', '')
