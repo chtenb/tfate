@@ -1,6 +1,10 @@
 #!python
 """This module is for messing with input characters."""
-import curses
+import os
+import sys
+unicurses_path = os.path.dirname(os.path.abspath(__file__)) + '/../libs/unicurses'
+sys.path.insert(0, unicurses_path)
+import unicurses as curses
 
 
 def key_info(key):

@@ -32,7 +32,10 @@ class TextWin(Window):
             for pos, char in enumerate(textview):
                 # Draw possible empty selected interval at position
                 if empty_interval_positions and empty_interval_positions[0] == pos:
-                    self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                    try:
+                        self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                    except UnicodeEncodeError:
+                        self.draw_string('|', self.create_attribute(reverse=True), silent=False)
                     del empty_interval_positions[0]
 
                 # Apply reverse attribute when char is selected
@@ -41,7 +44,8 @@ class TextWin(Window):
                     reverse = True
                     # display newline character explicitly when selected
                     if char == '\n':
-                        char = '↵\n'
+                        # char = '↵\n'
+                        char = ' \n'
                         #drawchar = ' \n'
 
                 # Apply color attribute if char is labeled
@@ -63,7 +67,10 @@ class TextWin(Window):
             # If we come here, the entire textview fits on the screen
             # Draw possible remaining empty interval
             if empty_interval_positions:
-                self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                try:
+                    self.draw_string('ε', self.create_attribute(reverse=True), silent=False)
+                except UnicodeEncodeError:
+                    self.draw_string('|', self.create_attribute(reverse=True), silent=False)
             # Draw EOF character
             if not empty_interval_positions:
                 self.draw_line('EOF', self.create_attribute(bold=True), silent=False)
