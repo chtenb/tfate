@@ -4,5 +4,11 @@ This project provides a simple terminal user interface to the fate editor.
 
 How to install
 --------------
-The recommended way to install tfate is by cloning this project and adding the path to the
-fate executable to the PATH environment variable of yous system.
+First clone the project in a folder of your choice.
+Then there are several options.
+
+###Ubuntu
+- Add an alias to your .bashrc, like `alias fate="python3 ~/path/to/tfate/main.py"`.
+- Create a shell script, e.g. name `fate`, which just contains the call `python3 ~/path/to/tfate/main.py` and make sure its folder is in your PATH.
+
+###Windows

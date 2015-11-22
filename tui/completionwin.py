@@ -1,6 +1,6 @@
 """Module containing CompletionWin class."""
 from .window import Window
-from fate.insertoperations import Completable
+from fate.completable import Completable
 import math
 
 

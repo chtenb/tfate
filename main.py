@@ -1,4 +1,3 @@
-#!python
 """Top level script which runs fate."""
 import os
 import sys
