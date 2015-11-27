@@ -133,7 +133,7 @@ class TextUserInterface(userinterface.UserInterfaceAPI):
         while 1:
             key = utils.getkey()
             # Intercept resize events
-            if key == 'Resize':
+            if key == 'resize':
                 self.update_windows()
                 self.touch()
             else:
