@@ -30,14 +30,14 @@ To be able to start fate from a DOS-like prompt,
 add a file named `fate.bat` to `C:\bin` with contents similar to
 
 ```
-"C:\Program Files (x86)\Python 3.5\python.exe" C:\path\to\tfate\main.py
+"C:\Program Files (x86)\Python 3.5\python.exe" C:\path\to\tfate\main.py %*
 ```
 
 To be able to start fate from a UNIX-like prompt, such as CYGWIN,
 add a file named `fate` to `C:\bin` with contents similar to
 
 ```
-"C:/Program Files (x86)/Python 3.5/python.exe" /c/path/to/tfate/main.py
+"C:/Program Files (x86)/Python 3.5/python.exe" /c/path/to/tfate/main.py $@
 ```
 
 In the latter case you could of course also decide to define an alias.

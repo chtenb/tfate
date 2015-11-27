@@ -17,6 +17,8 @@ from .logwin import LogWin
 from . import utils
 from .terminal import stdscr
 
+import logging
+
 
 class TextUserInterface(userinterface.UserInterfaceAPI):
 
@@ -134,6 +136,7 @@ class TextUserInterface(userinterface.UserInterfaceAPI):
             key = utils.getkey()
             # Intercept resize events
             if key == 'Resize':
+                logging.info('Resizing windows')
                 self.update_windows()
                 self.touch()
             else:
