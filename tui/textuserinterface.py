@@ -1,8 +1,6 @@
 """This module contains the UserInterface class."""
 import unicurses as curses
 
-#from fate.document import Document, documentlist
-#from fate.userinterface import UserInterface
 from fate import document, userinterface
 
 from .documentwin import DocumentWin

@@ -41,3 +41,19 @@ add a file named `fate` to `C:\bin` with contents similar to
 ```
 
 In the latter case you could of course also decide to define an alias.
+
+
+Todo
+====
+
+###SHORT TERM
+- Fix bug related to viewport_offset not setting
+- Merge commandwin and promptwin
+- Make drawing chars robust and work with unicode for windows and linux
+    possible solution: use preferred encoding before drawing to screen
+- Fix drawing undotree
+
+###LONG TERM
+- Improve navigating through display of text
+- Allow easy hide/show/placement of windows
+- Unicode art and colors!

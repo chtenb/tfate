@@ -1,6 +1,5 @@
 """Top level script which runs fate."""
-import os
-import sys
+import os, sys, logging
 
 # Make sure fate can be imported anywhere (also from the user script).
 # This way we can:
@@ -26,7 +25,6 @@ args = parser.parse_args()
 
 # Import fate to make sure the logger is initialized
 import fate
-import logging
 
 if args.debug:
     logging.getLogger().setLevel('DEBUG')
