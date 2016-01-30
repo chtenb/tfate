@@ -1,5 +1,6 @@
 """This module contains the UserInterface class."""
 import unicurses as curses
+from logging import debug
 
 #from fate.document import Document, documentlist
 #from fate.userinterface import UserInterface
@@ -97,6 +98,14 @@ class TextUserInterface(userinterface.UserInterfaceAPI):
         return (self.text_win.width, self.text_win.height)
 
     @property
+    def viewport_width(self):
+        return self.text_win.width
+
+    @property
+    def viewport_height(self):
+        return self.text_win.height
+
+    @property
     def viewport_offset(self):
         return self.text_win.offset
 
@@ -108,7 +117,6 @@ class TextUserInterface(userinterface.UserInterfaceAPI):
 
     def touch(self):
         """Tell the screen thread to update the windows and redraw the screen."""
-        self.doc.view.refresh()
         self.touched = True
 
     def activate(self):
@@ -142,4 +150,3 @@ class TextUserInterface(userinterface.UserInterfaceAPI):
     def notify(self, message):
         pass
 
-document.Document.default_userinterface = TextUserInterface
