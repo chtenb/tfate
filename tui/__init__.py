@@ -26,7 +26,7 @@ def start(filenames: list):
 
         Document.create_userinterface = TextUserInterface
 
-        # Create all interfaces
+        # Create all documents
         if not filenames:
             filenames = ['']
         for filename in filenames:

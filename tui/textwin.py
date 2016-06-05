@@ -62,7 +62,7 @@ class TextWin(Window):
         # self.draw_string(str(linenumber) + (number_width - len(str(linenumber)) + 1) * ' ',
         # numbercolor)
 
-        self.textview = TextView(self.doc, self.width, self.height, self.offset)
+        self.textview = TextView.for_screen(self.doc, self.width, self.height, self.offset)
         text = self.textview.text
 
         highlightingview = self.textview.highlighting

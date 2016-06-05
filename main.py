@@ -19,6 +19,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='run in debug mode',
                     action='store_true')
+parser.add_argument('-c', '--commands',
+                    help='Specify a string of keys to be fed to fate for each file')
 parser.add_argument('filenames', help='filenames to be openened at startup',
                     nargs='*')
 args = parser.parse_args()
@@ -34,6 +36,10 @@ else:
     logging.getLogger().setLevel('INFO')
 
 
-from tui import start
-
-start(args.filenames)
+# Use fate either in batch mode or interactively
+if args.commands:
+    from batch import batch
+    batch(args.filenames, args.commands)
+else:
+    from tui import start
+    start(args.filenames)
