@@ -19,6 +19,12 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='run in debug mode',
                     action='store_true')
+parser.add_argument('-l', '--log-to-stdout',
+                    help='Redirect the log file to stdout.',
+                    action='store_true')
+parser.add_argument('-p', '--profile',
+                    help='Run fate with cProfile',
+                    action='store_true')
 parser.add_argument('-c', '--commands',
                     help='Specify a string of keys to be fed to fate for each file')
 parser.add_argument('filenames', help='filenames to be openened at startup',
@@ -30,6 +36,9 @@ args = parser.parse_args()
 import fate
 import logging
 
+if args.log_to_stdout:
+    fate.log.LOG_TO_STDOUT = True
+
 if args.debug:
     logging.getLogger().setLevel('DEBUG')
 else:
@@ -39,7 +48,15 @@ else:
 # Use fate either in batch mode or interactively
 if args.commands:
     from batch import batch
-    batch(args.filenames, args.commands)
+    if args.profile:
+        import cProfile
+        cProfile.run('batch(args.filenames, args.commands)')
+    else:
+        batch(args.filenames, args.commands)
 else:
     from tui import start
-    start(args.filenames)
+    if args.profile:
+        import cProfile
+        cProfile.run('start(args.filenames)')
+    else:
+        start(args.filenames)
