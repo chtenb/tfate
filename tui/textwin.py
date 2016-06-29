@@ -25,20 +25,20 @@ Document.OnDocumentInit.add(init_concealers)
 
 # TODO: different highlighting for empty interval selections?
 # TODO: Make sure it is in view selection
-def show_empty_interval_selections(doc, start_pos, max_length):
+def show_empty_interval_selections(doc, partial_text):
     for beg, end in doc.selection:
-        if beg == end and start_pos <= beg <= start_pos + max_length:
+        if beg == end and partial_text.beg <= beg <= partial_text.end:
             doc.conceal.local_substitute(Interval(beg, end), '|')
 
 
-def show_selected_newlines(doc, start_pos, max_length):
+def show_selected_newlines(doc, partial_text):
     for beg, end in doc.selection:
         for pos, char in enumerate(doc.text[beg:end]):
             if char == '\n':
                 doc.conceal.local_substitute(Interval(beg + pos, beg + pos + 1), ' \n')
 
 
-def show_eof(doc, start_pos, max_length):
+def show_eof(doc, partial_text):
     textlength = len(doc.text)
     doc.conceal.local_substitute(Interval(textlength, textlength), 'EOF')
 
@@ -63,9 +63,9 @@ class TextWin(Window):
         # numbercolor)
 
         self.textview = TextView.for_screen(self.doc, self.width, self.height, self.offset)
-        text = self.textview.text
+        text = self.textview.text_after_conceal
 
-        highlightingview = self.textview.highlighting
+        # highlightingview = self.textview.highlighting
         selectionview = self.textview.selection
 
         try:
@@ -77,15 +77,15 @@ class TextWin(Window):
 
                 # Apply color attribute if char is labeled
                 alt_background = False
-                if highlightingview[pos] == 'error':
-                    alt_background = True
-                elif highlightingview[pos] == 'warning':
-                    alt_background = True
+                # if highlightingview[pos] == 'error':
+                    # alt_background = True
+                # elif highlightingview[pos] == 'warning':
+                    # alt_background = True
 
                 color = 0
-                for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
-                    if highlightingview[pos] == label:
-                        color = 11 + i
+                # for i, label in enumerate(['string', 'number', 'keyword', 'comment']):
+                    # if highlightingview[pos] == label:
+                        # color = 11 + i
 
                 attribute = self.create_attribute(reverse=reverse,
                                                   color=color,

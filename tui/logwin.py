@@ -1,6 +1,6 @@
 """Module containing logging window."""
 from .window import Window
-from fate import log
+import fate_logger
 
 class LogWin(Window):
 
@@ -14,5 +14,5 @@ class LogWin(Window):
 
     def draw(self):
         """Draw log"""
-        for r in log.RECORDS[-self.height:]:
+        for r in fate_logger.RECORDS[-self.height:]:
             self.draw_line(r.message, self.create_attribute(reverse=True))

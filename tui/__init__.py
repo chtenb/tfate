@@ -4,7 +4,7 @@ NOTE: first set active_ui, then call main.
 
 from time import sleep
 from threading import Thread
-from logging import debug, info, critical
+from logging import debug, info, error, critical
 import unicurses as curses
 
 from fate import document, run
@@ -43,37 +43,37 @@ def start(filenames: list):
         run()
     except BaseException as e:
         critical('Uncaught exception! Error message: {}'.format(e.args))
-        if screen_thread.is_alive():
-            info('Joining screen thread')
-            document.activedocument = None
-            screen_thread.join()
-            curses.endwin()
+        join_screen_if_alive(screen_thread)
         raise e
     else:
-        if screen_thread.is_alive():
-            info('Joining screen thread')
-            document.activedocument = None
-            screen_thread.join()
-            curses.endwin()
+        join_screen_if_alive(screen_thread)
 
     info('Fate thread terminated.')
 
+def join_screen_if_alive(screen_thread):
+    if screen_thread.is_alive():
+        info('Joining screen thread')
+        document.activedocument = None
+        screen_thread.join()
+        curses.endwin()
 
 def screen_loop():
     """Loop that refreshes screen when touched."""
-    try:
-        while document.activedocument != None:
+    while document.activedocument != None:
+        try:
             if document.activedocument.ui.touched:
                 document.activedocument.ui.touched = False
                 document.activedocument.ui.refresh()
             sleep(1 / refresh_rate)
-    except BaseException as e:
-        critical('Error in screen thread!')
-        info('Ending curses')
-        curses.endwin()
-        raise e
-    else:
-        info('Ending curses')
-        curses.endwin()
+        except BaseException as e:
+            if __debug__:
+                critical('Error in screen thread!')
+                info('Ending curses')
+                curses.endwin()
+                raise e
+            else:
+                error('Error in screen thread: ' + str(e))
 
+    info('Ending curses')
+    curses.endwin()
     info('Screen thread terminated.')

@@ -17,7 +17,7 @@ sys.path.insert(0, unicurses_path)
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--debug', help='run in debug mode',
+parser.add_argument('-v', '--verbose', help='Display debug messages in log',
                     action='store_true')
 parser.add_argument('-l', '--log-to-stdout',
                     help='Redirect the log file to stdout.',
@@ -32,18 +32,19 @@ parser.add_argument('filenames', help='filenames to be openened at startup',
 args = parser.parse_args()
 
 
-# Import fate to make sure the logger is initialized
-import fate
+# Initialize logger
+import fate_logger
 import logging
 
 if args.log_to_stdout:
-    fate.log.LOG_TO_STDOUT = True
+    fate_logger.LOG_TO_STDOUT = True
 
-if args.debug:
+if args.verbose:
     logging.getLogger().setLevel('DEBUG')
 else:
     logging.getLogger().setLevel('INFO')
 
+import fate
 
 # Use fate either in batch mode or interactively
 if args.commands:
