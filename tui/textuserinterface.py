@@ -130,6 +130,7 @@ class TextUserInterface(userinterface.UserInterfaceAPI):
 
     def refresh(self):
         """Refresh all windows."""
+        self.update_windows() # FIXME: this shouldn't be necessary, but fixes tfate on windows
         for win in self.windows:
             win.refresh()
 

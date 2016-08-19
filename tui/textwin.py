@@ -6,41 +6,22 @@ from logging import info, debug
 from fate.textview import TextView
 from fate.document import Document
 from fate.selection import Interval
+from fate.conceal import show_empty_interval_selections, show_selected_newlines, show_eof
 
 from .window import Window, EndOfWin
 
-# Since we are in a terminal, we are limited by textonly information
-# Therefore we want to add meta information in the form of text
-
-
 def init_concealers(doc):
+    """
+    Since we are in a terminal, we are limited by textonly information
+    Therefore we want to add meta information in the form of text
+    """
     # We know that conceal stuff has been initialized, since TextView is imported
     doc.OnGenerateLocalConceal.add(show_empty_interval_selections)
     doc.OnGenerateLocalConceal.add(show_selected_newlines)
-    # FIXME: for some reason this causes the screen thread to hang somewhere
-    # doc.OnGenerateLocalConceal.add(show_eof)
+    doc.OnGenerateLocalConceal.add(show_eof)
 
 Document.OnDocumentInit.add(init_concealers)
 
-
-# TODO: different highlighting for empty interval selections?
-# TODO: Make sure it is in view selection
-def show_empty_interval_selections(doc, partial_text):
-    for beg, end in doc.selection:
-        if beg == end and partial_text.beg <= beg <= partial_text.end:
-            doc.conceal.local_substitute(Interval(beg, end), '|')
-
-
-def show_selected_newlines(doc, partial_text):
-    for beg, end in doc.selection:
-        for pos, char in enumerate(doc.text[beg:end]):
-            if char == '\n':
-                doc.conceal.local_substitute(Interval(beg + pos, beg + pos + 1), ' \n')
-
-
-def show_eof(doc, partial_text):
-    textlength = len(doc.text)
-    doc.conceal.local_substitute(Interval(textlength, textlength), 'EOF')
 
 
 class TextWin(Window):

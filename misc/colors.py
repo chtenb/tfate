@@ -11,6 +11,7 @@ sys.path.insert(0, tui_path)
 
 import terminal
 
+
 def main(stdscr):
     """
     There are 256 colors.
@@ -71,7 +72,6 @@ def main(stdscr):
             curses.addstr('name: {}, attribute: {}\n'.format(name, attribute), attribute)
         except KeyError:
             curses.addstr('{} is not supported\n'.format(name))
-
 
     curses.refresh()
     curses.getch()

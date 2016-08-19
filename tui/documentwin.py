@@ -1,5 +1,6 @@
 "Module containing DocumentWin class."""
 from .window import Window
+from logging import debug
 
 
 class DocumentWin(Window):
@@ -25,4 +26,5 @@ class DocumentWin(Window):
 
         # Fill the rest of the line with alt_background
         self.draw_line('', self.create_attribute(alt_background=True))
+        # debug('Redrawing documentwin')
 
